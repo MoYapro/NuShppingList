@@ -24,7 +24,7 @@ class ViewModelTest {
 
     @Before
     fun setup() {
-        viewModel = VM()
+        viewModel = VM(CartDaoMock)
     }
 
     @Test
