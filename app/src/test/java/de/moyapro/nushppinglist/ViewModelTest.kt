@@ -3,10 +3,7 @@ package de.moyapro.nushppinglist
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +38,7 @@ class ViewModelTest {
 
     @Test
     fun addNewItemToCart() {
-        val newItem = Item("bar")
+        val newItem = CartItem("bar")
         viewModel.add(newItem)
         assertEquals("Should have added item", 1, viewModel.cartItems.value.size)
     }
@@ -57,7 +54,7 @@ class ViewModelTest {
             }
         }
         assertFalse("Value should NOT have changed", valueChanged)
-        viewModel.add(Item("bar"))
+        viewModel.add(CartItem("bar"))
         assertTrue("Value should have changed", valueChanged)
     }
 

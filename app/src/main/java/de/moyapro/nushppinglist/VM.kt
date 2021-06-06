@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.StateFlow
 
 class VM : ViewModel() {
 
-    private val _cartItems = MutableStateFlow<List<Item>>(emptyList())
-    val cartItems: StateFlow<List<Item>> = _cartItems
+    private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
+    val cartItems: StateFlow<List<CartItem>> = _cartItems
 
     val coroutineScope = viewModelScope
 
-    fun add(newItem: Item) {
+    fun add(newItem: CartItem) {
         viewModelScope.launch {
             _cartItems.value += newItem
         }
