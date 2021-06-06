@@ -1,22 +1,21 @@
 package de.moyapro.nushppinglist
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 
 class VM : ViewModel() {
 
-    val mycoroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val _cartItems = MutableStateFlow<List<Item>>(emptyList())
+    val cartItems: StateFlow<List<Item>> = _cartItems
 
-    val cartItems = MutableStateFlow<List<Item>>(emptyList())
+    val coroutineScope = viewModelScope
 
     fun add(newItem: Item) {
-        runBlocking {
-            launch {
-                cartItems.value += newItem
-            }
+        viewModelScope.launch {
+            _cartItems.value += newItem
         }
     }
 }
