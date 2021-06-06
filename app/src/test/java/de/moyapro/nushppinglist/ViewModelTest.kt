@@ -58,8 +58,26 @@ class ViewModelTest {
         assertTrue("Value should have changed", valueChanged)
     }
 
-
+    @Test
     fun setChecked() {
+        val item1 = CartItem("foo")
+        val item2 = CartItem("bar")
+        viewModel.add(item1)
+        viewModel.add(item2)
+        assertTrue(
+            "Nothing checked before",
+            viewModel.cartItems.value.none { it.cartItemProperties.checked })
+        viewModel.toggleChecked(item1)
+        assertTrue(
+            "Some are checked after checking one",
+            viewModel.cartItems.value.any() { it.cartItemProperties.checked })
+        assertTrue(
+            "Some are NOT checked after checking one",
+            viewModel.cartItems.value.any() { !it.cartItemProperties.checked })
+        viewModel.toggleChecked(item2)
+        assertTrue(
+            "All are checked after checking all items",
+            viewModel.cartItems.value.all { it.cartItemProperties.checked })
 
     }
 

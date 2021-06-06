@@ -18,5 +18,18 @@ class VM : ViewModel() {
             _cartItems.value += newItem
         }
     }
+
+    fun toggleChecked(itemToToggle: CartItem) {
+        _cartItems.value = _cartItems.value.map { oldValue ->
+            if (oldValue.item.id == itemToToggle.item.id) {
+                oldValue
+            } else {
+                oldValue.copy(
+                    cartItemProperties = oldValue.cartItemProperties.copy(checked = !oldValue.cartItemProperties.checked),
+                    item = oldValue.item
+                )
+            }
+        }
+    }
 }
 
