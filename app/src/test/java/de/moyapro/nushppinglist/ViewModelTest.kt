@@ -22,11 +22,12 @@ class ViewModelTest {
     @get:Rule
     val coroutineRule = MainCoroutineRule()
 
-    lateinit var viewModel: VM
+    private lateinit var viewModel: VM
+    private val cartDao: CartDao = CartDaoMock(MainScope())
 
     @Before
     fun setup() {
-        viewModel = VM(CartDaoMock(MainScope()))
+        viewModel = VM(cartDao)
     }
 
     @Test
@@ -34,15 +35,30 @@ class ViewModelTest {
 
     }
 
-    fun getNotInCart() {
 
+    @Test
+    fun getNotInCart() {
     }
+
 
     @Test
     fun addNewItemToCart() {
         val newItem = CartItem("bar")
         viewModel.add(newItem)
         assertEquals("Should have added item", 1, viewModel.cartItems.value.size)
+    }
+
+    @Test
+    fun addNewItemButNotToCart() {
+        val newItem = Item("bar")
+        viewModel.add(newItem)
+        assertEquals("Should have added item", 0, viewModel.cartItems.value.size)
+        assertEquals("Item should be persisted", 1, cartDao.findNotAddedItems().size)
+    }
+
+    @Test
+    fun removeItemFromCart() {
+
     }
 
     @Test

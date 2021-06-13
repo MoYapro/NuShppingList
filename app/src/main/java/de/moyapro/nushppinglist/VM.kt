@@ -25,6 +25,10 @@ class VM(
         }
     }
 
+    fun add(newItem:Item) {
+        cartDao.save(newItem)
+    }
+
 
     fun add(newItem: CartItem) {
         viewModelScope.launch {

@@ -10,11 +10,12 @@ class CartDaoMock(
     private val externalScope: CoroutineScope
 ) : CartDao {
 
-    private val itemTable: MutableList<Item> = mutableListOf()
-    private val cartItemPropertiesTable: MutableList<CartItemProperties> = mutableListOf()
+    private val itemTable: MutableSet<Item> = mutableSetOf()
+    private val cartItemPropertiesTable: MutableSet<CartItemProperties> = mutableSetOf()
+    private val relationTable: MutableSet<CartItem> = mutableSetOf()
 
     val cartItemFlow: Flow<List<CartItem>> = flow<List<CartItem>> {
-        emptyList<CartItem>()
+        emptySet<CartItem>()
     }.shareIn(
         externalScope,
         replay = 1,
@@ -23,11 +24,27 @@ class CartDaoMock(
 
 
     override fun save(vararg cartItemProperties: CartItemProperties) {
-        TODO("Not yet implemented")
+        cartItemPropertiesTable += cartItemProperties
+    }
+
+    override fun save(vararg items: Item) {
+        itemTable += items
+    }
+
+    override fun save(vararg cartItems: CartItem) {
+        cartItems.forEach { cartItem ->
+            save(cartItem.item)
+            save(cartItem.cartItemProperties)
+            relationTable += cartItem
+        }
     }
 
     override fun findAll(): Flow<List<CartItem>> {
-        TODO("Not yet implemented")
+        return cartItemFlow
+    }
+
+    override fun findNotAddedItems(): List<Item> {
+     return itemTable.toList()
     }
 
 }
