@@ -1,7 +1,9 @@
 package de.moyapro.nushppinglist
 
 import de.moyapro.nushppinglist.util.MainCoroutineRule
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.Assert.*
@@ -24,7 +26,7 @@ class ViewModelTest {
 
     @Before
     fun setup() {
-        viewModel = VM(CartDaoMock)
+        viewModel = VM(CartDaoMock(MainScope()))
     }
 
     @Test
