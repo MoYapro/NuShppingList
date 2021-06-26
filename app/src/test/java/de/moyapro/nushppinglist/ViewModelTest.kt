@@ -59,6 +59,18 @@ class ViewModelTest {
 
 
     @Test
+    fun addNewItem() {
+        val newItem = Item("bar")
+        viewModel.add(newItem)
+        assertEquals("Should have added item to viewModel", 1, viewModel.allItems.value.size)
+        viewModel.coroutineScope.launch {
+            cartDao.findAllItems().collect { collectedList ->
+                assertEquals("Should have added item to database", 1, collectedList)
+            }
+        }
+    }
+
+    @Test
     fun addNewItemToCart() {
         val newItem = CartItem("bar")
         viewModel.add(newItem)
