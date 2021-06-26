@@ -4,6 +4,7 @@ import de.moyapro.nushppinglist.util.MainCoroutineRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -38,10 +39,24 @@ class ViewModelTest {
 
     }
 
-    @Ignore("not implemented")
     @Test
     fun getNotInCart() {
+        val inCart = CartItem("in cart")
+        val notInCart = Item("not in cart")
+        viewModel.add(inCart)
+        viewModel.add(notInCart)
+        val itemsNotInCart: Flow<List<Item>> = viewModel.nonCartItems
+        var doneAssertions = false
+        viewModel.coroutineScope.launch {
+            itemsNotInCart.collect { nonCartItemList ->
+                assertEquals("Should have an item not in cart", 1, nonCartItemList.size)
+                doneAssertions = true
+
+            }
+        }
+        assertTrue("Assertions should have run", doneAssertions)
     }
+
 
     @Test
     fun addNewItemToCart() {
@@ -49,7 +64,7 @@ class ViewModelTest {
         viewModel.add(newItem)
         assertEquals("Should have added item to viewModel", 1, viewModel.cartItems.value.size)
         viewModel.coroutineScope.launch {
-            cartDao.findAll().collect { collectedList ->
+            cartDao.findAllInCart().collect { collectedList ->
                 assertEquals("Should have added item to database", 1, collectedList)
             }
         }
@@ -113,7 +128,7 @@ class ViewModelTest {
         var itemCollected = false
         viewModel.add(item)
         viewModel.coroutineScope.launch {
-            cartDao.findAll().collect { collectedItems ->
+            cartDao.findAllInCart().collect { collectedItems ->
                 assertEquals("Should have one item in cart", 1, collectedItems.size)
                 assertTrue("No item should be checked", collectedItems.none { cartItem ->
                     cartItem.cartItemProperties.checked
@@ -126,7 +141,7 @@ class ViewModelTest {
         viewModel.toggleChecked(item)
 
         viewModel.coroutineScope.launch {
-            cartDao.findAll().collect { collectedItems ->
+            cartDao.findAllInCart().collect { collectedItems ->
                 assertEquals("Should have one item in cart", 1, collectedItems.size)
                 assertTrue("No item should be checked", collectedItems.all { cartItem ->
                     cartItem.cartItemProperties.checked

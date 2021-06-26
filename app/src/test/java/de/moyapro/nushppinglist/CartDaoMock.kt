@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 class CartDaoMock(
     private val externalScope: CoroutineScope
@@ -18,9 +20,16 @@ class CartDaoMock(
     private val cartItemPropertiesTable: MutableSet<CartItemProperties> = mutableSetOf()
     private val relationTable: MutableSet<CartItem> = mutableSetOf()
 
-    private val channel = ConflatedBroadcastChannel<List<CartItem>>()
+    private val cartItemChannel = ConflatedBroadcastChannel<List<CartItem>>()
+    private val allItemChannel = ConflatedBroadcastChannel<List<Item>>()
 
-    val cartItemFlow: Flow<List<CartItem>> = channel.asFlow().shareIn(
+    private val allItemFlow: Flow<List<Item>> = allItemChannel.asFlow().shareIn(
+        externalScope,
+        replay = 1,
+        started = SharingStarted.WhileSubscribed()
+    )
+
+    private val cartItemFlow: Flow<List<CartItem>> = cartItemChannel.asFlow().shareIn(
         externalScope,
         replay = 1,
         started = SharingStarted.WhileSubscribed()
@@ -33,6 +42,9 @@ class CartDaoMock(
 
     override fun save(vararg items: Item) {
         itemTable += items
+        externalScope.launch {
+            allItemChannel.send(itemTable.toList())
+        }
     }
 
     override fun save(vararg cartItems: CartItem) {
@@ -46,12 +58,16 @@ class CartDaoMock(
     private fun save(cartItem: CartItem) {
         relationTable += cartItem
         externalScope.launch {
-            channel.send(relationTable.toList())
+            cartItemChannel.send(relationTable.toList())
         }
     }
 
-    override fun findAll(): Flow<List<CartItem>> {
+    override fun findAllInCart(): Flow<List<CartItem>> {
         return cartItemFlow
+    }
+
+    override fun findAllItems(): Flow<List<Item>> {
+        return allItemFlow
     }
 
     override fun findNotAddedItems(): List<Item> {

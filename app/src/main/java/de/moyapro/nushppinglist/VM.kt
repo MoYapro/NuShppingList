@@ -14,26 +14,35 @@ class VM(
     val coroutineScope = viewModelScope
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems
+    private val _nonCartItems = MutableStateFlow<List<Item>>(emptyList())
+    val nonCartItems: StateFlow<List<Item>> = _nonCartItems
 
     init {
+        // subscribe to DB changes to make them visible to the UI
         viewModelScope.launch {
-            cartDao.findAll()
+            cartDao.findAllInCart()
                 .collect { cartItems ->
-                    // make DB values available for the UI
                     _cartItems.value = cartItems
+                }
+        }
+        viewModelScope.launch {
+            cartDao.findAllItems()
+                .collect { items ->
+                    cartDao.findAllInCart().collect { cartItems ->
+                        val cartItemIds = cartItems.map { cartItem -> cartItem.item.id }
+                        _nonCartItems.value =
+                            items.filter { item -> !cartItemIds.contains(item.id) }
+                    }
                 }
         }
     }
 
-    fun add(newItem:Item) {
+    fun add(newItem: Item) {
         cartDao.save(newItem)
     }
 
 
     fun add(newItem: CartItem) {
-//        viewModelScope.launch {
-//            _cartItems.value += newItem
-//        }
         cartDao.save(newItem)
     }
 
