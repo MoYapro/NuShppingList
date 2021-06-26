@@ -1,11 +1,15 @@
 package de.moyapro.nushppinglist
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
 class CartDaoMock(
     private val externalScope: CoroutineScope
 ) : CartDao {
@@ -14,9 +18,9 @@ class CartDaoMock(
     private val cartItemPropertiesTable: MutableSet<CartItemProperties> = mutableSetOf()
     private val relationTable: MutableSet<CartItem> = mutableSetOf()
 
-    val cartItemFlow: Flow<List<CartItem>> = flow<List<CartItem>> {
-        emptySet<CartItem>()
-    }.shareIn(
+    private val channel = ConflatedBroadcastChannel<List<CartItem>>()
+
+    val cartItemFlow: Flow<List<CartItem>> = channel.asFlow().shareIn(
         externalScope,
         replay = 1,
         started = SharingStarted.WhileSubscribed()
@@ -35,7 +39,14 @@ class CartDaoMock(
         cartItems.forEach { cartItem ->
             save(cartItem.item)
             save(cartItem.cartItemProperties)
-            relationTable += cartItem
+            save(cartItem)
+        }
+    }
+
+    private fun save(cartItem: CartItem) {
+        relationTable += cartItem
+        externalScope.launch {
+            channel.send(relationTable.toList())
         }
     }
 
@@ -44,7 +55,7 @@ class CartDaoMock(
     }
 
     override fun findNotAddedItems(): List<Item> {
-     return itemTable.toList()
+        return itemTable.toList()
     }
 
 }
