@@ -31,9 +31,10 @@ class VM(
 
 
     fun add(newItem: CartItem) {
-        viewModelScope.launch {
-            _cartItems.value += newItem
-        }
+//        viewModelScope.launch {
+//            _cartItems.value += newItem
+//        }
+        cartDao.save(newItem)
     }
 
     fun toggleChecked(itemToToggle: CartItem) {

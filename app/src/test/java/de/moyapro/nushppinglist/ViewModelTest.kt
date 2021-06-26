@@ -1,13 +1,15 @@
 package de.moyapro.nushppinglist
 
 import de.moyapro.nushppinglist.util.MainCoroutineRule
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -23,7 +25,8 @@ class ViewModelTest {
     val coroutineRule = MainCoroutineRule()
 
     private lateinit var viewModel: VM
-    private val cartDao: CartDao = CartDaoMock(MainScope())
+    private val cartDao: CartDao =
+        CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
 
     @Before
     fun setup() {
@@ -35,17 +38,21 @@ class ViewModelTest {
 
     }
 
-
+    @Ignore("not implemented")
     @Test
     fun getNotInCart() {
     }
-
 
     @Test
     fun addNewItemToCart() {
         val newItem = CartItem("bar")
         viewModel.add(newItem)
-        assertEquals("Should have added item", 1, viewModel.cartItems.value.size)
+        assertEquals("Should have added item to viewModel", 1, viewModel.cartItems.value.size)
+        viewModel.coroutineScope.launch {
+            cartDao.findAll().collect { collectedList ->
+                assertEquals("Should have added item to database", 1, collectedList)
+            }
+        }
     }
 
     @Test
@@ -56,6 +63,7 @@ class ViewModelTest {
         assertEquals("Item should be persisted", 1, cartDao.findNotAddedItems().size)
     }
 
+    @Ignore("not implemented")
     @Test
     fun removeItemFromCart() {
 
@@ -88,25 +96,58 @@ class ViewModelTest {
         viewModel.toggleChecked(item1)
         assertTrue(
             "Some are checked after checking one",
-            viewModel.cartItems.value.any() { it.cartItemProperties.checked })
+            viewModel.cartItems.value.any { it.cartItemProperties.checked })
         assertTrue(
             "Some are NOT checked after checking one",
-            viewModel.cartItems.value.any() { !it.cartItemProperties.checked })
+            viewModel.cartItems.value.any { !it.cartItemProperties.checked })
         viewModel.toggleChecked(item2)
         assertTrue(
             "All are checked after checking all items",
             viewModel.cartItems.value.all { it.cartItemProperties.checked })
-
     }
 
+    @Ignore("not implemented")
+    @Test
+    fun setCheckedIsPersisted() {
+        val item = CartItem("my item")
+        var itemCollected = false
+        viewModel.add(item)
+        viewModel.coroutineScope.launch {
+            cartDao.findAll().collect { collectedItems ->
+                assertEquals("Should have one item in cart", 1, collectedItems.size)
+                assertTrue("No item should be checked", collectedItems.none { cartItem ->
+                    cartItem.cartItemProperties.checked
+                }
+                )
+                itemCollected = true
+            }
+        }
+
+        viewModel.toggleChecked(item)
+
+        viewModel.coroutineScope.launch {
+            cartDao.findAll().collect { collectedItems ->
+                assertEquals("Should have one item in cart", 1, collectedItems.size)
+                assertTrue("No item should be checked", collectedItems.all { cartItem ->
+                    cartItem.cartItemProperties.checked
+                }
+                )
+            }
+        }
+        assertTrue("Should have collected an item", itemCollected)
+    }
+
+    @Ignore("not implemented")
     fun removeChecked() {
 
     }
 
+    @Ignore("not implemented")
     fun removeItem() {
 
     }
 
+    @Ignore("not implemented")
     fun deleteItem() {
 
     }
