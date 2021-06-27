@@ -6,10 +6,13 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import de.moyapro.nushppinglist.Item
 
+@Preview
 @Composable
-fun ItemListElement(item: Item) {
+fun ItemListElement(@PreviewParameter(ItemProvider::class) item: Item) {
     var isEdited: Boolean by remember {
         mutableStateOf(false)
     }
@@ -20,6 +23,7 @@ fun ItemListElement(item: Item) {
             .clickable(onClick = { isEdited = !isEdited })
     )
     if (isEdited) {
+        Text("edit")
         Button(onClick = { isEdited = !isEdited }) {
             Text("Save")
         }
