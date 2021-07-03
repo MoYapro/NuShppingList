@@ -3,6 +3,12 @@ package de.moyapro.nushppinglist.ui
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.moyapro.nushppinglist.Item
 
+class LabelProvider : PreviewParameterProvider<String> {
+    override val values: Sequence<String>
+        get() = listOf("The Label").asSequence()
+}
+
+
 class ItemProvider : PreviewParameterProvider<Item> {
     override val values: Sequence<Item>
         get() = listOf(Item("Milk")).asSequence()
