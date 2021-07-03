@@ -16,23 +16,6 @@ internal class ItemListTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-
-    fun createComposable(item: Item) {
-        composeTestRule.setContent {
-            NuShppingListTheme {
-                ItemListElement(item)
-            }
-        }
-    }
-
-    fun createComposable(items: List<Item>) {
-        composeTestRule.setContent {
-            NuShppingListTheme {
-                ItemList(items)
-            }
-        }
-    }
-
     @Test
     fun showItemName() {
         val name = "Milk"
@@ -66,5 +49,23 @@ internal class ItemListTest {
         itemNode.performClick()
         composeTestRule.onNodeWithText("Save").assertIsDisplayed()
     }
+
+
+    private fun createComposable(item: Item) {
+        composeTestRule.setContent {
+            NuShppingListTheme {
+                ItemListElement(item)
+            }
+        }
+    }
+
+    private fun createComposable(items: List<Item>) {
+        composeTestRule.setContent {
+            NuShppingListTheme {
+                ItemList(items)
+            }
+        }
+    }
+
 
 }
