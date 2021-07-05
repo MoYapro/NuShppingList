@@ -15,8 +15,8 @@ object Label {
 
 @Preview
 @Composable
-fun Label(@PreviewParameter(LabelProvider::class) label: String) {
-    Text(text = "Beatle", modifier = Modifier.semantics {
+fun Label(@PreviewParameter(LabelProvider::class) labelText: String) {
+    Text(text = labelText, modifier = Modifier.semantics {
         contentDescription = Label.DESCRIPTION
     })
 }
