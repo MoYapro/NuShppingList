@@ -1,9 +1,8 @@
 package de.moyapro.nushppinglist
 
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import de.moyapro.nushppinglist.ui.EditTextField
 import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.ItemListElement
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
@@ -54,13 +53,12 @@ internal class ItemListTest {
         val name = "Milk"
         createComposable(Item(name), true)
         val itemNode = composeTestRule.onNodeWithText(name)
-        composeTestRule.onAllNodes(hasContentDescription("foobar")).assertCountEquals(1)
+        composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)
+            .assertCountEquals(1)
         composeTestRule.onRoot().printToLog("TAG", 3)
-        composeTestRule.onNodeWithText("Save").assertDoesNotExist()
         composeTestRule.onNodeWithText("Save").assertIsDisplayed()
         itemNode.performClick()
     }
-
 
     private fun createComposable(item: Item, editMode: Boolean = false) {
         composeTestRule.setContent {
@@ -77,29 +75,5 @@ internal class ItemListTest {
             }
         }
     }
-
-    fun hasLabel(
-        value: String,
-        substring: Boolean = false,
-        ignoreCase: Boolean = false
-    ): SemanticsMatcher {
-        return if (substring) {
-            SemanticsMatcher(
-                "${SemanticsProperties.ContentDescription.name} contains '$value' " +
-                        "(ignoreCase: $ignoreCase)"
-            ) {
-                it.config.getOrNull(SemanticsProperties.ContentDescription)
-                    ?.any { item -> item.contains(value, ignoreCase) } ?: false
-            }
-        } else {
-            SemanticsMatcher(
-                "${SemanticsProperties.ContentDescription.name} = '$value' (ignoreCase: $ignoreCase)"
-            ) {
-                it.config.getOrNull(SemanticsProperties.ContentDescription)
-                    ?.any { item -> item.equals(value, ignoreCase) } ?: false
-            }
-        }
-    }
-
 
 }

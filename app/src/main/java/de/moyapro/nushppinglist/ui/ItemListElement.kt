@@ -4,10 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import de.moyapro.nushppinglist.Item
@@ -24,9 +22,10 @@ fun ItemListElement(@PreviewParameter(ItemProvider::class) item: Item, editMode:
     )
     if (isEdited) {
         Text("edit")
-        val textState = remember { mutableStateOf(TextFieldValue()) }
-        TextField(
-            value = textState.value,
+        val textState = remember { mutableStateOf("") }
+        EditTextField(
+            "name",
+            initialValue = textState.value,
             onValueChange = { textState.value = it }
         )
         Button(onClick = { isEdited = !isEdited }) {

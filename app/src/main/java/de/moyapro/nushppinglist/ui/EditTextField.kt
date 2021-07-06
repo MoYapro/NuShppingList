@@ -11,9 +11,9 @@ object EditTextField {
 }
 
 @Composable
-fun EditTextField(label: String, initialValue: String, onChange: (String) -> Unit) {
+fun EditTextField(label: String, initialValue: String, onValueChange: (String) -> Unit) {
     Label(labelText = label)
-    TextField(value = initialValue, onChange, modifier = Modifier.semantics {
+    TextField(value = initialValue, onValueChange, modifier = Modifier.semantics {
         contentDescription = EditTextField.DESCRIPTION
     })
 }
