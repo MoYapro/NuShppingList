@@ -55,6 +55,19 @@ class CartDaoMock(
         }
     }
 
+    override fun updateAll(vararg items: Item) {
+        val toUpdate = items.associateBy({ it.id }, { it })
+        val updatedItemTable: List<Item> = itemTable.map { itemFromTable ->
+            if (toUpdate.containsKey(itemFromTable.id)) {
+                toUpdate[itemFromTable.id]!!
+            } else {
+                itemFromTable
+            }
+        }
+        itemTable.clear()
+        itemTable.addAll(updatedItemTable.toSet())
+    }
+
     private fun save(cartItem: CartItem) {
         relationTable += cartItem
         externalScope.launch {

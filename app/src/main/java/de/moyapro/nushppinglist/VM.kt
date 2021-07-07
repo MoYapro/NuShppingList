@@ -47,6 +47,10 @@ class VM(
         cartDao.save(newItem)
     }
 
+    fun update(newItem: Item) {
+        cartDao.updateAll(newItem)
+    }
+
 
     fun add(newItem: CartItem) {
         cartDao.save(newItem)
