@@ -2,10 +2,14 @@ package de.moyapro.nushppinglist
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.EditTextField
 import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.ItemListElement
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -13,6 +17,9 @@ internal class ItemListTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    private val cartDao: CartDao =
+        CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
 
     @Test
     fun showItemName() {
@@ -80,9 +87,11 @@ internal class ItemListTest {
     }
 
     private fun createComposable(items: List<Item>) {
+        val viewModel = VM(cartDao)
+        items.forEach { cartDao.save(it) }
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemList(items)
+                ItemList(viewModel)
             }
         }
     }
