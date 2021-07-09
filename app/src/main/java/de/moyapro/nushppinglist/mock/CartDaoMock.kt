@@ -1,5 +1,9 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.mock
 
+import de.moyapro.nushppinglist.CartDao
+import de.moyapro.nushppinglist.CartItem
+import de.moyapro.nushppinglist.CartItemProperties
+import de.moyapro.nushppinglist.Item
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview

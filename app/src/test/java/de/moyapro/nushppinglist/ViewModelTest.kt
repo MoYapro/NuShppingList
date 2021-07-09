@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist
 
+import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

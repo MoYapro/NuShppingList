@@ -3,36 +3,23 @@ package de.moyapro.nushppinglist
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.activity.viewModels
+import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
+import kotlinx.coroutines.FlowPreview
 
+@FlowPreview
 class MainActivity : ComponentActivity() {
+
+
+    private val viewModel by viewModels<VM>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NuShppingListTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
-                }
+                ItemList(viewModel)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    NuShppingListTheme {
-        Greeting("Android")
     }
 }
