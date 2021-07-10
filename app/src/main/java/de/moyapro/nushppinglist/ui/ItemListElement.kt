@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import de.moyapro.nushppinglist.Item
+import de.moyapro.nushppinglist.SWITCHES
 
 @Preview
 @Composable
@@ -20,7 +21,9 @@ fun ItemListElement(
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     Column {
-        Text(item.id.toString())
+        if (SWITCHES.DEBUG) {
+            Text(item.id.toString())
+        }
         Text(
             item.name,
             modifier = Modifier
