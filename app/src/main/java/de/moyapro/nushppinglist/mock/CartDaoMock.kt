@@ -70,6 +70,9 @@ class CartDaoMock(
         }
         itemTable.clear()
         itemTable.addAll(updatedItemTable.toSet())
+        externalScope.launch {
+            allItemChannel.send(itemTable.toList())
+        }
     }
 
     private fun save(cartItem: CartItem) {

@@ -16,10 +16,11 @@ import de.moyapro.nushppinglist.Item
 fun ItemListElement(
     @PreviewParameter(ItemProvider::class) item: Item,
     saveAction: (Item) -> Unit = {},
-    editMode: Boolean = true
+    editMode: Boolean = false
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     Column {
+        Text(item.id.toString())
         Text(
             item.name,
             modifier = Modifier
