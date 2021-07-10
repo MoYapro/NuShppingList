@@ -13,7 +13,11 @@ import de.moyapro.nushppinglist.Item
 
 @Preview
 @Composable
-fun ItemListElement(@PreviewParameter(ItemProvider::class) item: Item, editMode: Boolean = true) {
+fun ItemListElement(
+    @PreviewParameter(ItemProvider::class) item: Item,
+    saveAction: (Item) -> Unit = {},
+    editMode: Boolean = true
+) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     Column {
         Text(
@@ -23,13 +27,16 @@ fun ItemListElement(@PreviewParameter(ItemProvider::class) item: Item, editMode:
                 .clickable(onClick = { isEdited = !isEdited })
         )
         if (isEdited) {
-            val textState = remember { mutableStateOf("") }
+            val textState = remember { mutableStateOf(item.name) }
             EditTextField(
                 "Name",
                 initialValue = textState.value,
                 onValueChange = { textState.value = it }
             )
-            Button(onClick = { isEdited = !isEdited }) {
+            Button(onClick = {
+                isEdited = !isEdited
+                saveAction(item.copy(name = textState.value))
+            }) {
                 Text("Save")
             }
         }
