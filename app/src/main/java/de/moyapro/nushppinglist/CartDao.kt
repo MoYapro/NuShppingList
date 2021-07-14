@@ -1,7 +1,9 @@
 package de.moyapro.nushppinglist
 
+import androidx.room.Dao
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface CartDao {
 
     fun save(vararg cartItemProperties: CartItemProperties)

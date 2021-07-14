@@ -179,9 +179,10 @@ class ViewModelTest {
         assertTrue("Should have collected an item", itemCollected)
     }
 
-    @Ignore("not implemented")
+    //    @Ignore("not implemented")
+    @Test
     fun removeChecked() {
-
+        fail("foobar")
     }
 
     @Ignore("not implemented")
