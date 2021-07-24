@@ -6,7 +6,8 @@ import kotlin.random.Random
 
 @Entity
 data class Item(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true)
+    val itemId: Long,
     val name: String
 ) {
     constructor(name: String) : this(Random.nextLong(), name)

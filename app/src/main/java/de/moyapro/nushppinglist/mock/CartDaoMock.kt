@@ -24,7 +24,7 @@ class CartDaoMock(
     private val cartItemPropertiesTable: MutableSet<CartItemProperties> = mutableSetOf()
     private val relationTable: MutableSet<CartItem> = mutableSetOf()
 
-    private val cartItemChannel = ConflatedBroadcastChannel<List<CartItem>>()
+    private val cartItemChannel = ConflatedBroadcastChannel<List<CartItemProperties>>()
     private val allItemChannel = ConflatedBroadcastChannel<List<Item>>()
 
     private val allItemFlow: Flow<List<Item>> = allItemChannel.asFlow().shareIn(
@@ -33,7 +33,7 @@ class CartDaoMock(
         started = SharingStarted.WhileSubscribed()
     )
 
-    private val cartItemFlow: Flow<List<CartItem>> = cartItemChannel.asFlow().shareIn(
+    private val cartItemFlow: Flow<List<CartItemProperties>> = cartItemChannel.asFlow().shareIn(
         externalScope,
         replay = 1,
         started = SharingStarted.WhileSubscribed()
@@ -42,6 +42,9 @@ class CartDaoMock(
 
     override fun save(vararg cartItemProperties: CartItemProperties) {
         cartItemPropertiesTable += cartItemProperties
+        externalScope.launch {
+            cartItemChannel.send(cartItemPropertiesTable.toList())
+        }
     }
 
     override fun save(vararg items: Item) {
@@ -51,19 +54,11 @@ class CartDaoMock(
         }
     }
 
-    override fun save(vararg cartItems: CartItem) {
-        cartItems.forEach { cartItem ->
-            save(cartItem.item)
-            save(cartItem.cartItemProperties)
-            save(cartItem)
-        }
-    }
-
     override fun updateAll(vararg items: Item) {
-        val toUpdate = items.associateBy({ it.id }, { it })
+        val toUpdate = items.associateBy({ it.itemId }, { it })
         val updatedItemTable: List<Item> = itemTable.map { itemFromTable ->
-            if (toUpdate.containsKey(itemFromTable.id)) {
-                toUpdate[itemFromTable.id]!!
+            if (toUpdate.containsKey(itemFromTable.itemId)) {
+                toUpdate[itemFromTable.itemId]!!
             } else {
                 itemFromTable
             }
@@ -75,14 +70,31 @@ class CartDaoMock(
         }
     }
 
-    private fun save(cartItem: CartItem) {
-        relationTable += cartItem
+    override fun updateAll(vararg items: CartItemProperties) {
+        val toUpdate = items.associateBy({ it.itemId }, { it })
+        val updatedItemTable: List<CartItemProperties> =
+            cartItemPropertiesTable.map { itemFromTable ->
+                if (toUpdate.containsKey(itemFromTable.itemId)) {
+                    toUpdate[itemFromTable.itemId]!!
+                } else {
+                    itemFromTable
+                }
+            }
+        cartItemPropertiesTable.clear()
+        cartItemPropertiesTable.addAll(updatedItemTable.toSet())
         externalScope.launch {
-            cartItemChannel.send(relationTable.toList())
+            cartItemChannel.send(cartItemPropertiesTable.toList())
         }
     }
 
-    override fun findAllInCart(): Flow<List<CartItem>> {
+    private fun save(cartItem: CartItem) {
+        relationTable += cartItem
+        externalScope.launch {
+            cartItemChannel.send(relationTable.map { it.cartItemProperties })
+        }
+    }
+
+    override fun findAllInCart(): Flow<List<CartItemProperties>> {
         return cartItemFlow
     }
 

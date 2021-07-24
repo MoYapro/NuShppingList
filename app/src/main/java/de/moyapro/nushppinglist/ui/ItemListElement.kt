@@ -22,7 +22,7 @@ fun ItemListElement(
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     Column {
         if (SWITCHES.DEBUG) {
-            Text(item.id.toString())
+            Text(item.itemId.toString())
         }
         Text(
             item.name,

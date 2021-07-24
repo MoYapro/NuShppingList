@@ -2,12 +2,11 @@ package de.moyapro.nushppinglist
 
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.util.MainCoroutineRule
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Assert.*
 import org.junit.Before
@@ -60,41 +59,35 @@ class ViewModelTest {
 
 
     @Test
-    fun addNewItem() {
+    fun addNewItem() = runBlocking {
         val newItem = Item("bar")
         viewModel.add(newItem)
         assertEquals("Should have added item to viewModel", 1, viewModel.allItems.value.size)
-        viewModel.coroutineScope.launch {
-            cartDao.findAllItems().collect { collectedList ->
-                assertEquals("Should have added item to database", 1, collectedList)
-            }
-        }
+
+        val collectedList = cartDao.findAllItems().take(1).toList()
+        assertEquals("Should have added item to database", newItem, collectedList[0][0])
     }
 
     @Test
-    fun updateItem() {
+    fun updateItem() = runBlocking {
         val newItem = Item("foo")
         viewModel.add(newItem)
         val updatedName = "bar"
         viewModel.update(newItem.copy(name = updatedName))
         assertEquals("Should have added item to viewModel", 1, viewModel.allItems.value.size)
-        viewModel.coroutineScope.launch {
-            cartDao.findAllItems().collect { collectedList ->
-                assertEquals("Should have updated name", updatedName, collectedList[0].name)
-            }
-        }
+        val updatedItem = cartDao.findAllItems().take(1).toList()[0][0]
+        assertEquals("Should have updated name", updatedName, updatedItem.name)
+
     }
 
+
     @Test
-    fun addNewItemToCart() {
+    fun addNewItemToCart() = runBlocking {
         val newItem = CartItem("bar")
         viewModel.add(newItem)
+        val allItems = cartDao.findAllInCart().take(1).toList().flatten()
         assertEquals("Should have added item to viewModel", 1, viewModel.cartItems.value.size)
-        viewModel.coroutineScope.launch {
-            cartDao.findAllInCart().collect { collectedList ->
-                assertEquals("Should have added item to database", 1, collectedList)
-            }
-        }
+        assertEquals("Should have added item to database", newItem.cartItemProperties, allItems[0])
     }
 
     @Test
@@ -127,56 +120,46 @@ class ViewModelTest {
     }
 
     @Test
-    fun setChecked() {
+    fun setChecked() = runBlocking {
         val item1 = CartItem("foo")
         val item2 = CartItem("bar")
         viewModel.add(item1)
         viewModel.add(item2)
+        var cartItems = viewModel.cartItems.take(1).toList()[0]
+        assertEquals("Should have two cartItems", 2, cartItems.size)
         assertTrue(
             "Nothing checked before",
-            viewModel.cartItems.value.none { it.cartItemProperties.checked })
+            cartItems.none { it.checked })
         viewModel.toggleChecked(item1)
+        cartItems = viewModel.cartItems.take(1).toList()[0]
         assertTrue(
             "Some are checked after checking one",
-            viewModel.cartItems.value.any { it.cartItemProperties.checked })
+            cartItems.any { it.checked })
         assertTrue(
             "Some are NOT checked after checking one",
-            viewModel.cartItems.value.any { !it.cartItemProperties.checked })
+            cartItems.any { !it.checked })
         viewModel.toggleChecked(item2)
+        cartItems = viewModel.cartItems.take(1).toList()[0]
         assertTrue(
             "All are checked after checking all items",
-            viewModel.cartItems.value.all { it.cartItemProperties.checked })
+            cartItems.all { it.checked })
     }
 
-    @Ignore("not implemented")
     @Test
-    fun setCheckedIsPersisted() {
+    fun setCheckedIsPersisted() = runBlocking {
         val item = CartItem("my item")
         var itemCollected = false
         viewModel.add(item)
-        viewModel.coroutineScope.launch {
-            cartDao.findAllInCart().collect { collectedItems ->
-                assertEquals("Should have one item in cart", 1, collectedItems.size)
-                assertTrue("No item should be checked", collectedItems.none { cartItem ->
-                    cartItem.cartItemProperties.checked
-                }
-                )
-                itemCollected = true
-            }
-        }
-
+        val itemsBeforeCheck = viewModel.cartItems.take(1).toList()[0]
+        assertTrue("No item should be checked",
+            itemsBeforeCheck.none { cartItemProperties -> cartItemProperties.checked })
         viewModel.toggleChecked(item)
 
-        viewModel.coroutineScope.launch {
-            cartDao.findAllInCart().collect { collectedItems ->
-                assertEquals("Should have one item in cart", 1, collectedItems.size)
-                assertTrue("No item should be checked", collectedItems.all { cartItem ->
-                    cartItem.cartItemProperties.checked
-                }
-                )
-            }
-        }
-        assertTrue("Should have collected an item", itemCollected)
+        val itemsAfterCheck = viewModel.cartItems.take(1).toList()[0]
+        assertEquals("Should have one item in cart", 1, itemsAfterCheck.size)
+        assertTrue(
+            "No item should be checked",
+            itemsAfterCheck.all { cartItemProperties -> cartItemProperties.checked })
     }
 
     //    @Ignore("not implemented")

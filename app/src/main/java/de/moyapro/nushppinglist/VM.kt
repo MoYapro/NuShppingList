@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.Transaction
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +18,8 @@ class VM(
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
     val coroutineScope = viewModelScope
-    private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
-    val cartItems: StateFlow<List<CartItem>> = _cartItems
+    private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
+    val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
     private val _nonCartItems = MutableStateFlow<List<Item>>(emptyList())
     val nonCartItems: StateFlow<List<Item>> = _nonCartItems
     private val _allItems = MutableStateFlow<List<Item>>(emptyList())
@@ -41,9 +42,9 @@ class VM(
         viewModelScope.launch {
             cartDao.findAllItems()
                 .collect { items ->
-                    val cartItemIds = _cartItems.value.map { cartItem -> cartItem.item.id }
+                    val cartItemIds = _cartItems.value.map { cartItem -> cartItem.itemId }
                     _nonCartItems.value =
-                        items.filter { item -> !cartItemIds.contains(item.id) }
+                        items.filter { item -> !cartItemIds.contains(item.itemId) }
                 }
         }
     }
@@ -56,20 +57,22 @@ class VM(
         cartDao.updateAll(newItem)
     }
 
-
+    @Transaction
     fun add(newItem: CartItem) {
-        cartDao.save(newItem)
+        cartDao.save(newItem.item)
+        cartDao.save(newItem.cartItemProperties)
     }
 
     fun toggleChecked(itemToToggle: CartItem) {
         _cartItems.value = _cartItems.value.map { oldValue ->
-            if (oldValue.item.id == itemToToggle.item.id) {
+            if (oldValue.itemId == itemToToggle.cartItemProperties.itemId) {
                 oldValue
             } else {
-                oldValue.copy(
-                    cartItemProperties = oldValue.cartItemProperties.copy(checked = !oldValue.cartItemProperties.checked),
-                    item = oldValue.item
+                val updated = oldValue.copy(
+                    checked = !oldValue.checked
                 )
+                this.cartDao.updateAll(updated)
+                updated
             }
         }
     }
