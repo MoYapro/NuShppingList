@@ -148,18 +148,16 @@ class ViewModelTest {
     @Test
     fun setCheckedIsPersisted() = runBlocking {
         val item = CartItem("my item")
-        var itemCollected = false
         viewModel.add(item)
         val itemsBeforeCheck = viewModel.cartItems.take(1).toList()[0]
         assertTrue("No item should be checked",
-            itemsBeforeCheck.none { cartItemProperties -> cartItemProperties.checked })
+            itemsBeforeCheck.none { it.checked })
         viewModel.toggleChecked(item)
-
         val itemsAfterCheck = viewModel.cartItems.take(1).toList()[0]
         assertEquals("Should have one item in cart", 1, itemsAfterCheck.size)
         assertTrue(
-            "No item should be checked",
-            itemsAfterCheck.all { cartItemProperties -> cartItemProperties.checked })
+            "All items should be checked",
+            itemsAfterCheck.all { it.checked })
     }
 
     //    @Ignore("not implemented")

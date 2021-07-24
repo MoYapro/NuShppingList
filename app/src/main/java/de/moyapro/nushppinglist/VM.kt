@@ -66,13 +66,13 @@ class VM(
     fun toggleChecked(itemToToggle: CartItem) {
         _cartItems.value = _cartItems.value.map { oldValue ->
             if (oldValue.itemId == itemToToggle.cartItemProperties.itemId) {
-                oldValue
-            } else {
                 val updated = oldValue.copy(
                     checked = !oldValue.checked
                 )
                 this.cartDao.updateAll(updated)
                 updated
+            } else {
+                oldValue
             }
         }
     }
