@@ -3,7 +3,6 @@ package de.moyapro.nushppinglist
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -40,23 +39,14 @@ class ViewModelTest {
     }
 
     @Test
-    fun getNotInCart() {
+    fun getNotInCart() = runBlocking {
         val inCart = CartItem("in cart")
         val notInCart = Item("not in cart")
         viewModel.add(inCart)
         viewModel.add(notInCart)
-        val itemsNotInCart: Flow<List<Item>> = viewModel.nonCartItems
-        var doneAssertions = false
-        viewModel.coroutineScope.launch {
-            itemsNotInCart.collect { nonCartItemList ->
-                assertEquals("Should have an item not in cart", 1, nonCartItemList.size)
-                doneAssertions = true
-
-            }
-        }
-        assertTrue("Assertions should have run", doneAssertions)
+        val notInCartItems = viewModel.nonCartItems.take(1).toList().flatten()
+        assertEquals("Should have an item not in cart", 1, notInCartItems.size)
     }
-
 
     @Test
     fun addNewItem() = runBlocking {

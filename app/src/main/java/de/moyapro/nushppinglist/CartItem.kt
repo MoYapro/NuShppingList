@@ -13,13 +13,17 @@ data class CartItem(
     )
     val item: Item
 ) {
-    constructor(newItemName: String) : this(
+    constructor(newItemName: String, newItemId: Long = Random.nextLong()) : this(
         CartItemProperties(
-            Random.nextLong(),
+            newItemId,
             0,
-            Random.nextLong(),
+            newItemId,
             0,
             false
-        ), Item(newItemName)
+        ), Item(newItemName, newItemId)
     )
+
+    init {
+        require(cartItemProperties.itemId == item.itemId) { "ItemId must match in Item and CartItemsProperties" }
+    }
 }

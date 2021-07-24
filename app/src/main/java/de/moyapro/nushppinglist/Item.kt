@@ -10,6 +10,6 @@ data class Item(
     val itemId: Long,
     val name: String
 ) {
-    constructor(name: String) : this(Random.nextLong(), name)
+    constructor(name: String, newItemId: Long = Random.nextLong()) : this(newItemId, name)
 }
 
