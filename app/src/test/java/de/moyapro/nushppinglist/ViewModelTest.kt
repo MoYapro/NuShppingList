@@ -123,7 +123,7 @@ class ViewModelTest {
         assertTrue(
             "Nothing checked before",
             cartItems.none { it.checked })
-        viewModel.toggleChecked(item1)
+        viewModel.toggleChecked(item1.cartItemProperties)
         cartItems = viewModel.cartItems.take(1).toList()[0]
         assertTrue(
             "Some are checked after checking one",
@@ -131,7 +131,7 @@ class ViewModelTest {
         assertTrue(
             "Some are NOT checked after checking one",
             cartItems.any { !it.checked })
-        viewModel.toggleChecked(item2)
+        viewModel.toggleChecked(item2.cartItemProperties)
         cartItems = viewModel.cartItems.take(1).toList()[0]
         assertTrue(
             "All are checked after checking all items",
@@ -145,7 +145,7 @@ class ViewModelTest {
         val itemsBeforeCheck = viewModel.cartItems.take(1).toList()[0]
         assertTrue("No item should be checked",
             itemsBeforeCheck.none { it.checked })
-        viewModel.toggleChecked(item)
+        viewModel.toggleChecked(item.cartItemProperties)
         val itemsAfterCheck = viewModel.cartItems.take(1).toList()[0]
         assertEquals("Should have one item in cart", 1, itemsAfterCheck.size)
         assertTrue(

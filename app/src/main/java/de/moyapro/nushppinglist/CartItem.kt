@@ -13,13 +13,17 @@ data class CartItem(
     )
     val item: Item
 ) {
-    constructor(newItemName: String, newItemId: Long = Random.nextLong()) : this(
+    constructor(
+        newItemName: String,
+        checked: Boolean = false,
+        newItemId: Long = Random.nextLong()
+    ) : this(
         CartItemProperties(
             newItemId,
             0,
             newItemId,
             0,
-            false
+            checked
         ), Item(newItemName, newItemId)
     )
 

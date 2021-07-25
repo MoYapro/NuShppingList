@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import de.moyapro.nushppinglist.CONSTANTS.CHECKED
 import de.moyapro.nushppinglist.ui.AppView
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import kotlinx.coroutines.FlowPreview
@@ -18,7 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         globalViewModel.add(CartItem("Milk"))
         globalViewModel.add(CartItem("Butter"))
-        globalViewModel.add(CartItem("Eggs"))
+        globalViewModel.add(CartItem("Eggs", CHECKED))
         globalViewModel.add(Item("Toast"))
         setContent {
             NuShppingListTheme {
