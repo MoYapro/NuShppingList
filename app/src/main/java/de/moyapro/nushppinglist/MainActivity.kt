@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Button
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -20,10 +21,16 @@ import kotlinx.coroutines.FlowPreview
 class MainActivity : ComponentActivity() {
 
 
-    private val viewModel by viewModels<VM>()
+    private val globalViewModel by viewModels<VM>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        globalViewModel.add(Item("_Milk"))
+        globalViewModel.add(Item("_Butter"))
+        globalViewModel.add(Item("_Eggs"))
+        globalViewModel.add(CartItem("Milk"))
+        globalViewModel.add(CartItem("Butter"))
+        globalViewModel.add(CartItem("Eggs"))
         setContent {
             NuShppingListTheme {
                 AppView()
@@ -34,20 +41,29 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun AppView(showCart: Boolean = true) {
         var cartIsDisplayed: Boolean by remember { mutableStateOf(showCart) }
-        if (cartIsDisplayed)
-            CartView()
-        else
-            ItemView()
+        Column {
+
+            Button(onClick = {
+                cartIsDisplayed = !cartIsDisplayed
+            }) {
+                Text("XXX")
+            }
+
+            if (cartIsDisplayed)
+                CartView(globalViewModel)
+            else
+                ItemView(globalViewModel)
+        }
     }
 
     @Composable
-    private fun CartView() {
-        val cartItemProperties: List<CartItemProperties> by viewModel.cartItems.collectAsState(
+    private fun CartView(viewModel: VM) {
+        val cartItemProperties: List<CartItemProperties> by this.globalViewModel.cartItems.collectAsState(
             listOf()
         )
         Column {
             cartItemProperties.forEach { item ->
-                CartListElement(item, viewModel::toggleChecked, viewModel)
+                CartListElement(item, viewModel)
             }
         }
     }
@@ -55,17 +71,20 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun CartListElement(
         cartItem: CartItemProperties,
-        toggleCheckedAction: (CartItem) -> Unit,
         viewModel: VM
     ) {
         val item = viewModel.getItemByItemId(cartItem.itemId)
-        Row {
-
+        if (null != item) {
+            Row {
+                Text(text = item.name)
+            }
+        } else {
+            Text(text = "Unbekanntes Dings")
         }
     }
 
     @Composable
-    private fun ItemView() {
+    private fun ItemView(viewModel: VM) {
         Column {
             Row(
                 Modifier.fillMaxWidth(),
