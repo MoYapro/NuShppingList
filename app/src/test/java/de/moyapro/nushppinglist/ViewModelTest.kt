@@ -166,7 +166,14 @@ class ViewModelTest {
 
     @Ignore("not implemented")
     fun deleteItem() {
+    }
 
+    @Test
+    fun getAutocompleteItemsByFullName() {
+        val item = Item("X")
+        viewModel.add(item)
+        val itemList = viewModel.getAutocompleteItems(item.name)
+        assertEquals("Should find item", item, itemList[0])
     }
 
     @Test

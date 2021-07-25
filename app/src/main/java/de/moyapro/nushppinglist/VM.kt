@@ -80,5 +80,14 @@ class VM(
     fun getItemByItemId(itemId: Long): Item? {
         return cartDao.getItemByItemId(itemId)
     }
+
+    fun getAutocompleteItems(searchString: String): List<Item> {
+        return nonCartItems.value.filter { matched(it.name, searchString) }
+    }
+
+}
+
+fun matched(name: String, searchString: String): Boolean {
+    return name.contains(searchString, true)
 }
 
