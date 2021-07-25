@@ -106,4 +106,18 @@ class CartDaoMock(
         return itemTable.toList()
     }
 
+    override fun getItemByItemId(itemId: Long): Item? {
+        return itemTable.firstOrNull { itemInDb -> itemInDb.itemId == itemId }
+    }
+
+    fun reset() {
+        itemTable.clear()
+        cartItemPropertiesTable.clear()
+        relationTable.clear()
+        externalScope.launch {
+            cartItemChannel.send(cartItemPropertiesTable.toList())
+            allItemChannel.send(itemTable.toList())
+        }
+    }
+
 }

@@ -76,5 +76,9 @@ class VM(
             }
         }
     }
+
+    fun getItemByItemId(itemId: Long): Item? {
+        return cartDao.getItemByItemId(itemId)
+    }
 }
 

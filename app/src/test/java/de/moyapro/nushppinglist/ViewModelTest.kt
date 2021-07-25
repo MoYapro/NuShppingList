@@ -7,11 +7,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import org.junit.*
 import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Ignore
-import org.junit.Rule
-import org.junit.Test
+import kotlin.random.Random
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -25,12 +23,17 @@ class ViewModelTest {
     val coroutineRule = MainCoroutineRule()
 
     private lateinit var viewModel: VM
-    private val cartDao: CartDao =
+    private val cartDao: CartDaoMock =
         CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
 
     @Before
     fun setup() {
         viewModel = VM(cartDao)
+    }
+
+    @After
+    fun tearDown() {
+        cartDao.reset()
     }
 
     @Test
@@ -164,6 +167,23 @@ class ViewModelTest {
     @Ignore("not implemented")
     fun deleteItem() {
 
+    }
+
+    @Test
+    fun getItemByItemId() {
+        val randomId = Random.nextLong()
+        val itemInDb = Item(randomId, "ItemName")
+        viewModel.add(itemInDb)
+        val itemFromDb = viewModel.getItemByItemId(randomId)
+        assertEquals("Should get item from DB", itemInDb, itemFromDb)
+    }
+
+    @Test
+    fun getNoItemByItemId() {
+        val itemInDb = Item(1, "ItemName")
+        viewModel.add(itemInDb)
+        val itemFromDb = viewModel.getItemByItemId(-1)
+        assertNull("Should get NO item from DB", itemFromDb)
     }
 
 

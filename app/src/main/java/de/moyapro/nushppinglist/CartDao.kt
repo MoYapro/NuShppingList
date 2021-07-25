@@ -30,4 +30,7 @@ interface CartDao {
     @Query("select * from Item")
     fun findNotAddedItems(): List<Item>
 
+    @Query("select * from Item i where i.itemId = :itemId")
+    fun getItemByItemId(itemId: Long): Item?
+
 }
