@@ -14,7 +14,7 @@ fun CartView(viewModel: VM) {
     val cartItemProperties: List<CartItemProperties> by viewModel.cartItems.collectAsState(
         listOf()
     )
-    var currentSearchText = remember { mutableStateOf("") }
+    val currentSearchText = remember { mutableStateOf("") }
 
     Column {
         cartItemProperties.forEach { item ->
@@ -31,6 +31,5 @@ fun CartView(viewModel: VM) {
                 Label(labelText = "+")
             }
         }
-
     }
 }
