@@ -36,6 +36,7 @@ fun CartView(viewModel: VM) {
                     .clickable(
                         onClick = {
                             currentSearchText.value = it.name
+                            autocompleteList.value = emptyList()
                         }
                     )
             )
