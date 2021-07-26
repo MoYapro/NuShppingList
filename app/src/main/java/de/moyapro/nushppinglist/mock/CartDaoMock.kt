@@ -110,6 +110,10 @@ class CartDaoMock(
         return itemTable.firstOrNull { itemInDb -> itemInDb.itemId == itemId }
     }
 
+    override fun getItemByItemName(itemName: String): Item? {
+        return this.itemTable.firstOrNull { it.name == itemName }
+    }
+
     fun reset() {
         itemTable.clear()
         cartItemPropertiesTable.clear()

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -43,17 +44,78 @@ internal class CartViewTest {
     }
 
     @Test
-    fun addItemToCart() {
+    fun addNewItemToCart() = runBlocking {
         val viewModel = createComposable(CartItem("SomeItem"))
         val itemName = "Milk"
-        viewModel.add(Item(itemName))
         composeTestRule.onNodeWithText(itemName).assertDoesNotExist()
         val searchTextField =
             composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
         searchTextField.performTextInput(itemName)
-        val addButton = composeTestRule.onNodeWithText("+")
-        addButton.performClick()
+        composeTestRule.onNodeWithText("+").performClick()
         composeTestRule.onNodeWithText(itemName).assertIsDisplayed()
+        val updatedCart = viewModel.cartItems.take(1).toList()[0]
+        assertEquals("Cart should contain two items", 2, updatedCart.size)
+    }
+
+    @Test
+    fun addExistingItemToCart() = runBlocking {
+        val viewModel = createComposable(CartItem("SomeItem"))
+        val item = Item("Milk")
+        viewModel.add(item)
+        composeTestRule.onNodeWithText(item.name).assertDoesNotExist()
+        val searchTextField =
+            composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
+        searchTextField.performTextInput(item.name)
+        composeTestRule.onNodeWithText("+").performClick()
+        composeTestRule.onNodeWithText(item.name).assertIsDisplayed()
+        val updatedCart = viewModel.cartItems.take(1).toList()[0]
+        assertEquals("Cart should contain two items", 2, updatedCart.size)
+        assertTrue(
+            "Cart should contain existing item (id = ${item.itemId}) but was: $updatedCart",
+            updatedCart.map { it.itemId }.contains(item.itemId)
+        )
+    }
+
+    @Test
+    fun getAutocompleteItem() {
+        val itemName = "Milk"
+        val viewModel = createComposable()
+        viewModel.add(Item(itemName))
+        composeTestRule.onNodeWithText(itemName).assertDoesNotExist()
+        val searchTextField =
+            composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
+        searchTextField.performTextInput(itemName.substring(0, 1))
+        assertTrue(
+            "Should find $itemName",
+            viewModel.getAutocompleteItems(itemName.substring(0, 1))
+                .map { it.name }
+                .contains(itemName)
+        )
+        composeTestRule.onNodeWithText(itemName).assertIsDisplayed()
+    }
+
+    @Test
+    fun addAutocompleteItem() = runBlocking {
+        val itemName = "Milk"
+        val viewModel = createComposable()
+        val newItem = Item(itemName)
+        viewModel.add(newItem)
+        composeTestRule.onNodeWithText(itemName).assertDoesNotExist()
+        val searchTextField =
+            composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
+        searchTextField.performTextInput(itemName.substring(0, 1))
+        assertTrue(
+            "Should find $itemName",
+            viewModel.getAutocompleteItems(itemName.substring(0, 1))
+                .map { it.name }
+                .contains(itemName)
+        )
+        val completedItem = composeTestRule.onNodeWithText(itemName)
+        completedItem.assertIsDisplayed()
+        completedItem.performClick()
+        composeTestRule.onNodeWithText("+").performClick()
+        val cartAfterAdding = viewModel.cartItems.take(1).toList().flatten()
+        assertEquals("Should have added item to cart", newItem.itemId, cartAfterAdding[0].itemId)
     }
 
     @Test
@@ -65,12 +127,13 @@ internal class CartViewTest {
         assertTrue(
             "All cartItems should be checked but was: $cartAfterChecking",
             cartAfterChecking.all { it.checked })
-//        composeTestRule.onNodeWithText(itemName).performClick()
-//        val cartAfterUnChecking = viewModel.cartItems.take(1).toList().flatten()
-//        assertTrue(
-//            "No cartItems should be checked but was: $cartAfterUnChecking",
-//            cartAfterUnChecking.none { it.checked })
+        composeTestRule.onNodeWithText(itemName).performClick()
+        val cartAfterUnChecking = viewModel.cartItems.take(1).toList().flatten()
+        assertTrue(
+            "No cartItems should be checked but was: $cartAfterUnChecking",
+            cartAfterUnChecking.none { it.checked })
     }
+
 
     private fun createComposable(vararg items: CartItem): VM {
         val viewModel = VM(cartDao)

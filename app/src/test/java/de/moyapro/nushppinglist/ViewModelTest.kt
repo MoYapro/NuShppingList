@@ -193,5 +193,26 @@ class ViewModelTest {
         assertNull("Should get NO item from DB", itemFromDb)
     }
 
+    @Test
+    fun addNewItemByName() = runBlocking {
+        val itemName = "Milk"
+        viewModel.addToCart(itemName)
+        assertEquals(
+            "Should have added item to cart",
+            1,
+            viewModel.cartItems.take(1).toList()[0].size
+        )
+    }
+
+    @Test
+    fun addExistingItemByName() = runBlocking {
+        val itemName = "Milk"
+        val newItem = Item(itemName)
+        viewModel.add(newItem)
+        viewModel.addToCart(itemName)
+        val updatedCart = viewModel.cartItems.take(1).toList()[0]
+        assertEquals("Should have added item to cart", 1, updatedCart.size)
+        assertEquals("Cart should contain itemId", newItem.itemId, updatedCart[0].itemId)
+    }
 
 }

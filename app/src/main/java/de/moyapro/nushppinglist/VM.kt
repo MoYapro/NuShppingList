@@ -85,6 +85,16 @@ class VM(
         return nonCartItems.value.filter { matched(it.name, searchString) }
     }
 
+    fun addToCart(itemName: String) {
+        val existingItem: Item? = cartDao.getItemByItemName(itemName)
+        if (null == existingItem) {
+            add(CartItem(itemName))
+        } else {
+            add(CartItem(existingItem))
+        }
+    }
+
+
 }
 
 fun matched(name: String, searchString: String): Boolean {

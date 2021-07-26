@@ -27,6 +27,11 @@ data class CartItem(
         ), Item(newItemName, newItemId)
     )
 
+    constructor(item: Item) : this(
+        CartItemProperties(item.itemId, item.itemId, item.itemId, 1, false),
+        item
+    )
+
     init {
         require(cartItemProperties.itemId == item.itemId) { "ItemId must match in Item and CartItemsProperties" }
     }
