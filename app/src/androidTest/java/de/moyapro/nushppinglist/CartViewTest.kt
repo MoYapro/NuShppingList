@@ -87,9 +87,7 @@ internal class CartViewTest {
         searchTextField.performTextInput(itemName.substring(0, 1))
         assertTrue(
             "Should find $itemName",
-            viewModel.getAutocompleteItems(itemName.substring(0, 1))
-                .map { it.name }
-                .contains(itemName)
+            viewModel.getAutocompleteItems(itemName.substring(0, 1)).contains(itemName)
         )
         composeTestRule.onNodeWithText(itemName).assertIsDisplayed()
     }
@@ -106,9 +104,7 @@ internal class CartViewTest {
         searchTextField.performTextInput(itemName.substring(0, 1))
         assertTrue(
             "Should find $itemName",
-            viewModel.getAutocompleteItems(itemName.substring(0, 1))
-                .map { it.name }
-                .contains(itemName)
+            viewModel.getAutocompleteItems(itemName.substring(0, 1)).contains(itemName)
         )
         val completedItem = composeTestRule.onNodeWithText(itemName)
         completedItem.assertIsDisplayed()

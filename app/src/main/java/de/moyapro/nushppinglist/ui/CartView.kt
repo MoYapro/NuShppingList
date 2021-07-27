@@ -1,18 +1,9 @@
 package de.moyapro.nushppinglist.ui
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import de.moyapro.nushppinglist.CartItemProperties
-import de.moyapro.nushppinglist.Item
 import de.moyapro.nushppinglist.VM
 
 
@@ -21,51 +12,18 @@ fun CartView(viewModel: VM) {
     val cartItemProperties: List<CartItemProperties> by viewModel.cartItems.collectAsState(
         listOf()
     )
-    val currentSearchText = remember { mutableStateOf("") }
-    val autocompleteList = remember { mutableStateOf(emptyList<Item>()) }
-
-    Column {
-        cartItemProperties.forEach { item ->
-            CartListElement(item, viewModel)
-        }
-        Card(
-            modifier = Modifier
-                .padding(Dp(12F))
-        ) {
-            autocompleteList.value.forEach {
-                Text(
-                    it.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Dp(4F))
-                        .clickable(
-                            onClick = {
-                                currentSearchText.value = it.name
-                                autocompleteList.value = emptyList()
-                            }
-                        )
-                )
-            }
-        }
-        Row {
-            EditTextField(
-                initialValue = currentSearchText.value,
-                onValueChange = { newText: String ->
-                    currentSearchText.value = newText.trim()
-                    autocompleteList.value = if (currentSearchText.value.isBlank()) {
-                        emptyList()
-                    } else {
-                        viewModel.getAutocompleteItems(currentSearchText.value)
-                    }
-
-                })
-            Button(onClick = {
-                viewModel.addToCart(currentSearchText.value)
-                currentSearchText.value = ""
-                autocompleteList.value = emptyList()
-            }) {
-                Label(labelText = "+")
-            }
-        }
+    val chooseAction: (String) -> Unit = { selectedValue -> viewModel.addToCart(selectedValue) }
+    val autocompleteAction: (String) -> List<String> = { searchString ->
+        viewModel.getAutocompleteItems(searchString)
     }
+
+
+    cartItemProperties.forEach { item ->
+        CartListElement(item, viewModel)
+    }
+    Autocomplete(chooseAction, autocompleteAction)
 }
+
+
+
+

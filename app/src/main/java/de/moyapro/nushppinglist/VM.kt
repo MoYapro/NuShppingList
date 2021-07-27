@@ -81,8 +81,10 @@ class VM(
         return cartDao.getItemByItemId(itemId)
     }
 
-    fun getAutocompleteItems(searchString: String): List<Item> {
-        return nonCartItems.value.filter { matched(it.name, searchString) }
+    fun getAutocompleteItems(searchString: String): List<String> {
+        return nonCartItems.value
+            .filter { matched(it.name, searchString) }
+            .map { it.name }
     }
 
     fun addToCart(itemName: String) {
