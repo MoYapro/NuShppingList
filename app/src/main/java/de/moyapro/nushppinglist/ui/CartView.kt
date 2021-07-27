@@ -1,15 +1,16 @@
 package de.moyapro.nushppinglist.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.Item
 import de.moyapro.nushppinglist.VM
@@ -27,19 +28,24 @@ fun CartView(viewModel: VM) {
         cartItemProperties.forEach { item ->
             CartListElement(item, viewModel)
         }
-        autocompleteList.value.forEach {
-            Text(
-                it.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = Color.Gray)
-                    .clickable(
-                        onClick = {
-                            currentSearchText.value = it.name
-                            autocompleteList.value = emptyList()
-                        }
-                    )
-            )
+        Card(
+            modifier = Modifier
+                .padding(Dp(12F))
+        ) {
+            autocompleteList.value.forEach {
+                Text(
+                    it.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(Dp(4F))
+                        .clickable(
+                            onClick = {
+                                currentSearchText.value = it.name
+                                autocompleteList.value = emptyList()
+                            }
+                        )
+                )
+            }
         }
         Row {
             EditTextField(
