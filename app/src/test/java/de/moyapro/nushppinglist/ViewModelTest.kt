@@ -240,4 +240,18 @@ class ViewModelTest {
             "All cart items should be unchecked but was: $cartItems",
             cartItems.none { it.checked })
     }
+
+    @Test
+    fun getCartItemPropertiesForItem() {
+        val cartItem = CartItem("thing")
+        val (expectedCartItemProperties: CartItemProperties, item: Item) = cartItem
+        viewModel.add(cartItem)
+        val actualCartItemProperties = viewModel.getCartItemPropertiesByItemId(item.itemId)
+        assertEquals(
+            "Should find corect cartItemProperties for item",
+            expectedCartItemProperties,
+            actualCartItemProperties
+        )
+    }
+
 }

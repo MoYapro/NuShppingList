@@ -30,6 +30,9 @@ interface CartDao {
     @Query("select * from Item i where i.itemId = :itemId")
     fun getItemByItemId(itemId: Long): Item?
 
+    @Query("select * from CartItemProperties p where p.itemId = :itemId")
+    fun getCartItemByItemId(itemId: Long): CartItemProperties?
+
     @Query("select * from Item i where i.name = :itemName")
     fun getItemByItemName(itemName: String): Item?
 

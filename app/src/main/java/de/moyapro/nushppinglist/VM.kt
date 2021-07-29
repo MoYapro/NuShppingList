@@ -108,6 +108,10 @@ class VM(
             }
     }
 
+    fun getCartItemPropertiesByItemId(itemId: Long): CartItemProperties? {
+        return cartDao.getCartItemByItemId(itemId)
+    }
+
 
 }
 
