@@ -87,6 +87,10 @@ class VM(
             .map { it.name }
     }
 
+    fun addToCart(item: Item) {
+        add(CartItem(item))
+    }
+
     fun addToCart(itemName: String) {
         val existingItem: Item? = cartDao.getItemByItemName(itemName)
         if (null == existingItem) {

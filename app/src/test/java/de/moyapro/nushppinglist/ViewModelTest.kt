@@ -215,4 +215,14 @@ class ViewModelTest {
         assertEquals("Cart should contain itemId", newItem.itemId, updatedCart[0].itemId)
     }
 
+    @Test
+    fun addExistingItemAsItem() = runBlocking {
+        val newItem = Item("Itemname${Random.nextLong()}")
+        viewModel.add(newItem)
+        viewModel.addToCart(newItem)
+        val updatedCart = viewModel.cartItems.take(1).toList()[0]
+        assertEquals("Should have added item to cart", 1, updatedCart.size)
+        assertEquals("Cart should contain itemId", newItem.itemId, updatedCart[0].itemId)
+    }
+
 }
