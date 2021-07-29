@@ -254,4 +254,30 @@ class ViewModelTest {
         )
     }
 
+    @Test
+    fun updateCartItemProperties() = runBlocking {
+        val itemId = Random.nextLong()
+        val cartItemProperties = CartItemProperties(11, 12, itemId, 14, true)
+        val cartItem = CartItem(
+            cartItemProperties,
+            Item(itemId, "x")
+        )
+        val expectedUpdated = CartItemProperties(11, 16, itemId, 18, false)
+        viewModel.add(cartItem)
+        assertEquals(
+            "Should have saved original state",
+            cartItemProperties,
+            viewModel.getCartItemPropertiesByItemId(itemId)
+        )
+        viewModel.update(expectedUpdated)
+
+        val cartItems = viewModel.cartItems.take(1).toList().flatten()
+        assertEquals("Should still be one cart item but was $cartItems", 1, cartItems.size)
+        assertEquals(
+            "Should have updated saved state",
+            expectedUpdated,
+            viewModel.getCartItemPropertiesByItemId(itemId)
+        )
+    }
+
 }

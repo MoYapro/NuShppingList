@@ -16,7 +16,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: VM) {
 
     Column {
         items.forEach { item ->
-            ItemListElement(item, viewModel::update, viewModel::addToCart)
+            ItemListElement(item, viewModel, viewModel::update, viewModel::addToCart)
         }
     }
 }

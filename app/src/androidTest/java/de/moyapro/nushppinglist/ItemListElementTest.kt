@@ -1,10 +1,7 @@
 package de.moyapro.nushppinglist
 
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
 import de.moyapro.nushppinglist.ui.EditTextField
 import de.moyapro.nushppinglist.ui.ItemListElement
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
@@ -52,4 +49,36 @@ class ItemListElementTest {
         assertNotNull("add action should be called", addedItem)
         assertEquals("Should have added correct item", existingItem, addedItem)
     }
+
+    @Test
+    fun showAmountInCartOnButton() {
+        val cartItem = CartItem("thing")
+        val viewModel = VM()
+        viewModel.add(cartItem)
+
+        composeTestRule.setContent {
+            NuShppingListTheme {
+                ItemListElement(item = cartItem.item, viewModel)
+            }
+        }
+        composeTestRule.onNodeWithText("🛒 x 1").assertIsDisplayed()
+    }
+
+    @Test
+    fun increaseAmountOnAddAgain() {
+        val cartItem = CartItem("thing")
+        val viewModel = VM()
+        viewModel.add(cartItem)
+
+        composeTestRule.setContent {
+            NuShppingListTheme {
+                ItemListElement(item = cartItem.item, viewModel)
+            }
+        }
+
+        composeTestRule.onNodeWithText("🛒 x 1").assertIsDisplayed()
+        viewModel.update(cartItem.cartItemProperties.copy(amount = 2))
+        composeTestRule.onNodeWithText("🛒 x 2").assertIsDisplayed()
+    }
+
 }

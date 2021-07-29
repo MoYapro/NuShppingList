@@ -53,8 +53,12 @@ class VM(
         cartDao.save(newItem)
     }
 
-    fun update(newItem: Item) {
-        cartDao.updateAll(newItem)
+    fun update(updatedItem: Item) {
+        cartDao.updateAll(updatedItem)
+    }
+
+    fun update(updatedCartItemProperties: CartItemProperties) {
+        cartDao.updateAll(updatedCartItemProperties)
     }
 
     @Transaction
