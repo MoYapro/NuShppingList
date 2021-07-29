@@ -8,8 +8,7 @@ import androidx.compose.ui.test.performTextInput
 import de.moyapro.nushppinglist.ui.EditTextField
 import de.moyapro.nushppinglist.ui.ItemListElement
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 
@@ -28,7 +27,7 @@ class ItemListElementTest {
         }
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(item = Item("Milk"), saveAction, true)
+                ItemListElement(item = Item("Milk"), saveAction = saveAction, editMode = true)
             }
         }
         val editField =
@@ -37,5 +36,20 @@ class ItemListElementTest {
         composeTestRule.onNodeWithText("Save").performClick()
         assertTrue("Saveaction should be called", saveActionCalled)
         assertEquals("Itemname should be updated", "Milk2", itemText)
+    }
+
+    @Test
+    fun addItemToCart() {
+        var addedItem: Item? = null
+        val existingItem = Item("newItem")
+        val action: (Item) -> Unit = { item -> addedItem = item }
+        composeTestRule.setContent {
+            NuShppingListTheme {
+                ItemListElement(item = existingItem, addAction = action)
+            }
+        }
+        composeTestRule.onNodeWithText("🛒").performClick()
+        assertNotNull("add action should be called", addedItem)
+        assertEquals("Should have added correct item", existingItem, addedItem)
     }
 }

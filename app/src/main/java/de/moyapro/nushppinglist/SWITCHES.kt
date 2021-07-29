@@ -1,5 +1,5 @@
 package de.moyapro.nushppinglist
 
 object SWITCHES {
-    const val DEBUG = true
+    const val DEBUG = false
 }
