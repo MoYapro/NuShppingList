@@ -20,9 +20,9 @@ data class CartItem(
     ) : this(
         CartItemProperties(
             newItemId,
-            0,
             newItemId,
-            0,
+            newItemId,
+            1,
             checked
         ), Item(newItemName, newItemId)
     )

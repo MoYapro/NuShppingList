@@ -115,6 +115,15 @@ internal class CartViewTest {
     }
 
     @Test
+    fun removeChecked() = runBlocking {
+        val viewModel = createComposable(CartItem("one"), CartItem("checked one", true))
+        composeTestRule.onNodeWithText("⎚").assertIsDisplayed().performClick()
+        val cartItems = viewModel.cartItems.take(1).toList().flatten()
+        assertEquals("Should have only one item left in cart", 1, cartItems.size)
+        assertTrue("Should have removed checked items", cartItems.none { it.checked })
+    }
+
+    @Test
     fun markItemChecked() = runBlocking {
         val itemName = "Milk"
         val viewModel = createComposable(CartItem(itemName, UNCHECKED))
