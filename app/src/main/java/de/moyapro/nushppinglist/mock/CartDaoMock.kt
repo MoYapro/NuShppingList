@@ -1,7 +1,6 @@
 package de.moyapro.nushppinglist.mock
 
 import de.moyapro.nushppinglist.CartDao
-import de.moyapro.nushppinglist.CartItem
 import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.Item
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +21,6 @@ class CartDaoMock(
 
     private val itemTable: MutableSet<Item> = mutableSetOf()
     private val cartItemPropertiesTable: MutableSet<CartItemProperties> = mutableSetOf()
-    private val relationTable: MutableSet<CartItem> = mutableSetOf()
 
     private val cartItemChannel = ConflatedBroadcastChannel<List<CartItemProperties>>()
     private val allItemChannel = ConflatedBroadcastChannel<List<Item>>()
@@ -87,13 +85,6 @@ class CartDaoMock(
         }
     }
 
-    private fun save(cartItem: CartItem) {
-        relationTable += cartItem
-        externalScope.launch {
-            cartItemChannel.send(relationTable.map { it.cartItemProperties })
-        }
-    }
-
     override fun findAllInCart(): Flow<List<CartItemProperties>> {
         return cartItemFlow
     }
@@ -114,10 +105,17 @@ class CartDaoMock(
         return this.itemTable.firstOrNull { it.name == itemName }
     }
 
+    override fun remove(cartItem: CartItemProperties) {
+        cartItemPropertiesTable.removeIf { it.checked }
+        externalScope.launch {
+            cartItemChannel.send(cartItemPropertiesTable.toList())
+        }
+
+    }
+
     fun reset() {
         itemTable.clear()
         cartItemPropertiesTable.clear()
-        relationTable.clear()
         externalScope.launch {
             cartItemChannel.send(cartItemPropertiesTable.toList())
             allItemChannel.send(itemTable.toList())

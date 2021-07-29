@@ -225,4 +225,19 @@ class ViewModelTest {
         assertEquals("Cart should contain itemId", newItem.itemId, updatedCart[0].itemId)
     }
 
+    @Test
+    fun removeCheckedFromCart() = runBlocking {
+        viewModel.addToCart("one")
+        viewModel.add(CartItem("checked one", checked = true))
+        viewModel.addToCart("two")
+        viewModel.add(CartItem("checked two", checked = true))
+
+        viewModel.removeCheckedFromCart()
+
+        val cartItems = viewModel.cartItems.take(1).toList().flatten()
+        assertEquals("Should have two items in cart", 2, cartItems.size)
+        assertTrue(
+            "All cart items should be unchecked but was: $cartItems",
+            cartItems.none { it.checked })
+    }
 }

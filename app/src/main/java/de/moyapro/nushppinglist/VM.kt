@@ -100,6 +100,14 @@ class VM(
         }
     }
 
+    fun removeCheckedFromCart() {
+        cartItems.value
+            .filter { it.checked }
+            .forEach { cartItem ->
+                cartDao.remove(cartItem)
+            }
+    }
+
 
 }
 

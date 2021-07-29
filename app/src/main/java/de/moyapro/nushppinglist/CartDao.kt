@@ -1,9 +1,6 @@
 package de.moyapro.nushppinglist
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,5 +32,8 @@ interface CartDao {
 
     @Query("select * from Item i where i.name = :itemName")
     fun getItemByItemName(itemName: String): Item?
+
+    @Delete
+    fun remove(cartItem: CartItemProperties)
 
 }
