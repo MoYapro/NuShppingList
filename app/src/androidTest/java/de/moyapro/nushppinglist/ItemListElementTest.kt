@@ -58,7 +58,7 @@ class ItemListElementTest {
 
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(item = cartItem.item, viewModel)
+                ItemListElement(item = cartItem.item, cartItem.cartItemProperties)
             }
         }
         composeTestRule.onNodeWithText("🛒 x 1").assertIsDisplayed()
@@ -72,7 +72,7 @@ class ItemListElementTest {
 
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(item = cartItem.item, viewModel)
+                ItemListElement(item = cartItem.item, cartItem.cartItemProperties)
             }
         }
 

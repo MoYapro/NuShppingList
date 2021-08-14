@@ -173,7 +173,7 @@ class ViewModelTest {
         val item = Item("X")
         viewModel.add(item)
         val itemList = viewModel.getAutocompleteItems(item.name)
-        assertEquals("Should find item", item, itemList[0])
+        assertEquals("Should find item", item.name, itemList[0])
     }
 
     @Test
@@ -242,7 +242,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun getCartItemPropertiesForItem() {
+    fun getCartItemPropertiesForItem() = runBlocking {
         val cartItem = CartItem("thing")
         val (expectedCartItemProperties: CartItemProperties, item: Item) = cartItem
         viewModel.add(cartItem)

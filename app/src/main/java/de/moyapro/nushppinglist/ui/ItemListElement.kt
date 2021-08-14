@@ -14,25 +14,19 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.Item
 import de.moyapro.nushppinglist.SWITCHES
-import de.moyapro.nushppinglist.VM
+
 
 @Preview
 @Composable
 fun ItemListElement(
     @PreviewParameter(ItemProvider::class) item: Item,
-    viewModel: VM? = null,
+    cartItemProperties: CartItemProperties? = null,
     saveAction: (Item) -> Unit = {},
     addAction: (Item) -> Unit = {},
     editMode: Boolean = false
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
-    var cartItemProperties: CartItemProperties? by remember {
-        mutableStateOf(
-            viewModel?.getCartItemPropertiesByItemId(
-                item.itemId
-            )
-        )
-    }
+
     Column {
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())

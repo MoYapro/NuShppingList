@@ -92,8 +92,15 @@ class VM(
     }
 
     fun addToCart(item: Item) {
-        add(CartItem(item))
+        val existingCartItem: CartItemProperties? =
+            cartDao.getCartItemByItemId(item.itemId)
+        if (null == existingCartItem) {
+            add(CartItem(item))
+        } else {
+            update(existingCartItem.copy(amount = existingCartItem.amount + 1))
+        }
     }
+
 
     fun addToCart(itemName: String) {
         val existingItem: Item? = cartDao.getItemByItemName(itemName)
