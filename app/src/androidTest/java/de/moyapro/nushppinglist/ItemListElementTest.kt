@@ -29,6 +29,7 @@ class ItemListElementTest {
         }
         val editField =
             composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
+        editField.performClick()
         editField.performTextInput("2")
         composeTestRule.onNodeWithText("Save").performClick()
         assertTrue("Saveaction should be called", saveActionCalled)

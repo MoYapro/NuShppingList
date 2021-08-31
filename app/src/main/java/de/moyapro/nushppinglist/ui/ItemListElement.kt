@@ -31,33 +31,11 @@ fun ItemListElement(
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
         }
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Text(
-                item.name,
-                modifier = Modifier
-                    .fillMaxWidth(.6F)
-                    .clickable(onClick = { isEdited = !isEdited })
-            )
-            Button(onClick = { addAction(item) }
-            ) {
-                Text(text = "🛒 ${getAmountText(cartItemProperties)}".trim())
-            }
-        }
+
         if (isEdited) {
-            val textState = remember { mutableStateOf(item.name) }
-            EditTextField(
-                "Name",
-                initialValue = textState.value,
-                onValueChange = { textState.value = it }
-            )
-            Button(onClick = {
-                isEdited = !isEdited
-                saveAction(item.copy(name = textState.value))
-            }) {
-                Text("Save")
-            }
+            EditView(item, saveAction) { isEdited = false }
+        } else {
+            JustView(item, cartItemProperties, addAction) { isEdited = true }
         }
     }
 }
@@ -67,4 +45,48 @@ fun getAmountText(cartItemProperties: CartItemProperties?): String {
         return ""
     }
     return "x ${cartItemProperties.amount}"
+}
+
+@Composable
+fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        val textState = remember { mutableStateOf(item.name) }
+        EditTextField(
+            "",
+            initialValue = textState.value,
+            onValueChange = { textState.value = it }
+        )
+        Button(onClick = {
+            endEditMode()
+            saveAction(item.copy(name = textState.value))
+        }) {
+            Text("Save")
+        }
+    }
+}
+
+@Composable
+fun JustView(
+    item: Item,
+    cartItemProperties: CartItemProperties?,
+    addAction: (Item) -> Unit,
+    beginEditMode: () -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Text(
+            item.name,
+            modifier = Modifier
+                .fillMaxWidth(.6F)
+                .clickable(onClick = beginEditMode)
+        )
+        Button(onClick = { addAction(item) }
+        ) {
+            Text(text = "🛒 ${getAmountText(cartItemProperties)}".trim())
+        }
+    }
+
 }
