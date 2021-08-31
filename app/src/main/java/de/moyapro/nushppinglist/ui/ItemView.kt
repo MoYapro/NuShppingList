@@ -19,7 +19,7 @@ fun ItemView(viewModel: VM) {
             Arrangement.End
         ) {
             FloatingActionButton(
-                onClick = { viewModel.add(Item("Milk")) },
+                onClick = { viewModel.add(Item("?")) },
             ) {
                 Text(text = "+")
             }
