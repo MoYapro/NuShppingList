@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 
 @Composable
@@ -23,7 +25,7 @@ fun Autocomplete(
     val currentSearchText = remember { mutableStateOf("") }
     val autocompleteList = remember { mutableStateOf(emptyList<String>()) }
 
-    Column {
+    Column(Modifier.background(color = Color.Red)) {
         Card(
             modifier = Modifier
                 .padding(Dp(12F))

@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -14,7 +15,7 @@ import de.moyapro.nushppinglist.ui.theme.Purple700
 @Composable
 fun AppView(viewModel: VM, showCart: Boolean = true) {
     var cartIsDisplayed: Boolean by remember { mutableStateOf(showCart) }
-    Column {
+    Column(Modifier.background(color = Color.Magenta)) {
 
         cartIsDisplayed = ViewSelector(cartIsDisplayed) { newValue -> cartIsDisplayed = newValue }
 

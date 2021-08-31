@@ -1,11 +1,14 @@
 package de.moyapro.nushppinglist.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.VM
 
@@ -19,7 +22,7 @@ fun CartView(viewModel: VM) {
     val autocompleteAction: (String) -> List<String> = { searchString ->
         viewModel.getAutocompleteItems(searchString)
     }
-    Column {
+    Column(Modifier.background(color = Color.Green)) {
         Button(onClick = { viewModel.removeCheckedFromCart() }) {
             Text("⎚")
         }

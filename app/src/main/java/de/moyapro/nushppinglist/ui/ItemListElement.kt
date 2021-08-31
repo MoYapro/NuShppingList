@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import de.moyapro.nushppinglist.CartItemProperties
@@ -27,7 +29,7 @@ fun ItemListElement(
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
 
-    Column {
+    Column(Modifier.background(color = Color.White)) {
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
         }
@@ -50,6 +52,7 @@ fun getAmountText(cartItemProperties: CartItemProperties?): String {
 @Composable
 fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
     Row(
+        Modifier.background(color = Color.Yellow),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         val textState = remember { mutableStateOf(item.name) }
@@ -75,6 +78,7 @@ fun JustView(
     beginEditMode: () -> Unit
 ) {
     Row(
+        Modifier.background(color = Color.Red),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Text(

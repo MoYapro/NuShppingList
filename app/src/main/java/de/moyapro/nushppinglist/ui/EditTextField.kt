@@ -1,10 +1,10 @@
 package de.moyapro.nushppinglist.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 
@@ -16,8 +16,7 @@ object EditTextField {
 fun EditTextField(
     label: String? = null,
     initialValue: String,
-    onValueChange: (String) -> Unit,
-    focusRequester: FocusRequester = FocusRequester()
+    onValueChange: (String) -> Unit
 ) {
     if (!label.isNullOrBlank()) {
         Label(labelText = label)
@@ -27,6 +26,6 @@ fun EditTextField(
             .semantics {
                 contentDescription = EditTextField.DESCRIPTION
             }
-            .focusRequester(focusRequester)
+            .background(color = Color.Cyan)
     )
 }

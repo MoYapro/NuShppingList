@@ -22,7 +22,9 @@ fun CartListElement(
     val item = viewModel.getItemByItemId(cartItem.itemId)
     if (null != item) {
         Row(
-            Modifier.fillMaxWidth(),
+            Modifier
+                .background(color = Color.Yellow)
+                .fillMaxWidth(),
         ) {
             Spacer(modifier = Modifier.width(Dp(4F)))
             Text(text = cartItem.amount.toString())
@@ -42,6 +44,6 @@ fun CartListElement(
 
 @Composable
 private fun getBackgroundColor(checked: Boolean) = when (checked) {
-    true -> Color.Green
+    true -> Color.DarkGray
     false -> Color.Unspecified
 }
