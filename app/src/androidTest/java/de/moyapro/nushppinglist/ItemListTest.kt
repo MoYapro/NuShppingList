@@ -59,7 +59,6 @@ internal class ItemListTest {
     fun editInputsAreShown() {
         val name = "Milk"
         createComposable(Item(name), true)
-        Thread.sleep(5000)
         composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)
             .assertCountEquals(1)
         composeTestRule.onNodeWithText("Save").assertIsDisplayed()
