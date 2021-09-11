@@ -73,4 +73,39 @@ class DbTest {
         val dbCartItemProperties = cartDao.findAllInCart().take(1).toList()[0].single()
         assertEquals(newAmount, dbCartItemProperties.amount)
     }
+
+    @Test(timeout = 10000)
+    @Throws(Exception::class)
+    fun writeAndLoadCartItem() = runBlocking {
+        val cartItem = CartItem("Milk")
+        cartDao.save(cartItem.item)
+        cartDao.save(cartItem.cartItemProperties)
+        val dbCartItemProperties = cartDao.findAllCartItems().take(1).toList()[0].single()
+        assertEquals(cartItem, dbCartItemProperties)
+    }
+
+    @Test(timeout = 10000)
+    @Throws(Exception::class)
+    fun updateAndLoadCartItem_item() = runBlocking {
+        val newName = "NoMilk"
+        val cartItem = CartItem("Milk")
+        cartDao.save(cartItem.item)
+        cartDao.save(cartItem.cartItemProperties)
+        cartDao.updateAll(cartItem.item.copy(name = newName))
+        val dbCartItemProperties = cartDao.findAllCartItems().take(1).toList()[0].single()
+        assertEquals(newName, dbCartItemProperties.item.name)
+    }
+
+    @Test(timeout = 10000)
+    @Throws(Exception::class)
+    fun updateAndLoadCartItem_cartItemProperties() = runBlocking {
+        val newAmount = 4
+        val cartItem = CartItem("Milk")
+        cartDao.save(cartItem.item)
+        cartDao.save(cartItem.cartItemProperties)
+        cartDao.updateAll(cartItem.cartItemProperties.copy(amount = newAmount))
+        val dbCartItemProperties = cartDao.findAllCartItems().take(1).toList()[0].single()
+        assertEquals(newAmount, dbCartItemProperties.cartItemProperties.amount)
+    }
+
 }
