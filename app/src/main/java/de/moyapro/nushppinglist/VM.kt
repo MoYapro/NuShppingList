@@ -24,6 +24,8 @@ class VM(
     val nonCartItems: StateFlow<List<Item>> = _nonCartItems
     private val _allItems = MutableStateFlow<List<Item>>(emptyList())
     val allItems: StateFlow<List<Item>> = _allItems
+    private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
+    val allCartItems: StateFlow<List<CartItem>> = _allCartItems
 
     init {
         // subscribe to DB changes to make them visible to the UI
@@ -37,6 +39,12 @@ class VM(
             cartDao.findAllItems()
                 .collect { items ->
                     _allItems.value = items
+                }
+        }
+        viewModelScope.launch {
+            cartDao.findAllCartItems()
+                .collect { cartItems ->
+                    _allCartItems.value = cartItems
                 }
         }
         viewModelScope.launch {

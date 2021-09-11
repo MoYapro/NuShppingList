@@ -194,6 +194,20 @@ class ViewModelTest {
     }
 
     @Test
+    fun getAllCartItems() = runBlocking {
+        val name = "newItemInCart"
+        viewModel.add(CartItem(name))
+        viewModel.allCartItems.take(1).toList()[0]
+        val cartItem = viewModel.allCartItems.take(1).toList()[0]
+        assertEquals("Should get cartItem with given name", name, cartItem[0].item.name)
+        assertEquals(
+            "Ids of cartItem and item should match",
+            cartItem[0].cartItemProperties.itemId,
+            cartItem[0].item.itemId
+        )
+    }
+
+    @Test
     fun addNewItemByName() = runBlocking {
         val itemName = "Milk"
         viewModel.addToCart(itemName)

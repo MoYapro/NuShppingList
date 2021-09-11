@@ -24,6 +24,10 @@ interface CartDao {
     @Query("select * from Item")
     fun findAllItems(): Flow<List<Item>>
 
+    @Transaction
+    @Query("select * from CartItemProperties")
+    fun findAllCartItems(): Flow<List<CartItem>>
+
     @Query("select * from Item")
     fun findNotAddedItems(): List<Item>
 

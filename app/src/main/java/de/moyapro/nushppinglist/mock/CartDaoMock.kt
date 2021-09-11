@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.mock
 
 import de.moyapro.nushppinglist.CartDao
+import de.moyapro.nushppinglist.CartItem
 import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.Item
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +23,8 @@ class CartDaoMock(
     private val itemTable: MutableSet<Item> = mutableSetOf()
     private val cartItemPropertiesTable: MutableSet<CartItemProperties> = mutableSetOf()
 
-    private val cartItemChannel = ConflatedBroadcastChannel<List<CartItemProperties>>()
+    private val cartItemChannel = ConflatedBroadcastChannel<List<CartItem>>()
+    private val cartItemPropertiesChannel = ConflatedBroadcastChannel<List<CartItemProperties>>()
     private val allItemChannel = ConflatedBroadcastChannel<List<Item>>()
 
     private val allItemFlow: Flow<List<Item>> = allItemChannel.asFlow().shareIn(
@@ -31,7 +33,15 @@ class CartDaoMock(
         started = SharingStarted.WhileSubscribed()
     )
 
-    private val cartItemFlow: Flow<List<CartItemProperties>> = cartItemChannel.asFlow().shareIn(
+    private val cartItemPropertiesFlow: Flow<List<CartItemProperties>> =
+        cartItemPropertiesChannel.asFlow().shareIn(
+            externalScope,
+            replay = 1,
+            started = SharingStarted.WhileSubscribed()
+        )
+
+
+    private val cartItemFlow: Flow<List<CartItem>> = cartItemChannel.asFlow().shareIn(
         externalScope,
         replay = 1,
         started = SharingStarted.WhileSubscribed()
@@ -40,16 +50,14 @@ class CartDaoMock(
 
     override fun save(vararg cartItemProperties: CartItemProperties) {
         cartItemPropertiesTable += cartItemProperties
-        externalScope.launch {
-            cartItemChannel.send(cartItemPropertiesTable.toList())
-        }
+        pushCartItemProperties()
+        pushCartItems()
     }
 
     override fun save(vararg items: Item) {
         itemTable += items
-        externalScope.launch {
-            allItemChannel.send(itemTable.toList())
-        }
+        pushItems()
+        pushCartItems()
     }
 
     override fun updateAll(vararg items: Item) {
@@ -63,9 +71,7 @@ class CartDaoMock(
         }
         itemTable.clear()
         itemTable.addAll(updatedItemTable.toSet())
-        externalScope.launch {
-            allItemChannel.send(itemTable.toList())
-        }
+        pushItems()
     }
 
     override fun updateAll(vararg items: CartItemProperties) {
@@ -80,17 +86,19 @@ class CartDaoMock(
             }
         cartItemPropertiesTable.clear()
         cartItemPropertiesTable.addAll(updatedItemTable.toSet())
-        externalScope.launch {
-            cartItemChannel.send(cartItemPropertiesTable.toList())
-        }
+        pushCartItemProperties()
     }
 
     override fun findAllInCart(): Flow<List<CartItemProperties>> {
-        return cartItemFlow
+        return cartItemPropertiesFlow
     }
 
     override fun findAllItems(): Flow<List<Item>> {
         return allItemFlow
+    }
+
+    override fun findAllCartItems(): Flow<List<CartItem>> {
+        return cartItemFlow
     }
 
     override fun findNotAddedItems(): List<Item> {
@@ -111,17 +119,50 @@ class CartDaoMock(
 
     override fun remove(cartItem: CartItemProperties) {
         cartItemPropertiesTable.removeIf { it.checked }
-        externalScope.launch {
-            cartItemChannel.send(cartItemPropertiesTable.toList())
-        }
+        pushCartItemProperties()
 
+    }
+
+    private fun pushCartItems() {
+        val cartItemJoinTable = getJoin(itemTable, cartItemPropertiesTable)
+        externalScope.launch {
+            cartItemChannel.send(cartItemJoinTable)
+        }
+    }
+
+    private fun getJoin(
+        itemTable: Set<Item>,
+        cartItemPropertiesTable: Set<CartItemProperties>
+    ): List<CartItem> {
+        return cartItemPropertiesTable
+            .mapNotNull { cartItemProperties ->
+                val joinedItem =
+                    itemTable.firstOrNull { item -> item.itemId == cartItemProperties.itemId }
+                when {
+                    null != joinedItem -> CartItem(cartItemProperties, joinedItem)
+                    else -> null
+                }
+            }
+    }
+
+
+    private fun pushItems() {
+        externalScope.launch {
+            allItemChannel.send(itemTable.toList())
+        }
+    }
+
+    private fun pushCartItemProperties() {
+        externalScope.launch {
+            cartItemPropertiesChannel.send(cartItemPropertiesTable.toList())
+        }
     }
 
     fun reset() {
         itemTable.clear()
         cartItemPropertiesTable.clear()
         externalScope.launch {
-            cartItemChannel.send(cartItemPropertiesTable.toList())
+            cartItemPropertiesChannel.send(cartItemPropertiesTable.toList())
             allItemChannel.send(itemTable.toList())
         }
     }
