@@ -1,10 +1,12 @@
 package de.moyapro.nushppinglist
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -13,6 +15,8 @@ import kotlinx.coroutines.flow.collect
 class VM(
     private val cartDao: CartDao
 ) : ViewModel() {
+
+    private val TAG = "VM"
 
     @Suppress("unused") // no-args constructor required by 'by viewmodels()'
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
@@ -27,26 +31,20 @@ class VM(
     private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
 
+    fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>) {
+        val that = this
+        viewModelScope.launch {
+            source.collect { valuesFromSource ->
+                that.value = valuesFromSource
+            }
+        }
+    }
+
     init {
-        // subscribe to DB changes to make them visible to the UI
-        viewModelScope.launch {
-            cartDao.findAllInCart()
-                .collect { cartItems ->
-                    _cartItems.value = cartItems
-                }
-        }
-        viewModelScope.launch {
-            cartDao.findAllItems()
-                .collect { items ->
-                    _allItems.value = items
-                }
-        }
-        viewModelScope.launch {
-            cartDao.findAllCartItems()
-                .collect { cartItems ->
-                    _allCartItems.value = cartItems
-                }
-        }
+        _cartItems.listenTo(cartDao.findAllInCart())
+        _allItems.listenTo(cartDao.findAllItems())
+        _allCartItems.listenTo(cartDao.findAllCartItems())
+
         viewModelScope.launch {
             cartDao.findAllItems()
                 .collect { items ->
@@ -100,12 +98,31 @@ class VM(
     }
 
     fun addToCart(item: Item) {
+        Log.i(TAG, "add $item to DB=============================================================")
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(item.itemId)
+        Log.i(
+            TAG,
+            "existing cartItemProperties are: $existingCartItem============================================================="
+        )
         if (null == existingCartItem) {
+            Log.i(
+                TAG,
+                "add item as new ============================================================="
+            )
             add(CartItem(item))
         } else {
-            update(existingCartItem.copy(amount = existingCartItem.amount + 1))
+            Log.i(
+                TAG,
+                "increase amount of ${existingCartItem} ============================================================="
+            )
+            val updatedCartItemProperties =
+                existingCartItem.copy(amount = existingCartItem.amount + 1)
+            Log.i(
+                TAG,
+                "save updated cartItemProperties ${updatedCartItemProperties} ============================================================="
+            )
+            update(updatedCartItemProperties)
         }
     }
 

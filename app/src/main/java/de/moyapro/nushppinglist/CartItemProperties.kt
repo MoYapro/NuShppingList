@@ -13,11 +13,11 @@ data class CartItemProperties(
     val amount: Int,
     val checked: Boolean
 ) {
-    constructor(newItemId: Long = Random.nextLong()) : this(
-        newItemId,
-        newItemId,
-        newItemId,
-        1,
-        false
+    constructor(newItemId: Long = Random.nextLong(), amount: Int = 1) : this(
+        cartItemPropertiesId = newItemId,
+        cartItemId = newItemId,
+        itemId = newItemId,
+        amount = amount,
+        checked = false
     )
 }

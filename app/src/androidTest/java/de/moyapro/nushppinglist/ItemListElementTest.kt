@@ -1,8 +1,10 @@
 package de.moyapro.nushppinglist
 
+import android.util.Log
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import de.moyapro.nushppinglist.ui.EditTextField
+import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.ItemListElement
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import org.junit.Assert.*
@@ -14,6 +16,8 @@ class ItemListElementTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private val TAG = "ItemListElementTest"
+
     @Test
     fun saveExecutesSaveActionWithNewValue() {
         var saveActionCalled = false
@@ -24,7 +28,11 @@ class ItemListElementTest {
         }
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(item = Item("Milk"), saveAction = saveAction, editMode = true)
+                ItemListElement(
+                    cartItem = CartItem("Milk"),
+                    saveAction = saveAction,
+                    editMode = true
+                )
             }
         }
         val editField =
@@ -39,16 +47,16 @@ class ItemListElementTest {
     @Test
     fun addItemToCart() {
         var addedItem: Item? = null
-        val existingItem = Item("newItem")
+        val existingItem = CartItem("newItem")
         val action: (Item) -> Unit = { item -> addedItem = item }
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(item = existingItem, addAction = action)
+                ItemListElement(cartItem = existingItem, addAction = action)
             }
         }
-        composeTestRule.onNodeWithText("🛒").performClick()
+        composeTestRule.onNodeWithText("🛒 x 1").performClick()
         assertNotNull("add action should be called", addedItem)
-        assertEquals("Should have added correct item", existingItem, addedItem)
+        assertEquals("Should have added correct item", existingItem.item, addedItem)
     }
 
     @Test
@@ -59,7 +67,7 @@ class ItemListElementTest {
 
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(item = cartItem.item, cartItem.cartItemProperties)
+                ItemListElement(cartItem)
             }
         }
         composeTestRule.onNodeWithText("🛒 x 1").assertIsDisplayed()
@@ -73,13 +81,26 @@ class ItemListElementTest {
 
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(item = cartItem.item, cartItem.cartItemProperties)
+                ItemList(viewModel)
             }
         }
 
-        composeTestRule.onNodeWithText("🛒 x 1").assertIsDisplayed()
-        viewModel.update(cartItem.cartItemProperties.copy(amount = 2))
+        Log.i(
+            TAG,
+            "==============================================================================="
+        )
+        composeTestRule.onNodeWithText("🛒 x 1").assertIsDisplayed().performClick()
+        Log.i(
+            TAG,
+            "==============================================================================="
+        )
+//        viewModel.update(cartItem.cartItemProperties.copy(amount = 2))
+        println("===============================================================================")
         composeTestRule.onNodeWithText("🛒 x 2").assertIsDisplayed()
+        Log.i(
+            TAG,
+            "==============================================================================="
+        )
     }
 
 }

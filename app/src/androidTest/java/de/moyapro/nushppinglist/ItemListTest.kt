@@ -24,7 +24,7 @@ internal class ItemListTest {
     @Test
     fun showItemName() {
         val name = "Milk"
-        createComposable(Item(name))
+        createComposable(CartItem(name))
         composeTestRule.onNodeWithText(name).assertIsDisplayed()
     }
 
@@ -40,7 +40,7 @@ internal class ItemListTest {
     @Test
     fun clickableItemList() {
         val name = "Milk"
-        createComposable(Item(name))
+        createComposable(CartItem(name))
         val itemNode = composeTestRule.onNodeWithText(name)
         itemNode.assertHasClickAction()
     }
@@ -48,7 +48,7 @@ internal class ItemListTest {
     @Test
     fun switchToEditItem() {
         val name = "Milk"
-        createComposable(Item(name))
+        createComposable(CartItem(name))
         val itemNode = composeTestRule.onNodeWithText(name)
         composeTestRule.onNodeWithText("Save").assertDoesNotExist()
         itemNode.performClick()
@@ -58,7 +58,7 @@ internal class ItemListTest {
     @Test
     fun editInputsAreShown() {
         val name = "Milk"
-        createComposable(Item(name), true)
+        createComposable(CartItem(name), true)
         composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)
             .assertCountEquals(1)
         composeTestRule.onNodeWithText("Save").assertIsDisplayed()
@@ -66,10 +66,10 @@ internal class ItemListTest {
     }
 
 
-    private fun createComposable(item: Item, editMode: Boolean = false) {
+    private fun createComposable(cartItem: CartItem, editMode: Boolean = false) {
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(item, editMode = editMode)
+                ItemListElement(cartItem = cartItem, editMode = editMode)
             }
         }
     }

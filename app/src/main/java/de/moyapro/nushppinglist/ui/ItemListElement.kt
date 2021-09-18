@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,27 +8,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
+import de.moyapro.nushppinglist.CartItem
 import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.Item
 import de.moyapro.nushppinglist.SWITCHES
+import de.moyapro.nushppinglist.ui.theme.Purple700
 
 
-@Preview
+private const val TAG = "ItemListElement"
+
 @Composable
 fun ItemListElement(
-    @PreviewParameter(ItemProvider::class) item: Item,
-    cartItemProperties: CartItemProperties? = null,
+    cartItem: CartItem,
     saveAction: (Item) -> Unit = {},
     addAction: (Item) -> Unit = {},
     editMode: Boolean = false
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
+    val item = cartItem.item
 
     Column(Modifier.background(color = Color.White)) {
         if (SWITCHES.DEBUG) {
@@ -37,13 +40,13 @@ fun ItemListElement(
         if (isEdited) {
             EditView(item, saveAction) { isEdited = false }
         } else {
-            JustView(item, cartItemProperties, addAction) { isEdited = true }
+            JustView(cartItem, addAction) { isEdited = true }
         }
     }
 }
 
 fun getAmountText(cartItemProperties: CartItemProperties?): String {
-    if (null == cartItemProperties) {
+    if (null == cartItemProperties || 0 == cartItemProperties.amount) {
         return ""
     }
     return "x ${cartItemProperties.amount}"
@@ -72,11 +75,12 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
 
 @Composable
 fun JustView(
-    item: Item,
-    cartItemProperties: CartItemProperties?,
+    cartItem: CartItem,
     addAction: (Item) -> Unit,
     beginEditMode: () -> Unit
 ) {
+    val item = cartItem.item
+    val cartItemProperties = cartItem.cartItemProperties
     Row(
         Modifier.background(color = Color.Red),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -87,7 +91,15 @@ fun JustView(
                 .fillMaxWidth(.6F)
                 .clickable(onClick = beginEditMode)
         )
-        Button(onClick = { addAction(item) }
+        Button(
+            onClick = {
+                Log.i(
+                    TAG,
+                    "clicked on add action button with action ${addAction::class.java} =================================================="
+                )
+                addAction(item)
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
         ) {
             Text(text = "🛒 ${getAmountText(cartItemProperties)}".trim())
         }

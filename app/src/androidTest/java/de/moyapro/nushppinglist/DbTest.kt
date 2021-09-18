@@ -4,19 +4,24 @@ import android.content.Context
 import androidx.room.Room.inMemoryDatabaseBuilder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.cash.turbine.test
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import kotlin.time.ExperimentalTime
 
 @RunWith(AndroidJUnit4::class)
 class DbTest {
     private lateinit var cartDao: CartDao
+    private lateinit var viewModel: VM
     private lateinit var db: AppDatabase
 
     @Before
@@ -26,6 +31,7 @@ class DbTest {
             context, AppDatabase::class.java
         ).build()
         cartDao = db.cartDao()
+        viewModel = VM(cartDao)
     }
 
     @After
@@ -39,7 +45,7 @@ class DbTest {
     fun writeAndLoadItem() = runBlocking {
         val item = Item("Milk")
         cartDao.save(item)
-        val dbItem = cartDao.findAllItems().take(1).toList()[0].single()
+        val dbItem = cartDao.findAllItems().first().first()
         assertEquals(item, dbItem)
     }
 
@@ -50,7 +56,7 @@ class DbTest {
         val item = Item("Milk")
         cartDao.save(item)
         cartDao.updateAll(item.copy(name = newName))
-        val dbItem = cartDao.findAllItems().take(1).toList()[0].single()
+        val dbItem = cartDao.findAllItems().first().first()
         assertEquals(newName, dbItem.name)
     }
 
@@ -59,7 +65,7 @@ class DbTest {
     fun writeAndLoadCartItemProperties() = runBlocking {
         val cartItemProperties = CartItemProperties()
         cartDao.save(cartItemProperties)
-        val dbCartItemProperties = cartDao.findAllInCart().take(1).toList()[0].single()
+        val dbCartItemProperties = cartDao.findAllInCart().first().first()
         assertEquals(cartItemProperties, dbCartItemProperties)
     }
 
@@ -70,7 +76,7 @@ class DbTest {
         val newAmount = 3
         cartDao.save(cartItemProperties)
         cartDao.updateAll(cartItemProperties.copy(amount = newAmount))
-        val dbCartItemProperties = cartDao.findAllInCart().take(1).toList()[0].single()
+        val dbCartItemProperties = cartDao.findAllInCart().first().first()
         assertEquals(newAmount, dbCartItemProperties.amount)
     }
 
@@ -80,7 +86,7 @@ class DbTest {
         val cartItem = CartItem("Milk")
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
-        val dbCartItemProperties = cartDao.findAllCartItems().take(1).toList()[0].single()
+        val dbCartItemProperties = cartDao.findAllCartItems().first().first()
         assertEquals(cartItem, dbCartItemProperties)
     }
 
@@ -92,7 +98,7 @@ class DbTest {
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         cartDao.updateAll(cartItem.item.copy(name = newName))
-        val dbCartItemProperties = cartDao.findAllCartItems().take(1).toList()[0].single()
+        val dbCartItemProperties = cartDao.findAllCartItems().first().first()
         assertEquals(newName, dbCartItemProperties.item.name)
     }
 
@@ -104,8 +110,39 @@ class DbTest {
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         cartDao.updateAll(cartItem.cartItemProperties.copy(amount = newAmount))
-        val dbCartItemProperties = cartDao.findAllCartItems().take(1).toList()[0].single()
+        val dbCartItemProperties = cartDao.findAllCartItems().first().first()
         assertEquals(newAmount, dbCartItemProperties.cartItemProperties.amount)
+    }
+
+    @OptIn(ExperimentalTime::class)
+    @Test(timeout = 10000)
+    @Throws(Exception::class)
+    fun subscribeToCartItemUpdates() = runBlocking {
+        val newAmount = 4
+        var currentCartItems = 0
+        var currentAmount: Int? = 0
+        val cartItem = CartItem("Milk")
+
+        cartDao.save(cartItem.item)
+        cartDao.save(cartItem.cartItemProperties)
+        cartDao.updateAll(cartItem.cartItemProperties.copy(amount = newAmount))
+
+        cartDao.findAllCartItems().test {
+            val cartItem = awaitItem()
+            assertEquals("one", cartItem)
+        }
+
+    }
+
+    @Test
+    fun addExistingItemByName() = runBlockingTest {
+        val itemName = "Milk"
+        val newItem = Item(itemName)
+        viewModel.add(newItem)
+        viewModel.addToCart(itemName)
+        val updatedCart = viewModel.cartItems.take(1).toList()[0]
+        assertEquals("Should have added item to cart", 1, updatedCart.size)
+        assertEquals("Cart should contain itemId", newItem.itemId, updatedCart[0].itemId)
     }
 
 }

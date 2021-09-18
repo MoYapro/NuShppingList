@@ -9,19 +9,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import de.moyapro.nushppinglist.CartItem
+import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.Item
 import de.moyapro.nushppinglist.VM
+
+private const val TAG = "ItemList"
 
 @Composable
 @Preview
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: VM) {
-    val items: List<Item> by viewModel.allItems.collectAsState(listOf())
+    val allItemList: List<Item> by viewModel.allItems.collectAsState(listOf())
+    val cartItemProperties: List<CartItemProperties> by viewModel.cartItems.collectAsState(
+        listOf()
+    )
+    val cartItemList = allItemList.map { item ->
+        CartItem(
+            cartItemProperties.firstOrNull { item.itemId == it.cartItemId } ?: CartItemProperties(
+                newItemId = item.itemId,
+                amount = 0
+            ),
+            item,
+        )
+    }
 
     Column(Modifier.background(color = Color.Blue)) {
-        items.forEach { item ->
+        cartItemList.forEach { cartItem ->
             ItemListElement(
-                item,
-                viewModel.getCartItemPropertiesByItemId(item.itemId),
+                cartItem,
                 viewModel::update,
                 viewModel::addToCart
             )

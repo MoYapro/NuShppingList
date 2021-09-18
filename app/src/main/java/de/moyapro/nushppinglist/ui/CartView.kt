@@ -18,7 +18,7 @@ fun CartView(viewModel: VM) {
     val cartItemProperties: List<CartItemProperties> by viewModel.cartItems.collectAsState(
         listOf()
     )
-    val chooseAction: (String) -> Unit = { selectedValue -> viewModel.addToCart(selectedValue) }
+    val chooseAction: (String) -> Unit = viewModel::addToCart
     val autocompleteAction: (String) -> List<String> = { searchString ->
         viewModel.getAutocompleteItems(searchString)
     }
