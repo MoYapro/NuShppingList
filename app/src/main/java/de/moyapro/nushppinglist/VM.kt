@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
@@ -16,8 +15,6 @@ class VM(
     private val cartDao: CartDao
 ) : ViewModel() {
 
-    private val TAG = "VM"
-
     @Suppress("unused") // no-args constructor required by 'by viewmodels()'
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
@@ -31,7 +28,7 @@ class VM(
     private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
 
-    fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>) {
+    private fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>) {
         val that = this
         viewModelScope.launch {
             source.collect { valuesFromSource ->
@@ -98,30 +95,13 @@ class VM(
     }
 
     fun addToCart(item: Item) {
-        Log.i(TAG, "add $item to DB=============================================================")
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(item.itemId)
-        Log.i(
-            TAG,
-            "existing cartItemProperties are: $existingCartItem============================================================="
-        )
         if (null == existingCartItem) {
-            Log.i(
-                TAG,
-                "add item as new ============================================================="
-            )
             add(CartItem(item))
         } else {
-            Log.i(
-                TAG,
-                "increase amount of ${existingCartItem} ============================================================="
-            )
             val updatedCartItemProperties =
                 existingCartItem.copy(amount = existingCartItem.amount + 1)
-            Log.i(
-                TAG,
-                "save updated cartItemProperties ${updatedCartItemProperties} ============================================================="
-            )
             update(updatedCartItemProperties)
         }
     }

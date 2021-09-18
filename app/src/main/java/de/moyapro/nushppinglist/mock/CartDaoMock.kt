@@ -5,17 +5,12 @@ import de.moyapro.nushppinglist.CartItem
 import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.Item
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @FlowPreview
-@ExperimentalCoroutinesApi
 class CartDaoMock(
     private val externalScope: CoroutineScope
 ) : CartDao {
@@ -23,30 +18,13 @@ class CartDaoMock(
     private val itemTable: MutableSet<Item> = mutableSetOf()
     private val cartItemPropertiesTable: MutableSet<CartItemProperties> = mutableSetOf()
 
-    private val cartItemChannel = ConflatedBroadcastChannel<List<CartItem>>()
-    private val cartItemPropertiesChannel = ConflatedBroadcastChannel<List<CartItemProperties>>()
-    private val allItemChannel = ConflatedBroadcastChannel<List<Item>>()
-
-    private val allItemFlow: Flow<List<Item>> = allItemChannel.asFlow().shareIn(
-        externalScope,
-        replay = 1,
-        started = SharingStarted.WhileSubscribed()
-    )
-
-    private val cartItemPropertiesFlow: Flow<List<CartItemProperties>> =
-        cartItemPropertiesChannel.asFlow().shareIn(
-            externalScope,
-            replay = 1,
-            started = SharingStarted.WhileSubscribed()
-        )
-
-
-    private val cartItemFlow: Flow<List<CartItem>> = cartItemChannel.asFlow().shareIn(
-        externalScope,
-        replay = 1,
-        started = SharingStarted.WhileSubscribed()
-    )
-
+    private val cartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
+    private val cartItemPropertiesChannel: MutableStateFlow<List<CartItemProperties>> =
+        MutableStateFlow(listOf())
+    private val allItemChannel: MutableStateFlow<List<Item>> = MutableStateFlow(listOf())
+    private val allItemFlow: Flow<List<Item>> = allItemChannel
+    private val cartItemPropertiesFlow: Flow<List<CartItemProperties>> = cartItemPropertiesChannel
+    private val cartItemFlow: Flow<List<CartItem>> = cartItemChannel
 
     override fun save(vararg cartItemProperties: CartItemProperties) {
         cartItemPropertiesTable += cartItemProperties
@@ -126,7 +104,7 @@ class CartDaoMock(
     private fun pushCartItems() {
         val cartItemJoinTable = getJoin(itemTable, cartItemPropertiesTable)
         externalScope.launch {
-            cartItemChannel.send(cartItemJoinTable)
+            cartItemChannel.value = cartItemJoinTable
         }
     }
 
@@ -148,13 +126,13 @@ class CartDaoMock(
 
     private fun pushItems() {
         externalScope.launch {
-            allItemChannel.send(itemTable.toList())
+            allItemChannel.value = itemTable.toList()
         }
     }
 
     private fun pushCartItemProperties() {
         externalScope.launch {
-            cartItemPropertiesChannel.send(cartItemPropertiesTable.toList())
+            cartItemPropertiesChannel.value = cartItemPropertiesTable.toList()
         }
     }
 
@@ -162,8 +140,8 @@ class CartDaoMock(
         itemTable.clear()
         cartItemPropertiesTable.clear()
         externalScope.launch {
-            cartItemPropertiesChannel.send(cartItemPropertiesTable.toList())
-            allItemChannel.send(itemTable.toList())
+            cartItemPropertiesChannel.value = cartItemPropertiesTable.toList()
+            allItemChannel.value = itemTable.toList()
         }
     }
 
