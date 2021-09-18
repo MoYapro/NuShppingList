@@ -2,6 +2,8 @@ package de.moyapro.nushppinglist
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.EditTextField
 import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.ItemListElement

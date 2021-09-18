@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.VM
+import de.moyapro.nushppinglist.db.model.CartItemProperties
 
 @Composable
 fun CartListElement(

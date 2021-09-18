@@ -2,7 +2,10 @@ package de.moyapro.nushppinglist
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import de.moyapro.nushppinglist.CONSTANTS.UNCHECKED
+import de.moyapro.nushppinglist.constants.CONSTANTS.UNCHECKED
+import de.moyapro.nushppinglist.db.model.CartDao
+import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.CartView
 import de.moyapro.nushppinglist.ui.EditTextField

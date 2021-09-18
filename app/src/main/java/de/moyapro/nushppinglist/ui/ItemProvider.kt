@@ -1,7 +1,7 @@
 package de.moyapro.nushppinglist.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.moyapro.nushppinglist.Item
+import de.moyapro.nushppinglist.db.model.Item
 
 class LabelProvider : PreviewParameterProvider<String> {
     override val values: Sequence<String>

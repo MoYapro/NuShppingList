@@ -5,6 +5,10 @@ import androidx.room.Room.inMemoryDatabaseBuilder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
+import de.moyapro.nushppinglist.db.AppDatabase
+import de.moyapro.nushppinglist.db.model.CartDao
+import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.Item
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList

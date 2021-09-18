@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.constants
 
 object CONSTANTS {
     const val CHECKED = true

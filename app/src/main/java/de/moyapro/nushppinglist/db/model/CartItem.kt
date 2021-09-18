@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Embedded
 import androidx.room.Relation

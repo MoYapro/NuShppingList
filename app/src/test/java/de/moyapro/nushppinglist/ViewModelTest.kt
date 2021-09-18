@@ -1,5 +1,8 @@
 package de.moyapro.nushppinglist
 
+import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.CartItemProperties
+import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import kotlinx.coroutines.*

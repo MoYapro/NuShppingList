@@ -1,9 +1,9 @@
 package de.moyapro.nushppinglist.mock
 
-import de.moyapro.nushppinglist.CartDao
-import de.moyapro.nushppinglist.CartItem
-import de.moyapro.nushppinglist.CartItemProperties
-import de.moyapro.nushppinglist.Item
+import de.moyapro.nushppinglist.db.model.CartDao
+import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.CartItemProperties
+import de.moyapro.nushppinglist.db.model.Item
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow

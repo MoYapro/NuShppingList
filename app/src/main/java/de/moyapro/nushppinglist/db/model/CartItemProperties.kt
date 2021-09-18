@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

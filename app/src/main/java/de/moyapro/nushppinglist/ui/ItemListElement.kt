@@ -13,10 +13,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import de.moyapro.nushppinglist.CartItem
-import de.moyapro.nushppinglist.CartItemProperties
-import de.moyapro.nushppinglist.Item
-import de.moyapro.nushppinglist.SWITCHES
+import de.moyapro.nushppinglist.constants.SWITCHES
+import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.CartItemProperties
+import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.theme.Purple700
 
 
