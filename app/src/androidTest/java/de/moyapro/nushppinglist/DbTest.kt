@@ -63,19 +63,21 @@ class DbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun writeAndLoadCartItemProperties() = runBlocking {
-        val cartItemProperties = CartItemProperties()
-        cartDao.save(cartItemProperties)
+        val cartItem = CartItem("someName")
+        cartDao.save(cartItem.item)
+        cartDao.save(cartItem.cartItemProperties)
         val dbCartItemProperties = cartDao.findAllInCart().first().first()
-        assertEquals(cartItemProperties, dbCartItemProperties)
+        assertEquals(cartItem.cartItemProperties, dbCartItemProperties)
     }
 
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun updateAndLoadCartItemProperties() = runBlocking {
-        val cartItemProperties = CartItemProperties()
+        val cartItem = CartItem("someName")
         val newAmount = 3
-        cartDao.save(cartItemProperties)
-        cartDao.updateAll(cartItemProperties.copy(amount = newAmount))
+        cartDao.save(cartItem.item)
+        cartDao.save(cartItem.cartItemProperties)
+        cartDao.updateAll(cartItem.cartItemProperties.copy(amount = newAmount))
         val dbCartItemProperties = cartDao.findAllInCart().first().first()
         assertEquals(newAmount, dbCartItemProperties.amount)
     }
