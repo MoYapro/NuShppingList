@@ -22,7 +22,10 @@ class EditTextFieldTest {
         val textInput = "input"
         composeTestRule.setContent {
             NuShppingListTheme {
-                EditTextField("Label", initialValue, { x -> value = x })
+                EditTextField(
+                    label = "Label",
+                    initialValue = initialValue,
+                    onValueChange = { x -> value = x })
             }
         }
         val fields =

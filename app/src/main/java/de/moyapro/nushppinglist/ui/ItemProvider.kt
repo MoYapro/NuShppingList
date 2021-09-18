@@ -9,12 +9,6 @@ class LabelProvider : PreviewParameterProvider<String> {
 }
 
 
-class ItemProvider : PreviewParameterProvider<Item> {
-    override val values: Sequence<Item>
-        get() = listOf(Item("Milk")).asSequence()
-
-}
-
 class ItemListProvider : PreviewParameterProvider<List<Item>> {
     override val values: Sequence<List<Item>>
         get() = listOf(listOf(Item("Milk"), Item("Apple"))).asSequence()

@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist
 
-import android.util.Log
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import de.moyapro.nushppinglist.ui.EditTextField
@@ -15,8 +14,6 @@ class ItemListElementTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
-
-    private val TAG = "ItemListElementTest"
 
     @Test
     fun saveExecutesSaveActionWithNewValue() {
@@ -85,22 +82,8 @@ class ItemListElementTest {
             }
         }
 
-        Log.i(
-            TAG,
-            "==============================================================================="
-        )
         composeTestRule.onNodeWithText("🛒 x 1").assertIsDisplayed().performClick()
-        Log.i(
-            TAG,
-            "==============================================================================="
-        )
-//        viewModel.update(cartItem.cartItemProperties.copy(amount = 2))
-        println("===============================================================================")
         composeTestRule.onNodeWithText("🛒 x 2").assertIsDisplayed()
-        Log.i(
-            TAG,
-            "==============================================================================="
-        )
     }
 
 }

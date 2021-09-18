@@ -14,8 +14,6 @@ import de.moyapro.nushppinglist.CartItemProperties
 import de.moyapro.nushppinglist.Item
 import de.moyapro.nushppinglist.VM
 
-private const val TAG = "ItemList"
-
 @Composable
 @Preview
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: VM) {

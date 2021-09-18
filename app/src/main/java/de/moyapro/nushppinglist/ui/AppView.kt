@@ -17,7 +17,7 @@ fun AppView(viewModel: VM, showCart: Boolean = true) {
     var cartIsDisplayed: Boolean by remember { mutableStateOf(showCart) }
     Column(Modifier.background(color = Color.Magenta)) {
 
-        cartIsDisplayed = ViewSelector(cartIsDisplayed) { newValue -> cartIsDisplayed = newValue }
+        ViewSelector(cartIsDisplayed) { newValue -> cartIsDisplayed = newValue }
 
         if (cartIsDisplayed)
             CartView(viewModel)
@@ -27,13 +27,12 @@ fun AppView(viewModel: VM, showCart: Boolean = true) {
 }
 
 @Composable
-private fun ViewSelector(cartIsDisplayed: Boolean, setNewState: (Boolean) -> Unit): Boolean {
-    var cartIsDisplayed1 = cartIsDisplayed
+private fun ViewSelector(cartIsDisplayed: Boolean, setNewState: (Boolean) -> Unit) {
     Row {
         Button(
             modifier = Modifier
                 .fillMaxWidth(.5F),
-            colors = ButtonDefaults.buttonColors(backgroundColor = if (cartIsDisplayed1) Purple700 else Color.Gray),
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (cartIsDisplayed) Purple700 else Color.Gray),
             onClick = {
                 setNewState(true)
             }) {
@@ -43,12 +42,11 @@ private fun ViewSelector(cartIsDisplayed: Boolean, setNewState: (Boolean) -> Uni
         Button(
             modifier = Modifier
                 .fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(backgroundColor = if (!cartIsDisplayed1) Purple700 else Color.Gray),
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (!cartIsDisplayed) Purple700 else Color.Gray),
             onClick = {
                 setNewState(false)
             }) {
             Text("Dinge")
         }
     }
-    return cartIsDisplayed1
 }
