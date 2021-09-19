@@ -23,7 +23,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: VM) {
     )
     val cartItemList = allItemList.map { item ->
         CartItem(
-            cartItemProperties.firstOrNull { item.itemId == it.cartItemId } ?: CartItemProperties(
+            cartItemProperties.firstOrNull { item.itemId == it.itemId } ?: CartItemProperties(
                 newItemId = item.itemId,
                 amount = 0
             ),

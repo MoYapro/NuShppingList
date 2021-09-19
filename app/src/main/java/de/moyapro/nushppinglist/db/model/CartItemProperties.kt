@@ -2,22 +2,27 @@ package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import de.moyapro.nushppinglist.db.ids.ItemId
 import kotlin.random.Random
 
 @Entity
 data class CartItemProperties(
     @PrimaryKey(autoGenerate = true)
-    val cartItemPropertiesId: Long,
-    val cartItemId: Long,
-    val itemId: Long,
-    val amount: Int,
-    val checked: Boolean
+    var cartItemPropertiesId: Long,
+    var cartItemId: Long,
+    @get:JvmName("getItemId")
+    @set:JvmName("setItemId")
+    var itemId: ItemId,
+    var amount: Int,
+    var checked: Boolean
 ) {
-    constructor(newItemId: Long = Random.nextLong(), amount: Int = 1) : this(
-        cartItemPropertiesId = newItemId,
-        cartItemId = newItemId,
+    constructor(newItemId: ItemId, amount: Int = 1) : this(
+        cartItemPropertiesId = newItemId.id,
+        cartItemId = newItemId.id,
         itemId = newItemId,
         amount = amount,
         checked = false
     )
+
+    constructor() : this(ItemId(Random.nextLong()))
 }

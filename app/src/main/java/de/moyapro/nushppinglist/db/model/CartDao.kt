@@ -2,8 +2,10 @@ package de.moyapro.nushppinglist.db.model
 
 import androidx.room.*
 import de.moyapro.nushppinglist.db.ids.ID
+import de.moyapro.nushppinglist.db.ids.ItemId
 import kotlinx.coroutines.flow.Flow
 
+@Suppress("FunctionName")
 @Dao
 interface CartDao {
 
@@ -32,11 +34,21 @@ interface CartDao {
     @Query("select * from Item")
     fun findNotAddedItems(): List<Item>
 
+    @Deprecated(
+        "This is just for the generated Dao_Impl",
+        level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("getItemByItemId(itemId)")
+    )
     @Query("select * from Item i where i.itemId = :itemId")
-    fun getItemByItemId(itemId: Long): Item?
+    fun getItemByItemId_internal(itemId: Long): Item?
 
+    @Deprecated(
+        "This is just for the generated Dao_Impl",
+        level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("getCartItemByItemId(itemId)")
+    )
     @Query("select * from CartItemProperties p where p.itemId = :itemId")
-    fun getCartItemByItemId(itemId: Long): CartItemProperties?
+    fun getCartItemByItemId_internal(itemId: Long): CartItemProperties?
 
     @Query("select * from Item i where i.name = :itemName")
     fun getItemByItemName(itemName: String): Item?
@@ -57,4 +69,7 @@ interface CartDao {
 
 }
 
-fun CartDao.getByIdRealId(theID: ID): Test = getByIdRealId(theID.id)
+fun CartDao.getByIdRealId(theID: ID) = getByIdRealId(theID.id)
+fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId(itemId.id)
+fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId(itemId.id)
+

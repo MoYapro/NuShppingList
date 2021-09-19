@@ -84,12 +84,12 @@ class CartDaoMock(
         return itemTable.toList()
     }
 
-    override fun getItemByItemId(itemId: Long): Item? {
-        return itemTable.firstOrNull { itemInDb -> itemInDb.itemId == itemId }
+    override fun getItemByItemId_internal(itemId: Long): Item? {
+        return itemTable.firstOrNull { itemInDb -> itemInDb.itemId.id == itemId }
     }
 
-    override fun getCartItemByItemId(itemId: Long): CartItemProperties? {
-        return cartItemPropertiesTable.firstOrNull { itemId == it.itemId }
+    override fun getCartItemByItemId_internal(itemId: Long): CartItemProperties? {
+        return cartItemPropertiesTable.firstOrNull { itemId == it.itemId.id }
     }
 
     override fun getItemByItemName(itemName: String): Item? {

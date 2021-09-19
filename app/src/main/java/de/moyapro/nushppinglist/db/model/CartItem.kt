@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import de.moyapro.nushppinglist.db.ids.ItemId
 import kotlin.random.Random
 
 data class CartItem(
@@ -16,19 +17,19 @@ data class CartItem(
     constructor(
         newItemName: String,
         checked: Boolean = false,
-        newItemId: Long = Random.nextLong()
+        newItemId: ItemId = ItemId(Random.nextLong())
     ) : this(
         CartItemProperties(
-            newItemId,
-            newItemId,
+            newItemId.id,
+            newItemId.id,
             newItemId,
             1,
             checked
-        ), Item(newItemName, newItemId)
+        ), Item(newItemId, newItemName)
     )
 
     constructor(item: Item) : this(
-        CartItemProperties(item.itemId, item.itemId, item.itemId, 1, false),
+        CartItemProperties(item.itemId.id, item.itemId.id, item.itemId, 1, false),
         item
     )
 

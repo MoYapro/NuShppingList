@@ -3,10 +3,8 @@ package de.moyapro.nushppinglist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
-import de.moyapro.nushppinglist.db.model.CartDao
-import de.moyapro.nushppinglist.db.model.CartItem
-import de.moyapro.nushppinglist.db.model.CartItemProperties
-import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.db.ids.ItemId
+import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -88,7 +86,7 @@ class VM(
         }
     }
 
-    fun getItemByItemId(itemId: Long): Item? {
+    fun getItemByItemId(itemId: ItemId): Item? {
         return cartDao.getItemByItemId(itemId)
     }
 
@@ -128,7 +126,7 @@ class VM(
             }
     }
 
-    fun getCartItemPropertiesByItemId(itemId: Long): CartItemProperties? {
+    fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? {
         return cartDao.getCartItemByItemId(itemId)
     }
 

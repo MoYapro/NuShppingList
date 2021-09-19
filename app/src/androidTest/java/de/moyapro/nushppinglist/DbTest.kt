@@ -12,7 +12,6 @@ import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.db.model.getByIdRealId
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -54,7 +53,7 @@ class DbTest {
         val item = Item("Milk")
         cartDao.save(item)
         val dbItem = cartDao.findAllItems().first().first()
-        assertEquals(item, dbItem)
+        item shouldBe dbItem
     }
 
     @Test(timeout = 10000)
