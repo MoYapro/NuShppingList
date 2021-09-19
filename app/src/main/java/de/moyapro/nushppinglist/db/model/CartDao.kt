@@ -69,7 +69,7 @@ interface CartDao {
 
 }
 
-fun CartDao.getByIdRealId(theID: ID) = getByIdRealId(theID.id)
-fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId(itemId.id)
-fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId(itemId.id)
+fun CartDao.getByIdRealId(theID: ID) = getByIdLongType(theID.id)
+fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId_internal(itemId.id)
+fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId_internal(itemId.id)
 

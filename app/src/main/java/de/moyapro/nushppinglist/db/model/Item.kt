@@ -14,6 +14,6 @@ data class Item(
     var name: String
 ) {
     constructor(name: String, newItemId: ItemId = ItemId(Random.nextLong())) : this(newItemId, name)
-    constructor() : this("")
+    constructor(): this("")
 }
 
