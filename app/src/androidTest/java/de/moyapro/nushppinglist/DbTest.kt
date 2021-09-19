@@ -6,9 +6,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import de.moyapro.nushppinglist.db.AppDatabase
+import de.moyapro.nushppinglist.db.ids.ID
 import de.moyapro.nushppinglist.db.model.CartDao
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.db.model.getByIdRealId
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -149,6 +153,18 @@ class DbTest {
         val updatedCart = viewModel.cartItems.take(1).toList()[0]
         assertEquals("Should have added item to cart", 1, updatedCart.size)
         assertEquals("Cart should contain itemId", newItem.itemId, updatedCart[0].itemId)
+    }
+
+
+    @Test
+    fun createAndLoadTest() {
+        val theID = ID(42)
+        val toBeSaved = de.moyapro.nushppinglist.db.model.Test(theID)
+        cartDao.save(toBeSaved)
+        val fromDB = cartDao.getByIdRealId(theID)
+        fromDB shouldNotBe null
+        fromDB.id shouldNotBe 42
+        fromDB.id shouldBe ID(42)
     }
 
 }
