@@ -1,6 +1,9 @@
 package de.moyapro.nushppinglist.mock
 
-import de.moyapro.nushppinglist.db.model.*
+import de.moyapro.nushppinglist.db.dao.CartDao
+import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.CartItemProperties
+import de.moyapro.nushppinglist.db.model.Item
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -33,10 +36,6 @@ class CartDaoMock(
         itemTable += items
         pushItems()
         pushCartItems()
-    }
-
-    override fun save(test: Test) {
-        TODO("Not yet implemented")
     }
 
     override fun updateAll(vararg items: Item) {
@@ -100,11 +99,6 @@ class CartDaoMock(
         cartItemPropertiesTable.removeIf { it.checked }
         pushCartItemProperties()
 
-    }
-
-
-    override fun getByIdLongType(theID: Long): Test {
-        TODO("Not yet implemented")
     }
 
     private fun pushCartItems() {
