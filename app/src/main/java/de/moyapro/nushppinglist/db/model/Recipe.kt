@@ -13,6 +13,11 @@ class Recipe(
         parentColumn = "recipeId",
         entityColumn = "recipeId"
     )
+    val recipeSteps: List<RecipeStep> = emptyList(),
+    @Relation(
+        parentColumn = "recipeId",
+        entityColumn = "recipeId"
+    )
     val recipeItems: List<RecipeItem> = emptyList()
 ) {
 }

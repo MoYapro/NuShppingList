@@ -2,9 +2,8 @@ package de.moyapro.nushppinglist.db
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.moyapro.nushppinglist.db.dao.RecipeDao
-import de.moyapro.nushppinglist.db.model.Recipe
-import de.moyapro.nushppinglist.db.model.RecipeItem
-import de.moyapro.nushppinglist.db.model.RecipeProperties
+import de.moyapro.nushppinglist.db.ids.ItemId
+import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 import de.moyapro.nushppinglist.util.DbTestHelper
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -44,32 +43,59 @@ class RecipeDbTest {
             RecipeProperties(
                 recipePropertiesId = 10,
                 recipeId = 1,
-                title = "Cake"
+                title = "Cake",
+                description = "This is some tasty cake",
             ),
             recipeId = 1,
             recipeItems = listOf(
                 RecipeItem(
                     recipeItemId = 20,
                     recipeId = 1,
-                    amount = 99
+                    amount = 99,
+                    unit = "kg",
+                    item = Item(itemId = ItemId(30), name = "Milk"),
                 ),
                 RecipeItem(
                     recipeItemId = 21,
                     recipeId = 1,
-                    amount = 12
+                    amount = 12,
+                    unit = "g",
+                    item = Item(itemId = ItemId(31), name = "Sugar"),
                 ),
             ),
+            recipeSteps = listOf(
+                RecipeStep(
+                    recipeStepId = 40,
+                    recipeId = 1,
+                    stepNumber = 1,
+                    stepDescription = "Now add the eggs"
+                ),
+                RecipeStep(
+                    recipeStepId = 41,
+                    recipeId = 1,
+                    stepNumber = 2,
+                    stepDescription = "In the end finish with a bang"
+                ),
+            )
         )
         recipeViewModel.save(recipe)
 
         val dbRecipe: Recipe = recipeDao.findAllRecipe().first().first()
 
-        recipe.recipeId shouldBe dbRecipe.recipeId
-        recipe.recipeProperties.title shouldBe dbRecipe.recipeProperties.title
-        recipe.recipeItems shouldHaveSize 2
+        dbRecipe.recipeId shouldBe recipe.recipeId
+        dbRecipe.recipeProperties.description shouldBe recipe.recipeProperties.description
+        dbRecipe.recipeProperties.title shouldBe recipe.recipeProperties.title
+        dbRecipe.recipeItems shouldHaveSize 2
         dbRecipe.recipeItems.map { it.recipeItemId } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.recipeItemId }
         dbRecipe.recipeItems.map { it.recipeId } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.recipeId }
         dbRecipe.recipeItems.map { it.amount } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.amount }
+        dbRecipe.recipeItems.map { it.unit } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.unit }
+        dbRecipe.recipeItems.map { it.item.itemId } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.item.itemId }
+        dbRecipe.recipeSteps shouldHaveSize 2
+        dbRecipe.recipeSteps.map {it.recipeId} shouldContainExactlyInAnyOrder recipe.recipeSteps.map {it.recipeId}
+        dbRecipe.recipeSteps.map {it.recipeStepId} shouldContainExactlyInAnyOrder recipe.recipeSteps.map {it.recipeStepId}
+        dbRecipe.recipeSteps.map {it.stepNumber} shouldContainExactlyInAnyOrder recipe.recipeSteps.map {it.stepNumber}
+        dbRecipe.recipeSteps.map {it.stepDescription} shouldContainExactlyInAnyOrder recipe.recipeSteps.map {it.stepDescription}
 
         Unit
     }
