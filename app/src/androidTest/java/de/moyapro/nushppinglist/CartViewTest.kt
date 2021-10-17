@@ -9,6 +9,7 @@ import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.CartView
 import de.moyapro.nushppinglist.ui.EditTextField
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -143,8 +144,8 @@ internal class CartViewTest {
     }
 
 
-    private fun createComposable(vararg items: CartItem): VM {
-        val viewModel = VM(cartDao)
+    private fun createComposable(vararg items: CartItem): CartViewModel {
+        val viewModel = CartViewModel(cartDao)
         items.forEach { viewModel.add(it) }
         composeTestRule.setContent {
             NuShppingListTheme {

@@ -7,6 +7,7 @@ import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.EditTextField
 import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.ItemListElement
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import org.junit.Assert.*
 import org.junit.Rule
@@ -61,7 +62,7 @@ class ItemListElementTest {
     @Test
     fun showAmountInCartOnButton() {
         val cartItem = CartItem("thing")
-        val viewModel = VM()
+        val viewModel = CartViewModel()
         viewModel.add(cartItem)
 
         composeTestRule.setContent {
@@ -75,7 +76,7 @@ class ItemListElementTest {
     @Test
     fun increaseAmountOnAddAgain() {
         val cartItem = CartItem("thing")
-        val viewModel = VM()
+        val viewModel = CartViewModel()
         viewModel.add(cartItem)
 
         composeTestRule.setContent {

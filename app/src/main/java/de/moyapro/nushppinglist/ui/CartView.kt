@@ -9,12 +9,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import de.moyapro.nushppinglist.VM
 import de.moyapro.nushppinglist.db.model.CartItemProperties
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 
 @Composable
-fun CartView(viewModel: VM) {
+fun CartView(viewModel: CartViewModel) {
     val cartItemProperties: List<CartItemProperties> by viewModel.cartItems.collectAsState(
         listOf()
     )

@@ -1,14 +1,14 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.db
 
 import android.content.Context
 import androidx.room.Room.inMemoryDatabaseBuilder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
-import de.moyapro.nushppinglist.db.AppDatabase
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -22,9 +22,9 @@ import java.io.IOException
 import kotlin.time.ExperimentalTime
 
 @RunWith(AndroidJUnit4::class)
-class DbTest {
+class CartDbTest {
     private lateinit var cartDao: CartDao
-    private lateinit var viewModel: VM
+    private lateinit var viewModel: CartViewModel
     private lateinit var db: AppDatabase
 
     @Before
@@ -34,7 +34,7 @@ class DbTest {
             context, AppDatabase::class.java
         ).build()
         cartDao = db.cartDao()
-        viewModel = VM(cartDao)
+        viewModel = CartViewModel(cartDao)
     }
 
     @After

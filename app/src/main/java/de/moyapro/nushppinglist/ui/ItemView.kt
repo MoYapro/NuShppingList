@@ -10,11 +10,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import de.moyapro.nushppinglist.VM
 import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 @Composable
-fun ItemView(viewModel: VM) {
+fun ItemView(viewModel: CartViewModel) {
     Column(Modifier.background(color = Color.Cyan)) {
         Row(
             Modifier.fillMaxWidth(),

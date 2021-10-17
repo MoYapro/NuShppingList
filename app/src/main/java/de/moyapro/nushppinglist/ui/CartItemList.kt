@@ -11,13 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import de.moyapro.nushppinglist.VM
 import de.moyapro.nushppinglist.db.model.CartItemProperties
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 @Composable
 fun CartListElement(
     cartItem: CartItemProperties,
-    viewModel: VM
+    viewModel: CartViewModel
 ) {
     val item = viewModel.getItemByItemId(cartItem.itemId)
     if (null != item) {

@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.ui.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,14 +18,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 
 @FlowPreview
-class VM(
+class CartViewModel(
     private val cartDao: CartDao
 ) : ViewModel() {
 
     @Suppress("unused") // no-args constructor required by 'by viewmodels()'
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
-    val coroutineScope = viewModelScope
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
     val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
     private val _nonCartItems = MutableStateFlow<List<Item>>(emptyList())

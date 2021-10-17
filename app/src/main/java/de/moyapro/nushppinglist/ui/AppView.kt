@@ -9,11 +9,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import de.moyapro.nushppinglist.VM
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.Purple700
 
 @Composable
-fun AppView(viewModel: VM, showCart: Boolean = true) {
+fun AppView(viewModel: CartViewModel, showCart: Boolean = true) {
     var cartIsDisplayed: Boolean by remember { mutableStateOf(showCart) }
     Column(Modifier.background(color = Color.Magenta)) {
 

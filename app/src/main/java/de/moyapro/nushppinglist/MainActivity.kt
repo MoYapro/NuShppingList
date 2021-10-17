@@ -8,6 +8,7 @@ import de.moyapro.nushppinglist.constants.CONSTANTS.CHECKED
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.AppView
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import kotlinx.coroutines.FlowPreview
 
@@ -15,7 +16,7 @@ import kotlinx.coroutines.FlowPreview
 class MainActivity : ComponentActivity() {
 
 
-    private val globalViewModel by viewModels<VM>()
+    private val globalViewModel by viewModels<CartViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

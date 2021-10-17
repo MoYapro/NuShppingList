@@ -6,7 +6,6 @@ import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -25,13 +24,13 @@ class ViewModelTest {
     @get:Rule
     val coroutineRule = MainCoroutineRule()
 
-    private lateinit var viewModel: VM
+    private lateinit var viewModel: CartViewModel
     private val cartDao: CartDaoMock =
         CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
 
     @Before
     fun setup() {
-        viewModel = VM(cartDao)
+        viewModel = CartViewModel(cartDao)
     }
 
     @After
