@@ -1,12 +1,18 @@
 package de.moyapro.nushppinglist.db.model
 
-import androidx.room.Entity
+import androidx.room.Embedded
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 
-@Entity
 class Recipe(
+    @Embedded
+    val recipeProperties    :RecipeProperties,
     @PrimaryKey(autoGenerate = true)
     var recipeId: Long,
-    val title: String,
+    @Relation(
+        parentColumn = "recipeId",
+        entityColumn = "recipeId"
+    )
+    val recipeItems: List<RecipeItem> = emptyList()
 ) {
 }
