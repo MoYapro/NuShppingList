@@ -11,12 +11,14 @@ import kotlinx.coroutines.SupervisorJob
 
 @FlowPreview
 class RecipeViewModel(
-    private val recipeDao: RecipeDao
+    private val recipeDao: RecipeDao,
 ) : ViewModel() {
     fun save(vararg recipes: Recipe) {
         recipes.forEach { recipe ->
             recipeDao.save(recipe.recipeProperties)
-            recipeDao.save(*recipe.recipeItems.toTypedArray()) }
+            recipeDao.save(*recipe.recipeItems.toTypedArray())
+            recipeDao.save(*recipe.recipeSteps.toTypedArray())
+        }
 
     }
 

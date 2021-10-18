@@ -16,6 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
 class RecipeDbTest {
@@ -39,46 +40,10 @@ class RecipeDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun writeAndLoadRecipe() = runBlocking {
-        val recipe = Recipe(
-            RecipeProperties(
-                recipePropertiesId = 10,
-                recipeId = 1,
-                title = "Cake",
-                description = "This is some tasty cake",
-            ),
-            recipeId = 1,
-            recipeItems = listOf(
-                RecipeItem(
-                    recipeItemId = 20,
-                    recipeId = 1,
-                    amount = 99,
-                    unit = "kg",
-                    item = Item(itemId = ItemId(30), name = "Milk"),
-                ),
-                RecipeItem(
-                    recipeItemId = 21,
-                    recipeId = 1,
-                    amount = 12,
-                    unit = "g",
-                    item = Item(itemId = ItemId(31), name = "Sugar"),
-                ),
-            ),
-            recipeSteps = listOf(
-                RecipeStep(
-                    recipeStepId = 40,
-                    recipeId = 1,
-                    stepNumber = 1,
-                    stepDescription = "Now add the eggs"
-                ),
-                RecipeStep(
-                    recipeStepId = 41,
-                    recipeId = 1,
-                    stepNumber = 2,
-                    stepDescription = "In the end finish with a bang"
-                ),
-            )
-        )
-        recipeViewModel.save(recipe)
+        val recipe = createSampleRecipe(recipeId = 1)
+        val recipe2 = createSampleRecipe(recipeId = 2)
+
+        recipeViewModel.save(recipe, recipe2)
 
         val dbRecipe: Recipe = recipeDao.findAllRecipe().first().first()
 
@@ -92,12 +57,56 @@ class RecipeDbTest {
         dbRecipe.recipeItems.map { it.unit } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.unit }
         dbRecipe.recipeItems.map { it.item.itemId } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.item.itemId }
         dbRecipe.recipeSteps shouldHaveSize 2
-        dbRecipe.recipeSteps.map {it.recipeId} shouldContainExactlyInAnyOrder recipe.recipeSteps.map {it.recipeId}
-        dbRecipe.recipeSteps.map {it.recipeStepId} shouldContainExactlyInAnyOrder recipe.recipeSteps.map {it.recipeStepId}
-        dbRecipe.recipeSteps.map {it.stepNumber} shouldContainExactlyInAnyOrder recipe.recipeSteps.map {it.stepNumber}
-        dbRecipe.recipeSteps.map {it.stepDescription} shouldContainExactlyInAnyOrder recipe.recipeSteps.map {it.stepDescription}
+        dbRecipe.recipeSteps.map { it.recipeId } shouldContainExactlyInAnyOrder recipe.recipeSteps.map { it.recipeId }
+        dbRecipe.recipeSteps.map { it.recipeStepId } shouldContainExactlyInAnyOrder recipe.recipeSteps.map { it.recipeStepId }
+        dbRecipe.recipeSteps.map { it.stepNumber } shouldContainExactlyInAnyOrder recipe.recipeSteps.map { it.stepNumber }
+        dbRecipe.recipeSteps.map { it.stepDescription } shouldContainExactlyInAnyOrder recipe.recipeSteps.map { it.stepDescription }
+
+        dbRecipe shouldBe recipe
 
         Unit
+    }
+
+    private fun createSampleRecipe(recipeId: Long = 1): Recipe {
+        return Recipe(
+            RecipeProperties(
+                recipePropertiesId = Random.nextLong(),
+                recipeId = recipeId,
+                title = "Cake",
+                description = "This is some tasty cake",
+            ),
+            recipeId = recipeId,
+            recipeItems = listOf(
+                RecipeItem(
+                    recipeItemId = Random.nextLong(),
+                    recipeId = recipeId,
+                    amount = 99,
+                    unit = "kg",
+                    item = Item(itemId = ItemId(30), name = "Milk"),
+                ),
+                RecipeItem(
+                    recipeItemId = Random.nextLong(),
+                    recipeId = recipeId,
+                    amount = 12,
+                    unit = "g",
+                    item = Item(itemId = ItemId(31), name = "Sugar"),
+                ),
+            ),
+            recipeSteps = listOf(
+                RecipeStep(
+                    recipeStepId = Random.nextLong(),
+                    recipeId = recipeId,
+                    stepNumber = 1,
+                    stepDescription = "Now add the eggs"
+                ),
+                RecipeStep(
+                    recipeStepId = Random.nextLong(),
+                    recipeId = recipeId,
+                    stepNumber = 2,
+                    stepDescription = "In the end finish with a bang"
+                ),
+            )
+        )
     }
 
     // turbine example

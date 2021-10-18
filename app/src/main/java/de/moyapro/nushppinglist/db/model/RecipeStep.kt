@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class RecipeStep(
+data class RecipeStep(
     @PrimaryKey(autoGenerate = true)
     var recipeStepId: Long,
     var recipeId: Long,

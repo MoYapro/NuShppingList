@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.db.model.RecipeItem
 import de.moyapro.nushppinglist.db.model.RecipeProperties
+import de.moyapro.nushppinglist.db.model.RecipeStep
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,7 +19,11 @@ interface RecipeDao {
 
     @Transaction
     @Insert
-    fun save(recipe: RecipeProperties)
+    fun save(vararg recipe: RecipeProperties)
+
+    @Transaction
+    @Insert
+    fun save(vararg recipe: RecipeStep)
 
     @Transaction
     @Query("select * from RecipeProperties")

@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
-class Recipe(
+data class Recipe(
     @Embedded
     val recipeProperties    :RecipeProperties,
     @PrimaryKey(autoGenerate = true)

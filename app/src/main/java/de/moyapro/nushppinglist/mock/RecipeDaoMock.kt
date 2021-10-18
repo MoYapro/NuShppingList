@@ -4,6 +4,7 @@ import de.moyapro.nushppinglist.db.dao.RecipeDao
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.db.model.RecipeItem
 import de.moyapro.nushppinglist.db.model.RecipeProperties
+import de.moyapro.nushppinglist.db.model.RecipeStep
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
@@ -15,7 +16,11 @@ class RecipeDaoMock(
         TODO("Not yet implemented")
     }
 
-    override fun save(recipe: RecipeProperties) {
+    override fun save(vararg recipe: RecipeProperties) {
+        TODO("Not yet implemented")
+    }
+
+    override fun save(vararg recipe: RecipeStep) {
         TODO("Not yet implemented")
     }
 

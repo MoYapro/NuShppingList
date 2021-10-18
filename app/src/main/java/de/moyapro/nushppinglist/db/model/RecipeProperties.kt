@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class RecipeProperties(
+data class RecipeProperties(
     @PrimaryKey(autoGenerate = true)
     var recipePropertiesId: Long,
     var recipeId: Long,
