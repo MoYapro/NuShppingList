@@ -53,7 +53,6 @@ class RecipeDbTest {
         dbRecipe.recipeItems.map { it.recipeItemId } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.recipeItemId }
         dbRecipe.recipeItems.map { it.recipeId } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.recipeId }
         dbRecipe.recipeItems.map { it.amount } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.amount }
-        dbRecipe.recipeItems.map { it.unit } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.unit }
         dbRecipe.recipeItems.map { it.item.itemId } shouldContainExactlyInAnyOrder recipe.recipeItems.map { it.item.itemId }
         dbRecipe.recipeSteps shouldHaveSize 2
         dbRecipe.recipeSteps.map { it.recipeId } shouldContainExactlyInAnyOrder recipe.recipeSteps.map { it.recipeId }
