@@ -11,9 +11,11 @@ data class Item(
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
     var itemId: ItemId,
-    var name: String
+    var name: String,
+    var defaultItemAmount: Int,
+    var defaultItemUnit: String
 ) {
-    constructor(name: String, newItemId: ItemId = ItemId(Random.nextLong())) : this(newItemId, name)
+    constructor(name: String, newItemId: ItemId = ItemId(Random.nextLong())) : this(newItemId, name, 1, "")
     constructor(): this("")
 }
 

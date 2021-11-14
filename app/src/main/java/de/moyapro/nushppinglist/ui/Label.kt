@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import de.moyapro.nushppinglist.ui.util.LabelProvider
 
 
 object Label {

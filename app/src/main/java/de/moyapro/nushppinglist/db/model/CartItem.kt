@@ -25,7 +25,7 @@ data class CartItem(
             newItemId,
             1,
             checked
-        ), Item(newItemId, newItemName)
+        ), Item(newItemName, newItemId)
     )
 
     constructor(item: Item) : this(

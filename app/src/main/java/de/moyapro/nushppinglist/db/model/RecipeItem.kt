@@ -9,8 +9,7 @@ data class RecipeItem(
     @PrimaryKey(autoGenerate = true)
     var recipeItemId: Long,
     var recipeId: Long,
-    var amount: Int,
-    var unit: String,
+    var amount: Double,
     @Embedded
     var item: Item,
 )

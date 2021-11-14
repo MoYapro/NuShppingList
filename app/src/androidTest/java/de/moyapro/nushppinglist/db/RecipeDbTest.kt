@@ -2,9 +2,9 @@ package de.moyapro.nushppinglist.db
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.moyapro.nushppinglist.db.dao.RecipeDao
-import de.moyapro.nushppinglist.db.ids.ItemId
-import de.moyapro.nushppinglist.db.model.*
+import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
+import de.moyapro.nushppinglist.ui.util.createSampleRecipe
 import de.moyapro.nushppinglist.util.DbTestHelper
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -16,7 +16,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
 class RecipeDbTest {
@@ -67,47 +66,6 @@ class RecipeDbTest {
         Unit
     }
 
-    private fun createSampleRecipe(recipeId: Long = 1): Recipe {
-        return Recipe(
-            RecipeProperties(
-                recipePropertiesId = Random.nextLong(),
-                recipeId = recipeId,
-                title = "Cake",
-                description = "This is some tasty cake",
-            ),
-            recipeId = recipeId,
-            recipeItems = listOf(
-                RecipeItem(
-                    recipeItemId = Random.nextLong(),
-                    recipeId = recipeId,
-                    amount = 99,
-                    unit = "kg",
-                    item = Item(itemId = ItemId(30), name = "Milk"),
-                ),
-                RecipeItem(
-                    recipeItemId = Random.nextLong(),
-                    recipeId = recipeId,
-                    amount = 12,
-                    unit = "g",
-                    item = Item(itemId = ItemId(31), name = "Sugar"),
-                ),
-            ),
-            recipeSteps = listOf(
-                RecipeStep(
-                    recipeStepId = Random.nextLong(),
-                    recipeId = recipeId,
-                    stepNumber = 1,
-                    stepDescription = "Now add the eggs"
-                ),
-                RecipeStep(
-                    recipeStepId = Random.nextLong(),
-                    recipeId = recipeId,
-                    stepNumber = 2,
-                    stepDescription = "In the end finish with a bang"
-                ),
-            )
-        )
-    }
 
     // turbine example
 //    @OptIn(ExperimentalTime::class)

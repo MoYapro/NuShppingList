@@ -13,6 +13,7 @@ import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.model.CartViewModel
+import de.moyapro.nushppinglist.ui.util.ItemListProvider
 
 @Composable
 @Preview
