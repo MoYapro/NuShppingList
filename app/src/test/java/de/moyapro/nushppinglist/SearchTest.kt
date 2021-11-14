@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist
 
+import de.moyapro.nushppinglist.ui.model.matched
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

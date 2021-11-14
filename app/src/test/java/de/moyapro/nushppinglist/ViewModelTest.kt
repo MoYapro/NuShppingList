@@ -1,13 +1,18 @@
 package de.moyapro.nushppinglist
 
+import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.mock.CartDaoMock
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.util.MainCoroutineRule
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.*
 import org.junit.Assert.*
@@ -102,13 +107,13 @@ class ViewModelTest {
     @Test
     fun subscriberGetsNotifiedWhenItemIsAdded() {
         var valueChanged = false
-        viewModel.coroutineScope.launch {
-            viewModel.cartItems.collect { currentItemList ->
-                if (currentItemList.isNotEmpty()) {
-                    valueChanged = true
-                }
-            }
-        }
+//        viewModel.coroutineScope.launch {
+//            viewModel.cartItems.collect { currentItemList ->
+//                if (currentItemList.isNotEmpty()) {
+//                    valueChanged = true
+//                }
+//            }
+//        }
         assertFalse("Value should NOT have changed", valueChanged)
         viewModel.add(CartItem("bar"))
         assertTrue("Value should have changed", valueChanged)
@@ -180,7 +185,7 @@ class ViewModelTest {
 
     @Test
     fun getItemByItemId() {
-        val randomId = Random.nextLong()
+        val randomId = ItemId(Random.nextLong())
         val itemInDb = Item(randomId, "ItemName")
         viewModel.add(itemInDb)
         val itemFromDb = viewModel.getItemByItemId(randomId)
@@ -189,9 +194,9 @@ class ViewModelTest {
 
     @Test
     fun getNoItemByItemId() {
-        val itemInDb = Item(1, "ItemName")
+        val itemInDb = Item(ItemId(1), "ItemName")
         viewModel.add(itemInDb)
-        val itemFromDb = viewModel.getItemByItemId(-1)
+        val itemFromDb = viewModel.getItemByItemId(ItemId(-1))
         assertNull("Should get NO item from DB", itemFromDb)
     }
 
@@ -272,7 +277,7 @@ class ViewModelTest {
 
     @Test
     fun updateCartItemProperties() = runBlocking {
-        val itemId = Random.nextLong()
+        val itemId = ItemId(Random.nextLong())
         val cartItemProperties = CartItemProperties(11, 12, itemId, 14, true)
         val cartItem = CartItem(
             cartItemProperties,
