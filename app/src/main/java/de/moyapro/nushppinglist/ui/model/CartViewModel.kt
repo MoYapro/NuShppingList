@@ -22,7 +22,6 @@ class CartViewModel(
     private val cartDao: CartDao
 ) : ViewModel() {
 
-    @Suppress("unused") // no-args constructor required by 'by viewmodels()'
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())

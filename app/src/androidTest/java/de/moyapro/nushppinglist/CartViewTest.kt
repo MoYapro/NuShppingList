@@ -97,7 +97,7 @@ internal class CartViewTest {
     }
 
     @Test
-    fun addAutocompleteItem() = runBlocking {
+    fun addAutocompleteItem(): Unit = runBlocking {
         val itemName = "Milk"
         val viewModel = createComposable()
         val newItem = Item(itemName)
@@ -113,7 +113,6 @@ internal class CartViewTest {
         val completedItem = composeTestRule.onNodeWithText(itemName)
         completedItem.assertIsDisplayed()
         completedItem.performClick()
-        composeTestRule.onNodeWithText("+").performClick()
         val cartAfterAdding = viewModel.cartItems.take(1).toList().flatten()
         assertEquals("Should have added item to cart", newItem.itemId, cartAfterAdding[0].itemId)
     }

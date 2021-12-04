@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.Dp
 @Composable
 fun Autocomplete(
     chooseAction: (String) -> Unit,
-    autocompleteAction: (String) -> List<String>
+    autocompleteAction: (String) -> List<String>,
 ) {
 
     val currentSearchText = remember { mutableStateOf("") }
@@ -30,19 +30,22 @@ fun Autocomplete(
             modifier = Modifier
                 .padding(Dp(12F))
         ) {
-            autocompleteList.value.forEach {
-                Text(
-                    it,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Dp(4F))
-                        .clickable(
-                            onClick = {
-                                currentSearchText.value = it
-                                autocompleteList.value = emptyList()
-                            }
-                        )
-                )
+            Column {
+                autocompleteList.value.forEach {
+                    Text(
+                        it,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Dp(4F))
+                            .clickable(
+                                onClick = {
+                                    chooseAction(it)
+                                    currentSearchText.value = ""
+                                    autocompleteList.value = emptyList()
+                                }
+                            )
+                    )
+                }
             }
         }
         Row {
