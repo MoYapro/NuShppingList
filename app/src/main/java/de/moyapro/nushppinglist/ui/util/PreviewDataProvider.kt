@@ -20,10 +20,10 @@ class RecipeListProvider : PreviewParameterProvider<List<Recipe>> {
     override val values: Sequence<List<Recipe>>
         get() = sequenceOf(
             listOf(
-                createSampleRecipe(recipeId = 1, title = "Cake"),
-                createSampleRecipe(recipeId = 1, title = "I"),
-                createSampleRecipe(recipeId = 1, title = "Wonder"),
-                createSampleRecipe(recipeId = 1,
+                createSampleRecipeCake(recipeId = 1, title = "Cake"),
+                createSampleRecipeCake(recipeId = 1, title = "I"),
+                createSampleRecipeCake(recipeId = 1, title = "Wonder"),
+                createSampleRecipeCake(recipeId = 1,
                     title = "Icecreem with fancy name and sooo much cream on it that it does not fit the screen AT ALL"),
             )
         )
@@ -41,19 +41,36 @@ class RecipePropertiesProvider : PreviewParameterProvider<RecipeProperties> {
 }
 
 
-fun createSampleRecipe(recipeId: Long = 1, title: String = "Cake"): Recipe {
+fun createSampleItem(): Item =
+    Item(itemId = ItemId(1),
+        name = "Sugar",
+        defaultItemAmount = 1000,
+        defaultItemUnit = "g")
+
+
+fun createSampleRecipeItem(recipeId: Long = 1) = RecipeItem(
+    recipeItemId = Random.nextLong(),
+    recipeId = RecipeId(recipeId),
+    amount = 14.0,
+    item = Item(itemId = ItemId(99),
+        name = "Bacon",
+        defaultItemAmount = 250,
+        defaultItemUnit = "g"),
+)
+
+fun createSampleRecipeCake(recipeId: Long = 1, title: String = "Cake"): Recipe {
     return Recipe(
         RecipeProperties(
             recipePropertiesId = Random.nextLong(),
-            recipeId = recipeId,
+            recipeId = RecipeId(recipeId),
             title = title,
             description = "This is some tasty cake",
         ),
-        recipeId = recipeId,
+        recipeId = RecipeId(recipeId),
         recipeItems = listOf(
             RecipeItem(
                 recipeItemId = Random.nextLong(),
-                recipeId = recipeId,
+                recipeId = RecipeId(recipeId),
                 amount = 0.3,
                 item = Item(itemId = ItemId(30),
                     name = "Milk",
@@ -62,7 +79,7 @@ fun createSampleRecipe(recipeId: Long = 1, title: String = "Cake"): Recipe {
             ),
             RecipeItem(
                 recipeItemId = Random.nextLong(),
-                recipeId = recipeId,
+                recipeId = RecipeId(recipeId),
                 amount = 12.0,
                 item = Item(itemId = ItemId(31),
                     name = "Sugar",
@@ -73,15 +90,47 @@ fun createSampleRecipe(recipeId: Long = 1, title: String = "Cake"): Recipe {
         recipeSteps = listOf(
             RecipeStep(
                 recipeStepId = Random.nextLong(),
-                recipeId = recipeId,
+                recipeId = RecipeId(recipeId),
                 stepNumber = 1,
                 stepDescription = "Now add the eggs"
             ),
             RecipeStep(
                 recipeStepId = Random.nextLong(),
-                recipeId = recipeId,
+                recipeId = RecipeId(recipeId),
                 stepNumber = 2,
                 stepDescription = "In the end finish with a bang"
+            ),
+        )
+    )
+}
+
+fun createSampleRecipeNoodels(recipeId: Long = 1, title: String = "Cake"): Recipe {
+    return Recipe(
+        RecipeProperties(
+            recipePropertiesId = Random.nextLong(),
+            recipeId = RecipeId(recipeId),
+            title = title,
+            description = "This is some tasty cake",
+        ),
+        recipeId = RecipeId(recipeId),
+        recipeItems = listOf(
+            RecipeItem(
+                recipeItemId = Random.nextLong(),
+                recipeId = RecipeId(recipeId),
+                amount = 0.3,
+                item = Item(itemId = ItemId(60),
+                    name = "Noodels",
+                    defaultItemAmount = 1,
+                    defaultItemUnit = "l"),
+            ),
+            RecipeItem(
+                recipeItemId = Random.nextLong(),
+                recipeId = RecipeId(recipeId),
+                amount = 12.0,
+                item = Item(itemId = ItemId(61),
+                    name = "Tomato",
+                    defaultItemAmount = 1000,
+                    defaultItemUnit = "g"),
             ),
         )
     )

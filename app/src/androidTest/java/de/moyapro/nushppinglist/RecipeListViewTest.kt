@@ -8,7 +8,7 @@ import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.ui.RecipeListView
 import de.moyapro.nushppinglist.ui.amountText
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
-import de.moyapro.nushppinglist.ui.util.createSampleRecipe
+import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
 import org.junit.Rule
 import org.junit.Test
 
@@ -20,7 +20,7 @@ class RecipeListViewTest {
     @Test
     fun recipesAreListed() {
         val recipeNames = listOf("Cake", "Noodles", "Breakfast", "Lunch")
-        createComposable(recipeNames.map { name -> createSampleRecipe(title = name) })
+        createComposable(recipeNames.map { name -> createSampleRecipeCake(title = name) })
 
         recipeNames.forEach { name ->
             composeTestRule.onNodeWithText(name).assertIsDisplayed()
@@ -29,7 +29,7 @@ class RecipeListViewTest {
 
     @Test
     fun recipesAreExpandable() {
-        val recipe = createSampleRecipe(title = "Cake")
+        val recipe = createSampleRecipeCake(title = "Cake")
         createComposable(listOf(recipe))
         composeTestRule.onNodeWithText(recipe.recipeProperties.title).performClick()
         recipe.recipeItems.forEach { item ->

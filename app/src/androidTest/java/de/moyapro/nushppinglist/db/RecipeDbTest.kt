@@ -4,7 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.moyapro.nushppinglist.db.dao.RecipeDao
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
-import de.moyapro.nushppinglist.ui.util.createSampleRecipe
+import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
 import de.moyapro.nushppinglist.util.DbTestHelper
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -39,8 +39,8 @@ class RecipeDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun writeAndLoadRecipe() = runBlocking {
-        val recipe = createSampleRecipe(recipeId = 1)
-        val recipe2 = createSampleRecipe(recipeId = 2)
+        val recipe = createSampleRecipeCake(recipeId = 1)
+        val recipe2 = createSampleRecipeCake(recipeId = 2)
 
         recipeViewModel.save(recipe, recipe2)
 

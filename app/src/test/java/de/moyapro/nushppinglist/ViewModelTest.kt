@@ -6,7 +6,12 @@ import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.model.CartViewModel
+import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
+import de.moyapro.nushppinglist.ui.util.createSampleRecipeItem
+import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import de.moyapro.nushppinglist.util.MainCoroutineRule
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -18,11 +23,13 @@ import org.junit.*
 import org.junit.Assert.*
 import kotlin.random.Random
 
+
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
+@Suppress("EXPERIMENTAL_API_USAGE")
 @ExperimentalCoroutinesApi
 class ViewModelTest {
 
@@ -105,21 +112,6 @@ class ViewModelTest {
     }
 
     @Test
-    fun subscriberGetsNotifiedWhenItemIsAdded() {
-        var valueChanged = false
-//        viewModel.coroutineScope.launch {
-//            viewModel.cartItems.collect { currentItemList ->
-//                if (currentItemList.isNotEmpty()) {
-//                    valueChanged = true
-//                }
-//            }
-//        }
-        assertFalse("Value should NOT have changed", valueChanged)
-        viewModel.add(CartItem("bar"))
-        assertTrue("Value should have changed", valueChanged)
-    }
-
-    @Test
     fun setChecked() = runBlocking {
         val item1 = CartItem("foo")
         val item2 = CartItem("bar")
@@ -160,21 +152,6 @@ class ViewModelTest {
             itemsAfterCheck.all { it.checked })
     }
 
-    @Ignore("not implemented")
-    @Test
-    fun removeChecked() {
-//        fail("foobar")
-    }
-
-    @Ignore("not implemented")
-    fun removeItem() {
-
-    }
-
-    @Ignore("not implemented")
-    fun deleteItem() {
-    }
-
     @Test
     fun getAutocompleteItemsByFullName() {
         val item = Item("X")
@@ -186,7 +163,7 @@ class ViewModelTest {
     @Test
     fun getItemByItemId() {
         val randomId = ItemId(Random.nextLong())
-        val itemInDb = Item(randomId, "ItemName")
+        val itemInDb = Item("ItemName", randomId)
         viewModel.add(itemInDb)
         val itemFromDb = viewModel.getItemByItemId(randomId)
         assertEquals("Should get item from DB", itemInDb, itemFromDb)
@@ -194,7 +171,7 @@ class ViewModelTest {
 
     @Test
     fun getNoItemByItemId() {
-        val itemInDb = Item(ItemId(1), "ItemName")
+        val itemInDb = Item("ItemName", ItemId(1))
         viewModel.add(itemInDb)
         val itemFromDb = viewModel.getItemByItemId(ItemId(-1))
         assertNull("Should get NO item from DB", itemFromDb)
@@ -281,7 +258,7 @@ class ViewModelTest {
         val cartItemProperties = CartItemProperties(11, 12, itemId, 14, true)
         val cartItem = CartItem(
             cartItemProperties,
-            Item(itemId, "x")
+            Item("x", itemId)
         )
         val expectedUpdated = CartItemProperties(11, 16, itemId, 18, false)
         viewModel.add(cartItem)
@@ -299,6 +276,38 @@ class ViewModelTest {
             expectedUpdated,
             viewModel.getCartItemPropertiesByItemId(itemId)
         )
+    }
+
+    @Test
+    fun addRecipeItemToCart() = runBlocking {
+        val recipeItem = createSampleRecipeItem()
+        viewModel.addToCart(recipeItem)
+
+        val cartItems = viewModel.cartItems.take(1).toList().flatten()
+        cartItems.map { it.itemId } shouldContainExactly listOf(recipeItem.item.itemId)
+    }
+
+    @Test
+    fun addRecipeToCart(): Unit = runBlocking {
+        val recipeToAddToCart = createSampleRecipeCake()
+
+        viewModel.addRecipeToCart(recipeToAddToCart)
+
+        val cartItems = viewModel.cartItems.take(1).toList().flatten()
+        cartItems.map { it.itemId } shouldContainExactlyInAnyOrder recipeToAddToCart.recipeItems.map { it.item.itemId }
+    }
+
+    @Test
+    fun getCartGroupedByRecipe() {
+        val recipeCake = createSampleRecipeCake()
+        val recipeNoodels = createSampleRecipeNoodels()
+        viewModel.addRecipeToCart(recipeCake)
+        viewModel.addRecipeToCart(recipeNoodels)
+        viewModel.addToCart("Vanilla Coke")
+
+//        val cartItemsGrouped = viewModel.cartItemsGroupedByRecipe().take(1).toList()
+        fail("Implement me")
+
     }
 
 }

@@ -7,9 +7,7 @@ import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
 import de.moyapro.nushppinglist.db.ids.ItemId
-import de.moyapro.nushppinglist.db.model.CartItem
-import de.moyapro.nushppinglist.db.model.CartItemProperties
-import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +17,7 @@ import kotlinx.coroutines.flow.collect
 
 @FlowPreview
 class CartViewModel(
-    private val cartDao: CartDao
+    private val cartDao: CartDao,
 ) : ViewModel() {
 
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
@@ -32,12 +30,18 @@ class CartViewModel(
     val allItems: StateFlow<List<Item>> = _allItems
     private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
+//    private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId, CartItem>>(emptyList())
+
 
     private fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>) {
+        return this.listenTo(source) { x -> x }
+    }
+
+    private fun <T, R> MutableStateFlow<R>.listenTo(source: Flow<T>, transformation: ((T) -> R)) {
         val that = this
         viewModelScope.launch {
             source.collect { valuesFromSource ->
-                that.value = valuesFromSource
+                that.value = transformation(valuesFromSource)
             }
         }
     }
@@ -46,6 +50,7 @@ class CartViewModel(
         _cartItems.listenTo(cartDao.findAllInCart())
         _allItems.listenTo(cartDao.findAllItems())
         _allCartItems.listenTo(cartDao.findAllCartItems())
+//        _allCartItemsGrouped.listenTo(cartDao.findAllCartItems()) { x -> x }
 
         viewModelScope.launch {
             cartDao.findAllItems()
@@ -111,6 +116,18 @@ class CartViewModel(
         }
     }
 
+    fun addToCart(recipeItem: RecipeItem) {
+        val existingCartItem: CartItemProperties? =
+            cartDao.getCartItemByItemId(recipeItem.item.itemId)
+        if (null == existingCartItem) {
+            add(CartItem(recipeItem.item))
+        } else {
+            val updatedCartItemProperties =
+                existingCartItem.copy(amount = existingCartItem.amount + 1)
+            update(updatedCartItemProperties)
+        }
+    }
+
 
     fun addToCart(itemName: String) {
         val existingItem: Item? = cartDao.getItemByItemName(itemName)
@@ -131,6 +148,10 @@ class CartViewModel(
 
     fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? {
         return cartDao.getCartItemByItemId(itemId)
+    }
+
+    fun addRecipeToCart(recipe: Recipe) {
+        recipe.recipeItems.forEach(::addToCart)
     }
 
 
