@@ -30,8 +30,8 @@ class CartViewModel(
     val allItems: StateFlow<List<Item>> = _allItems
     private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
-//    private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId, CartItem>>(emptyList())
-
+    private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
+    val allCartItemsGrouped = _allCartItemsGrouped
 
     private fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>) {
         return this.listenTo(source) { x -> x }
@@ -50,7 +50,7 @@ class CartViewModel(
         _cartItems.listenTo(cartDao.findAllInCart())
         _allItems.listenTo(cartDao.findAllItems())
         _allCartItems.listenTo(cartDao.findAllCartItems())
-//        _allCartItemsGrouped.listenTo(cartDao.findAllCartItems()) { x -> x }
+        _allCartItemsGrouped.listenTo(cartDao.findAllCartItems(), ModelTransformation::groupCartItemsByRecipe)
 
         viewModelScope.launch {
             cartDao.findAllItems()
@@ -120,7 +120,9 @@ class CartViewModel(
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(recipeItem.item.itemId)
         if (null == existingCartItem) {
-            add(CartItem(recipeItem.item))
+            val newItem = CartItem(recipeItem.item)
+            newItem.cartItemProperties.recipeId = recipeItem.recipeId
+            add(newItem)
         } else {
             val updatedCartItemProperties =
                 existingCartItem.copy(amount = existingCartItem.amount + 1)

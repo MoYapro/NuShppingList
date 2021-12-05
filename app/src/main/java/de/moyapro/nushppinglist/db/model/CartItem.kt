@@ -23,13 +23,20 @@ data class CartItem(
             newItemId.id,
             newItemId.id,
             newItemId,
+            RecipeId(-1),
             1,
             checked
         ), Item(newItemName, newItemId)
     )
 
     constructor(item: Item) : this(
-        CartItemProperties(item.itemId.id, item.itemId.id, item.itemId, 1, false),
+        CartItemProperties(
+            item.itemId.id,
+            item.itemId.id,
+            item.itemId,
+            RecipeId(-1),
+            1,
+            false),
         item
     )
 

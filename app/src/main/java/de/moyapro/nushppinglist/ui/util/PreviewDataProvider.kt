@@ -41,11 +41,14 @@ class RecipePropertiesProvider : PreviewParameterProvider<RecipeProperties> {
 }
 
 
-fun createSampleItem(): Item =
-    Item(itemId = ItemId(1),
-        name = "Sugar",
-        defaultItemAmount = 1000,
-        defaultItemUnit = "g")
+fun createSampleItem() = Item(
+    itemId = ItemId(1),
+    name = "Sugar",
+    defaultItemAmount = 1000,
+    defaultItemUnit = "g")
+
+fun createSampleCartItem(recipeId: RecipeId = RecipeId(-1)) =
+    CartItem(createSampleItem()).apply { cartItemProperties.recipeId = recipeId }
 
 
 fun createSampleRecipeItem(recipeId: Long = 1) = RecipeItem(

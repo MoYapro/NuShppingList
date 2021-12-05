@@ -13,15 +13,24 @@ data class CartItemProperties(
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
     var itemId: ItemId,
+    @get:JvmName("getRecipeId")
+    @set:JvmName("setRecipeId")
+    var recipeId: RecipeId,
     var amount: Int,
-    var checked: Boolean
+    var checked: Boolean,
 ) {
-    constructor(newItemId: ItemId, amount: Int = 1) : this(
+    constructor(newItemId: ItemId, recipeId: RecipeId, amount: Int = 1) : this(
         cartItemPropertiesId = newItemId.id,
         cartItemId = newItemId.id,
         itemId = newItemId,
+        recipeId = recipeId,
         amount = amount,
         checked = false
+    )
+
+    constructor(newItemId: ItemId, amount: Int = 1) : this(
+        newItemId,
+        RecipeId(-1),
     )
 
     constructor() : this(ItemId(Random.nextLong()))

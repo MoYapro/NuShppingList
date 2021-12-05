@@ -4,6 +4,7 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.db.model.RecipeId
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
@@ -12,6 +13,7 @@ import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -255,12 +257,12 @@ class ViewModelTest {
     @Test
     fun updateCartItemProperties() = runBlocking {
         val itemId = ItemId(Random.nextLong())
-        val cartItemProperties = CartItemProperties(11, 12, itemId, 14, true)
+        val cartItemProperties = CartItemProperties(11, 12, itemId, RecipeId(-1), 14, true)
         val cartItem = CartItem(
             cartItemProperties,
             Item("x", itemId)
         )
-        val expectedUpdated = CartItemProperties(11, 16, itemId, 18, false)
+        val expectedUpdated = CartItemProperties(11, 16, itemId, RecipeId(-1), 18, false)
         viewModel.add(cartItem)
         assertEquals(
             "Should have saved original state",
@@ -285,6 +287,7 @@ class ViewModelTest {
 
         val cartItems = viewModel.cartItems.take(1).toList().flatten()
         cartItems.map { it.itemId } shouldContainExactly listOf(recipeItem.item.itemId)
+        cartItems.map {it.recipeId}.toSet() shouldContainExactly setOf(recipeItem.recipeId)
     }
 
     @Test
@@ -298,16 +301,17 @@ class ViewModelTest {
     }
 
     @Test
-    fun getCartGroupedByRecipe() {
-        val recipeCake = createSampleRecipeCake()
-        val recipeNoodels = createSampleRecipeNoodels()
+    fun getCartGroupedByRecipe(): Unit = runBlocking {
+        val recipeCake = createSampleRecipeCake(recipeId = 1)
+        val recipeNoodels = createSampleRecipeNoodels(recipeId = 2)
         viewModel.addRecipeToCart(recipeCake)
         viewModel.addRecipeToCart(recipeNoodels)
         viewModel.addToCart("Vanilla Coke")
 
-//        val cartItemsGrouped = viewModel.cartItemsGroupedByRecipe().take(1).toList()
-        fail("Implement me")
-
+        val cartItemsGrouped = viewModel.allCartItemsGrouped.take(1).toList().single()
+        cartItemsGrouped[null]!! shouldHaveSize 1
+        cartItemsGrouped[recipeCake.recipeId]!! shouldHaveSize recipeCake.recipeItems.size
+        cartItemsGrouped[recipeNoodels.recipeId]!! shouldHaveSize recipeNoodels.recipeItems.size
     }
 
 }
