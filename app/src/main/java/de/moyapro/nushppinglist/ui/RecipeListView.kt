@@ -3,17 +3,18 @@ package de.moyapro.nushppinglist.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import de.moyapro.nushppinglist.db.model.Recipe
-import de.moyapro.nushppinglist.ui.util.RecipeListProvider
+import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 
 
 @Composable
-@Preview
-fun RecipeListView(@PreviewParameter(RecipeListProvider::class) recipes: Iterable<Recipe>) {
+fun RecipeListView(viewModel: RecipeViewModel) {
+    val recipes: List<Recipe> by viewModel.allRecipes.collectAsState(listOf())
+
     Column(Modifier.background(color = Color.Green)) {
         recipes.forEach { recipe ->
             RecipeListElement(recipe)

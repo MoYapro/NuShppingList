@@ -9,26 +9,39 @@ import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.AppView
 import de.moyapro.nushppinglist.ui.model.CartViewModel
+import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
+import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
+import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import kotlinx.coroutines.FlowPreview
 
 @FlowPreview
 class MainActivity : ComponentActivity() {
 
 
-    private val globalViewModel by viewModels<CartViewModel>()
+    private val cartViewModel by viewModels<CartViewModel>()
+    private val recipeViewModel by viewModels<RecipeViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        globalViewModel.add(CartItem("Milk"))
-        globalViewModel.add(CartItem("Butter"))
-        globalViewModel.add(CartItem("Eggs", CHECKED))
-        globalViewModel.add(Item("Toast"))
+        initTestData()
         setContent {
             NuShppingListTheme {
-                AppView(globalViewModel)
+                AppView(
+                    cartViewModel,
+                    recipeViewModel,
+                )
             }
         }
+    }
+
+    private fun initTestData() {
+        cartViewModel.add(CartItem("Milk"))
+        cartViewModel.add(CartItem("Butter"))
+        cartViewModel.add(CartItem("Eggs", CHECKED))
+        cartViewModel.add(Item("Toast"))
+        recipeViewModel.save(createSampleRecipeCake())
+        recipeViewModel.save(createSampleRecipeNoodels())
     }
 
 

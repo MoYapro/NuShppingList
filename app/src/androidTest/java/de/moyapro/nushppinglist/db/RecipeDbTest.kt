@@ -11,6 +11,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -45,7 +46,7 @@ class RecipeDbTest {
 
         recipeViewModel.save(recipeCake, recipeNoodles)
 
-        val dbRecipe: Recipe = recipeDao.findAllRecipe().first().single { it.recipeId == recipeCake.recipeId }
+        val dbRecipe: Recipe = recipeViewModel.allRecipes.take(1).first().single { it.recipeId == recipeCake.recipeId }
 
         dbRecipe.recipeId shouldBe recipeCake.recipeId
         dbRecipe.recipeProperties.description shouldBe recipeCake.recipeProperties.description

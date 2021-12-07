@@ -10,7 +10,6 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -33,24 +32,13 @@ class CartViewModel(
     private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
     val allCartItemsGrouped: StateFlow<Map<RecipeId?, List<CartItem>>> = _allCartItemsGrouped
 
-    private fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>) {
-        return this.listenTo(source) { x -> x }
-    }
-
-    private fun <T, R> MutableStateFlow<R>.listenTo(source: Flow<T>, transformation: ((T) -> R)) {
-        val that = this
-        viewModelScope.launch {
-            source.collect { valuesFromSource ->
-                that.value = transformation(valuesFromSource)
-            }
-        }
-    }
-
     init {
-        _cartItems.listenTo(cartDao.findAllInCart())
-        _allItems.listenTo(cartDao.findAllItems())
-        _allCartItems.listenTo(cartDao.findAllCartItems())
-        _allCartItemsGrouped.listenTo(cartDao.findAllCartItems(), ModelTransformation::groupCartItemsByRecipe)
+        _cartItems.listenTo(cartDao.findAllInCart(), viewModelScope)
+        _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
+        _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
+        _allCartItemsGrouped.listenTo(cartDao.findAllCartItems(),
+            viewModelScope,
+            ModelTransformation::groupCartItemsByRecipe)
 
         viewModelScope.launch {
             cartDao.findAllItems()

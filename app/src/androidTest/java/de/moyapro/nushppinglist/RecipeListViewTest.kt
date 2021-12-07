@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.ui.RecipeListView
 import de.moyapro.nushppinglist.ui.amountText
+import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
 import org.junit.Rule
@@ -46,7 +47,7 @@ class RecipeListViewTest {
     private fun createComposable(rezeptList: List<Recipe>) {
         composeTestRule.setContent {
             NuShppingListTheme {
-                RecipeListView(rezeptList.toList())
+                RecipeListView(RecipeViewModel())
             }
         }
     }

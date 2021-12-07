@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -51,9 +52,11 @@ fun EditView(recipe: Recipe, endEditAction: () -> Unit) {
                 onClick = endEditAction
             )
     )
-
+    Button(onClick = { TODO() }) {
+        Text("+")
+    }
     recipe.recipeItems.forEach {
-        Column() {
+        Column {
             Row {
                 Text(amountText(it), modifier = Modifier.width(80.dp))
                 Text(it.item.name)
