@@ -31,7 +31,7 @@ class CartViewModel(
     private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
     private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
-    val allCartItemsGrouped = _allCartItemsGrouped
+    val allCartItemsGrouped: StateFlow<Map<RecipeId?, List<CartItem>>> = _allCartItemsGrouped
 
     private fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>) {
         return this.listenTo(source) { x -> x }
