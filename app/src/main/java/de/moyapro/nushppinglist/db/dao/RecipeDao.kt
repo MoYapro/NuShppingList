@@ -15,15 +15,15 @@ interface RecipeDao {
 
     @Transaction
     @Insert
-    fun save(vararg recipe: RecipeItem)
+    suspend fun save(vararg recipe: RecipeItem)
 
     @Transaction
     @Insert
-    fun save(vararg recipe: RecipeProperties)
+    suspend fun save(vararg recipe: RecipeProperties)
 
     @Transaction
     @Insert
-    fun save(vararg recipe: RecipeStep)
+    suspend fun save(vararg recipe: RecipeStep)
 
     @Transaction
     @Query("select * from RecipeProperties")

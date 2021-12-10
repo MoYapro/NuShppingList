@@ -13,19 +13,19 @@ interface CartDao {
 
     @Transaction
     @Insert
-    fun save(vararg cartItemProperties: CartItemProperties)
+    suspend fun save(vararg cartItemProperties: CartItemProperties)
 
     @Transaction
     @Insert
-    fun save(vararg items: Item)
+    suspend fun save(vararg items: Item)
 
     @Transaction
     @Update
-    fun updateAll(vararg items: Item)
+    suspend fun updateAll(vararg items: Item)
 
     @Transaction
     @Update
-    fun updateAll(vararg items: CartItemProperties)
+    suspend fun updateAll(vararg items: CartItemProperties)
 
     @Transaction
     @Query("select * from CartItemProperties")
@@ -50,7 +50,7 @@ interface CartDao {
     )
     @Transaction
     @Query("select * from Item i where i.itemId = :itemId")
-    fun getItemByItemId_internal(itemId: Long): Item?
+    suspend fun getItemByItemId_internal(itemId: Long): Item?
 
     @Deprecated(
         "This is just for the generated Dao_Impl",
@@ -59,18 +59,18 @@ interface CartDao {
     )
     @Transaction
     @Query("select * from CartItemProperties p where p.itemId = :itemId")
-    fun getCartItemByItemId_internal(itemId: Long): CartItemProperties?
+    suspend fun getCartItemByItemId_internal(itemId: Long): CartItemProperties?
 
     @Transaction
     @Query("select * from Item i where i.name = :itemName")
-    fun getItemByItemName(itemName: String): Item?
+    suspend fun getItemByItemName(itemName: String): Item?
 
     @Transaction
     @Delete
-    fun remove(cartItem: CartItemProperties)
+    suspend fun remove(cartItem: CartItemProperties)
 
 }
 
-fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId_internal(itemId.id)
-fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId_internal(itemId.id)
+suspend fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId_internal(itemId.id)
+suspend fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId_internal(itemId.id)
 

@@ -5,10 +5,7 @@ import androidx.lifecycle.viewModelScope
 import de.moyapro.nushppinglist.db.dao.RecipeDao
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.mock.RecipeDaoMock
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @FlowPreview
@@ -24,7 +21,7 @@ class RecipeViewModel(
 
     }
 
-    fun save(vararg recipes: Recipe) {
+    fun save(vararg recipes: Recipe) = runBlocking {
         recipes.forEach { recipe ->
             recipeDao.save(recipe.recipeProperties)
             recipeDao.save(*recipe.recipeItems.toTypedArray())

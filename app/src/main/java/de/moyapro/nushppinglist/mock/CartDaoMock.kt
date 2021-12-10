@@ -26,19 +26,19 @@ class CartDaoMock(
     private val cartItemPropertiesFlow: Flow<List<CartItemProperties>> = cartItemPropertiesChannel
     private val cartItemFlow: Flow<List<CartItem>> = cartItemChannel
 
-    override fun save(vararg cartItemProperties: CartItemProperties) {
+    override suspend fun save(vararg cartItemProperties: CartItemProperties) {
         cartItemPropertiesTable += cartItemProperties
         pushCartItemProperties()
         pushCartItems()
     }
 
-    override fun save(vararg items: Item) {
+    override suspend fun save(vararg items: Item) {
         itemTable += items
         pushItems()
         pushCartItems()
     }
 
-    override fun updateAll(vararg items: Item) {
+    override suspend fun updateAll(vararg items: Item) {
         val toUpdate = items.associateBy({ it.itemId }, { it })
         val updatedItemTable: List<Item> = itemTable.map { itemFromTable ->
             if (toUpdate.containsKey(itemFromTable.itemId)) {
@@ -52,7 +52,7 @@ class CartDaoMock(
         pushItems()
     }
 
-    override fun updateAll(vararg items: CartItemProperties) {
+    override suspend fun updateAll(vararg items: CartItemProperties) {
         val toUpdate = items.associateBy({ it.itemId }, { it })
         val updatedItemTable: List<CartItemProperties> =
             cartItemPropertiesTable.map { itemFromTable ->
@@ -83,19 +83,19 @@ class CartDaoMock(
         return itemTable.toList()
     }
 
-    override fun getItemByItemId_internal(itemId: Long): Item? {
+    override suspend fun getItemByItemId_internal(itemId: Long): Item? {
         return itemTable.firstOrNull { itemInDb -> itemInDb.itemId.id == itemId }
     }
 
-    override fun getCartItemByItemId_internal(itemId: Long): CartItemProperties? {
+    override suspend fun getCartItemByItemId_internal(itemId: Long): CartItemProperties? {
         return cartItemPropertiesTable.firstOrNull { itemId == it.itemId.id }
     }
 
-    override fun getItemByItemName(itemName: String): Item? {
+    override suspend fun getItemByItemName(itemName: String): Item? {
         return this.itemTable.firstOrNull { it.name == itemName }
     }
 
-    override fun remove(cartItem: CartItemProperties) {
+    override suspend fun remove(cartItem: CartItemProperties) {
         cartItemPropertiesTable.removeIf { it.checked }
         pushCartItemProperties()
 

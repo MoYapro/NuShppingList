@@ -50,31 +50,31 @@ class CartViewModel(
         }
     }
 
-    fun add(newItem: Item) {
+    fun add(newItem: Item) = runBlocking {
         cartDao.save(newItem)
     }
 
-    fun update(updatedItem: Item) {
+    fun update(updatedItem: Item) = runBlocking {
         cartDao.updateAll(updatedItem)
     }
 
-    fun update(updatedCartItemProperties: CartItemProperties) {
+    fun update(updatedCartItemProperties: CartItemProperties) = runBlocking {
         cartDao.updateAll(updatedCartItemProperties)
     }
 
     @Transaction
-    fun add(newItem: CartItem) {
+    fun add(newItem: CartItem) = runBlocking {
         cartDao.save(newItem.item)
         cartDao.save(newItem.cartItemProperties)
     }
 
-    fun toggleChecked(itemToToggle: CartItemProperties) {
+    fun toggleChecked(itemToToggle: CartItemProperties) = runBlocking {
         _cartItems.value = _cartItems.value.map { oldValue ->
             if (oldValue.itemId == itemToToggle.itemId) {
                 val updated = oldValue.copy(
                     checked = !oldValue.checked
                 )
-                this.cartDao.updateAll(updated)
+                cartDao.updateAll(updated)
                 updated
             } else {
                 oldValue
@@ -82,8 +82,8 @@ class CartViewModel(
         }
     }
 
-    fun getItemByItemId(itemId: ItemId): Item? {
-        return cartDao.getItemByItemId(itemId)
+    fun getItemByItemId(itemId: ItemId): Item? = runBlocking{
+         cartDao.getItemByItemId(itemId)
     }
 
     fun getAutocompleteItems(searchString: String): List<String> {
@@ -92,7 +92,7 @@ class CartViewModel(
             .map { it.name }
     }
 
-    fun addToCart(item: Item) {
+    fun addToCart(item: Item) = runBlocking {
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(item.itemId)
         if (null == existingCartItem) {
@@ -104,7 +104,7 @@ class CartViewModel(
         }
     }
 
-    fun addToCart(recipeItem: RecipeItem) {
+    fun addToCart(recipeItem: RecipeItem) = runBlocking {
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(recipeItem.item.itemId)
         if (null == existingCartItem) {
@@ -119,7 +119,7 @@ class CartViewModel(
     }
 
 
-    fun addToCart(itemName: String) {
+    fun addToCart(itemName: String) = runBlocking {
         val existingItem: Item? = cartDao.getItemByItemName(itemName)
         if (null == existingItem) {
             add(CartItem(itemName))
@@ -128,7 +128,7 @@ class CartViewModel(
         }
     }
 
-    fun removeCheckedFromCart() {
+    fun removeCheckedFromCart() = runBlocking {
         cartItems.value
             .filter { it.checked }
             .forEach { cartItem ->
@@ -136,15 +136,13 @@ class CartViewModel(
             }
     }
 
-    fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? {
-        return cartDao.getCartItemByItemId(itemId)
+    fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? = runBlocking {
+         cartDao.getCartItemByItemId(itemId)
     }
 
     fun addRecipeToCart(recipe: Recipe) {
         recipe.recipeItems.forEach(::addToCart)
     }
-
-
 }
 
 fun matched(name: String, searchString: String): Boolean {

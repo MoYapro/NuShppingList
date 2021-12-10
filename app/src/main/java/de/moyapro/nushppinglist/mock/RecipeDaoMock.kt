@@ -12,15 +12,15 @@ class RecipeDaoMock(
     private val externalScope: CoroutineScope
 ): RecipeDao {
 
-    override fun save(vararg recipe: RecipeItem) {
+    override suspend fun save(vararg recipe: RecipeItem) {
         TODO("Not yet implemented")
     }
 
-    override fun save(vararg recipe: RecipeProperties) {
+    override suspend fun save(vararg recipe: RecipeProperties) {
         TODO("Not yet implemented")
     }
 
-    override fun save(vararg recipe: RecipeStep) {
+    override suspend fun save(vararg recipe: RecipeStep) {
         TODO("Not yet implemented")
     }
 
