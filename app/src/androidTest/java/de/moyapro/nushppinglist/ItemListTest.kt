@@ -13,6 +13,7 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -78,7 +79,7 @@ internal class ItemListTest {
         }
     }
 
-    private fun createComposable(items: List<Item>) {
+    private fun createComposable(items: List<Item>) = runBlocking {
         val viewModel = CartViewModel(cartDao)
         items.forEach { cartDao.save(it) }
         composeTestRule.setContent {

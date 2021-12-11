@@ -8,8 +8,11 @@ import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.ui.RecipeListView
 import de.moyapro.nushppinglist.ui.amountText
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
+import de.moyapro.nushppinglist.ui.model.ViewModelFactory
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
+import de.moyapro.nushppinglist.util.DbTestHelper
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -17,6 +20,13 @@ class RecipeListViewTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    val database = DbTestHelper.createAppDatabase()
+
+    @Before
+    fun setup() {
+        database.clearAllTables()
+    }
 
     @Test
     fun recipesAreListed() {
@@ -29,13 +39,12 @@ class RecipeListViewTest {
     }
 
     @Test
-    fun recipesAreExpandable() {
+    fun recipesAreExpandableAndCollapsable() {
         val recipe = createSampleRecipeCake(title = "Cake")
         createComposable(listOf(recipe))
         composeTestRule.onNodeWithText(recipe.recipeProperties.title).performClick()
         recipe.recipeItems.forEach { item ->
             composeTestRule.onNodeWithText(item.item.name).assertIsDisplayed()
-            composeTestRule.onNodeWithText(item.amount.toString()).assertIsDisplayed()
         }
         composeTestRule.onNodeWithText(recipe.recipeProperties.title).performClick()
         recipe.recipeItems.forEach { recipeItem ->
@@ -44,10 +53,21 @@ class RecipeListViewTest {
         }
     }
 
+    @Test
+    fun addSelectionIsShown() {
+        val recipe = createSampleRecipeCake(title = "Cake")
+        createComposable(listOf(recipe))
+        composeTestRule.onNodeWithText(recipe.recipeProperties.title).performClick()
+        composeTestRule.onNodeWithText("🛒").performClick()
+
+    }
+
     private fun createComposable(rezeptList: List<Recipe>) {
+        val viewModel = ViewModelFactory(database).create(RecipeViewModel::class.java)
+        viewModel.save(*rezeptList.toTypedArray())
         composeTestRule.setContent {
             NuShppingListTheme {
-                RecipeListView(RecipeViewModel())
+                RecipeListView(viewModel)
             }
         }
     }

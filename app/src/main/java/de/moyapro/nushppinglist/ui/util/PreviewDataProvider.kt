@@ -107,7 +107,7 @@ fun createSampleRecipeCake(recipeId: Long = 1, title: String = "Cake"): Recipe {
     )
 }
 
-fun createSampleRecipeNoodels(recipeId: Long = 1, title: String = "Cake"): Recipe {
+fun createSampleRecipeNoodels(recipeId: Long = 2, title: String = "Noodles"): Recipe {
     return Recipe(
         RecipeProperties(
             recipePropertiesId = Random.nextLong(),

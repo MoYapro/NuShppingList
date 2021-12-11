@@ -13,10 +13,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.constants.SWITCHES
+import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.db.model.RecipeProperties
 import de.moyapro.nushppinglist.ui.util.RecipePropertiesProvider
 import de.moyapro.nushppinglist.ui.util.RecipeProvider
+import de.moyapro.nushppinglist.ui.util.ToggleList
 
 
 @Composable
@@ -34,7 +36,7 @@ fun RecipeListElement(
         }
 
         if (isEdited) {
-            EditView(recipe) { isEdited = false }
+            EditView(recipe, { isEdited = false })
         } else {
             JustView(recipe.recipeProperties) { isEdited = true }
         }
@@ -42,7 +44,26 @@ fun RecipeListElement(
 }
 
 @Composable
-fun EditView(recipe: Recipe, endEditAction: () -> Unit) {
+fun EditView(
+    recipe: Recipe,
+    endEditAction: () -> Unit,
+    addNewItemToRecipeAction: () -> Unit = {},
+    addSelectetItemsToCartAction: () -> Unit = {},
+) {
+    var isAdding: Boolean by remember { mutableStateOf(false) }
+    var toBeAdded: ToggleList<ItemId, Color> by remember {
+        mutableStateOf(
+            ToggleList(
+                onValue = Color.Green,
+                offValue = Color.Transparent,
+                recipe.recipeItems.map { it.item.itemId },
+                isActive = isAdding
+            ))
+    }
+    val startAdding: () -> Unit = { toBeAdded = toBeAdded.toggleActive() }
+    val doAdding: () -> Unit =
+        { toBeAdded = toBeAdded.toggleActive(); addSelectetItemsToCartAction }
+
     Text(
         recipe.recipeProperties.title,
         modifier = Modifier
@@ -52,14 +73,23 @@ fun EditView(recipe: Recipe, endEditAction: () -> Unit) {
                 onClick = endEditAction
             )
     )
-    Button(onClick = { TODO() }) {
+    Button(onClick = { addNewItemToRecipeAction() }) {
         Text("+")
     }
-    recipe.recipeItems.forEach {
+    Button(onClick = if (!isAdding) startAdding else doAdding) {
+        Text(text = if (isAdding) "🛒!" else "🛒")
+    }
+
+    recipe.recipeItems.forEach { recipeItem ->
+        val itemId = recipeItem.item.itemId
         Column {
-            Row {
-                Text(amountText(it), modifier = Modifier.width(80.dp))
-                Text(it.item.name)
+            Row(modifier = Modifier
+                .background(toBeAdded.getValue(itemId) ?: Color.Magenta)
+                .clickable { toBeAdded = toBeAdded.toggle(itemId) })
+            {
+                Text(amountText(recipeItem), modifier = Modifier.width(80.dp))
+                Text(recipeItem.item.name)
+
             }
         }
     }
