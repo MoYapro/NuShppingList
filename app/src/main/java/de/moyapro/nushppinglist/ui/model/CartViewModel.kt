@@ -82,8 +82,8 @@ class CartViewModel(
         }
     }
 
-    fun getItemByItemId(itemId: ItemId): Item? = runBlocking{
-         cartDao.getItemByItemId(itemId)
+    fun getItemByItemId(itemId: ItemId): Item? = runBlocking {
+        cartDao.getItemByItemId(itemId)
     }
 
     fun getAutocompleteItems(searchString: String): List<String> {
@@ -102,6 +102,10 @@ class CartViewModel(
                 existingCartItem.copy(amount = existingCartItem.amount + 1)
             update(updatedCartItemProperties)
         }
+    }
+
+    fun addToCart(recipeItems: List<RecipeItem>) {
+        recipeItems.forEach(this::addToCart)
     }
 
     fun addToCart(recipeItem: RecipeItem) = runBlocking {
@@ -137,7 +141,7 @@ class CartViewModel(
     }
 
     fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? = runBlocking {
-         cartDao.getCartItemByItemId(itemId)
+        cartDao.getCartItemByItemId(itemId)
     }
 
     fun addRecipeToCart(recipe: Recipe) {

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.Recipe
+import de.moyapro.nushppinglist.db.model.RecipeItem
 import de.moyapro.nushppinglist.db.model.RecipeProperties
 import de.moyapro.nushppinglist.ui.util.RecipePropertiesProvider
 import de.moyapro.nushppinglist.ui.util.RecipeProvider
@@ -27,6 +28,7 @@ fun RecipeListElement(
     @PreviewParameter(RecipeProvider::class)
     recipe: Recipe,
     editMode: Boolean = false,
+    addSelectedItemsToCartAction: (List<RecipeItem>) -> Unit = {},
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
 
@@ -36,7 +38,11 @@ fun RecipeListElement(
         }
 
         if (isEdited) {
-            EditView(recipe, { isEdited = false })
+            EditView(
+                recipe,
+                endEditAction = { isEdited = false },
+                addSelectedItemsToCartAction = addSelectedItemsToCartAction
+            )
         } else {
             JustView(recipe.recipeProperties) { isEdited = true }
         }
@@ -48,21 +54,23 @@ fun EditView(
     recipe: Recipe,
     endEditAction: () -> Unit,
     addNewItemToRecipeAction: () -> Unit = {},
-    addSelectetItemsToCartAction: () -> Unit = {},
+    addSelectedItemsToCartAction: (List<RecipeItem>) -> Unit,
 ) {
-    var isAdding: Boolean by remember { mutableStateOf(false) }
     var toBeAdded: ToggleList<ItemId, Color> by remember {
         mutableStateOf(
             ToggleList(
                 onValue = Color.Green,
                 offValue = Color.Transparent,
                 recipe.recipeItems.map { it.item.itemId },
-                isActive = isAdding
+                isActive = false
             ))
     }
     val startAdding: () -> Unit = { toBeAdded = toBeAdded.toggleActive() }
     val doAdding: () -> Unit =
-        { toBeAdded = toBeAdded.toggleActive(); addSelectetItemsToCartAction }
+        {
+            toBeAdded = toBeAdded.toggleActive()
+            addSelectedItemsToCartAction(recipe.recipeItems.filter { toBeAdded.contains(it.item.itemId) })
+        }
 
     Text(
         recipe.recipeProperties.title,
@@ -76,8 +84,8 @@ fun EditView(
     Button(onClick = { addNewItemToRecipeAction() }) {
         Text("+")
     }
-    Button(onClick = if (!isAdding) startAdding else doAdding) {
-        Text(text = if (isAdding) "🛒!" else "🛒")
+    Button(onClick = if (!toBeAdded.isActive) startAdding else doAdding) {
+        Text(text = if (toBeAdded.isActive) "🛒!" else "🛒")
     }
 
     recipe.recipeItems.forEach { recipeItem ->
@@ -89,7 +97,6 @@ fun EditView(
             {
                 Text(amountText(recipeItem), modifier = Modifier.width(80.dp))
                 Text(recipeItem.item.name)
-
             }
         }
     }

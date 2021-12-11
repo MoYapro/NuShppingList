@@ -23,7 +23,7 @@ fun AppView(
         when (displayedView) {
             EINKAUFSLISTE -> CartView(cartViewModel)
             DINGE -> ItemView(cartViewModel)
-            REZEPTE -> RecipeListView(recipeViewModel)
+            REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
         }
     }
 }

@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.ui.model
 
 import androidx.compose.ui.graphics.Color
 import de.moyapro.nushppinglist.ui.util.ToggleList
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.Test
@@ -12,10 +13,10 @@ class ToggleListTest {
     private val testOffColor = Color.Magenta
 
     @Test
-    fun contains() {
+    fun getValue() {
         val value = 7
         ToggleList(
-            containedValues = mutableListOf(value),
+            containedValues = listOf(value),
             onValue = testOnColor,
             offValue = testOffColor
         )
@@ -27,7 +28,7 @@ class ToggleListTest {
         val value = 7
         val otherValue = 8
         ToggleList(
-            containedValues = mutableListOf(value),
+            containedValues = listOf(value),
             onValue = testOnColor,
             offValue = testOffColor
         )
@@ -38,7 +39,7 @@ class ToggleListTest {
     fun toggleValue() {
         val value = 7
         val toggleList = ToggleList(
-            containedValues = mutableListOf<Int>(),
+            containedValues = listOf<Int>(),
             onValue = testOnColor,
             offValue = testOffColor
         )
@@ -48,37 +49,55 @@ class ToggleListTest {
     }
 
     @Test
+    fun toggleActive() {
+        ToggleList(
+            containedValues = listOf<Int>(),
+            onValue = testOnColor,
+            offValue = testOffColor,
+            isActive = false
+        )
+            .toggleActive().isActive shouldBe true
+        ToggleList(
+            containedValues = listOf<Int>(),
+            onValue = testOnColor,
+            offValue = testOffColor,
+            isActive = true
+        )
+            .toggleActive().isActive shouldBe false
+    }
+
+    @Test
     fun inactiveToggleList__getValue() {
         val value = 1
         val toggleList = ToggleList(
-            containedValues = mutableListOf<Int>(),
+            containedValues = listOf<Int>(),
             onValue = testOnColor,
             offValue = testOffColor,
             isActive = false
         )
         toggleList.getValue(value) shouldBe null
         toggleList.toggleActive()
-        toggleList.getValue(value) shouldBe testOffColor
+        toggleList.getValue(value) shouldBe null
     }
 
     @Test
     fun inactiveToggleList__toggle() {
         val value = 1
         val toggleList = ToggleList(
-            containedValues = mutableListOf<Int>(),
+            containedValues = listOf<Int>(),
             onValue = testOnColor,
             offValue = testOffColor,
             isActive = false
         )
         toggleList.toggle(value)
         toggleList.toggleActive()
-        toggleList.getValue(value) shouldBe testOffColor
+        toggleList.getValue(value) shouldBe null
     }
 
     @Test
     fun toggle__createsNewInstance() {
         val toggleList = ToggleList(
-            containedValues = mutableListOf<Int>(),
+            containedValues = listOf<Int>(),
             onValue = testOnColor,
             offValue = testOffColor,
         )
@@ -86,4 +105,36 @@ class ToggleListTest {
         newToggleList shouldNotBe toggleList
     }
 
+    @Test
+    fun toggleActive__createsNewInstance() {
+        val toggleList = ToggleList(
+            containedValues = listOf<Int>(),
+            onValue = testOnColor,
+            offValue = testOffColor,
+        )
+        val newToggleList = toggleList.toggleActive()
+        newToggleList shouldNotBe toggleList
+    }
+
+    @Test
+    fun getIncludedValues() {
+        val toggleList = ToggleList(
+            containedValues = listOf(1, 2, 5),
+            onValue = testOnColor,
+            offValue = testOffColor,
+        )
+        toggleList.containedValues shouldContainExactlyInAnyOrder listOf(1, 2, 5)
+    }
+
+    @Test
+    fun contains() {
+        val toggleList = ToggleList(
+            containedValues = listOf(1, 2, 5),
+            onValue = testOnColor,
+            offValue = testOffColor,
+        )
+        toggleList.contains(1) shouldBe  true
+        toggleList.contains(2) shouldBe true
+        toggleList.contains(3) shouldBe false
+    }
 }

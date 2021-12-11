@@ -3,8 +3,8 @@ package de.moyapro.nushppinglist.ui.util
 data class ToggleList<T, V : Any>(
     private val onValue: V,
     private val offValue: V,
-    private val containedValues: List<T> = listOf(),
-    private val isActive: Boolean = true,
+    val containedValues: List<T> = listOf(),
+    val isActive: Boolean = true,
 ) {
 
     fun getValue(reference: T): V? {
@@ -32,5 +32,7 @@ data class ToggleList<T, V : Any>(
     fun toggleActive(): ToggleList<T, V> {
         return this.copy(isActive = !isActive)
     }
+
+    fun contains(value: T) = containedValues.contains(value)
 
 }

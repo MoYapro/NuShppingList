@@ -8,16 +8,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import de.moyapro.nushppinglist.db.model.Recipe
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 
 
 @Composable
-fun RecipeListView(viewModel: RecipeViewModel) {
-    val recipes: List<Recipe> by viewModel.allRecipes.collectAsState(listOf())
+fun RecipeListView(
+    recipeViewModel: RecipeViewModel,
+    cartViewModel: CartViewModel,
+) {
+    val recipes: List<Recipe> by recipeViewModel.allRecipes.collectAsState(listOf())
 
     Column(Modifier.background(color = Color.Green)) {
         recipes.forEach { recipe ->
-            RecipeListElement(recipe)
+            RecipeListElement(
+                recipe = recipe,
+                addSelectedItemsToCartAction = cartViewModel::addToCart
+            )
         }
     }
 }
