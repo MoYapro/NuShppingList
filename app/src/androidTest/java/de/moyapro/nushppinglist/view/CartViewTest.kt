@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule

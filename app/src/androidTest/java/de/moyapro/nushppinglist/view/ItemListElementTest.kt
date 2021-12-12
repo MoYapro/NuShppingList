@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -38,8 +38,11 @@ class ItemListElementTest {
         val editField =
             composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
         editField.performClick()
-        editField.performTextInput("2")
+        Thread.sleep(1000)
+        editField.performTextInput("Milk2")
+        Thread.sleep(1000)
         composeTestRule.onNodeWithText("Save").performClick()
+        Thread.sleep(1000)
         assertTrue("Saveaction should be called", saveActionCalled)
         assertEquals("Itemname should be updated", "Milk2", itemText)
     }

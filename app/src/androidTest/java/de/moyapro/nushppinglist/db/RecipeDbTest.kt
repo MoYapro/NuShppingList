@@ -27,7 +27,7 @@ class RecipeDbTest {
 
     @Before
     fun createDb() {
-        db = DbTestHelper.createAppDatabase()
+        db = DbTestHelper.createTestDatabase()
         recipeDao = db.recipeDao()
         recipeViewModel = RecipeViewModel(recipeDao)
     }

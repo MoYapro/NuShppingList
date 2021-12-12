@@ -1,7 +1,6 @@
 package de.moyapro.nushppinglist.db
 
 import android.content.Context
-import androidx.room.Room.inMemoryDatabaseBuilder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
@@ -9,10 +8,10 @@ import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.model.CartViewModel
+import de.moyapro.nushppinglist.util.DbTestHelper
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -30,9 +29,7 @@ class CartDbTest {
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = inMemoryDatabaseBuilder(
-            context, AppDatabase::class.java
-        ).build()
+        db = DbTestHelper.createTestDatabase()
         cartDao = db.cartDao()
         viewModel = CartViewModel(cartDao)
     }
@@ -142,16 +139,17 @@ class CartDbTest {
 
     @OptIn(ExperimentalTime::class)
     @Test(timeout = 10000)
-    fun addExistingItemByName() = runBlockingTest {
+    fun addExistingItemByName() = runBlocking {
         val itemName = "Milk"
         val newItem = Item(itemName)
         viewModel.add(newItem)
         viewModel.addToCart(itemName)
 
-        viewModel.allCartItems.test {
-            val cartItem = awaitItem()
-            cartItem.single().item.name shouldBe itemName
+        cartDao.findAllCartItems().test {
+            val cartItemFromDb = awaitItem()
+            cartItemFromDb.single().cartItemProperties.amount shouldBe 1
+            cartItemFromDb.single().item.name shouldBe newItem.name
         }
-    }
 
+    }
 }

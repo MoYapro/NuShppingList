@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertCountEquals

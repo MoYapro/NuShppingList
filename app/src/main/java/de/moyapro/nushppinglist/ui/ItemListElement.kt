@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,15 +18,12 @@ import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.theme.Purple700
 
-
-private const val TAG = "ItemListElement"
-
 @Composable
 fun ItemListElement(
     cartItem: CartItem,
     saveAction: (Item) -> Unit = {},
     addAction: (Item) -> Unit = {},
-    editMode: Boolean = false
+    editMode: Boolean = false,
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item
@@ -58,17 +54,30 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
         Modifier.background(color = Color.Yellow),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        val textState = remember { mutableStateOf(item.name) }
-        EditTextField(
-            "",
-            initialValue = textState.value,
-            onValueChange = { textState.value = it }
-        )
-        Button(onClick = {
-            endEditMode()
-            saveAction(item.copy(name = textState.value))
-        }) {
-            Text("Save")
+        var editItem by remember { mutableStateOf(item) }
+        Column() {
+
+            EditTextField(
+                "Name",
+                initialValue = editItem.name,
+                onValueChange = { editItem = editItem.copy(name = it) }
+            )
+            EditTextField(
+                "Einheit",
+                initialValue = editItem.defaultItemUnit,
+                onValueChange = { editItem = editItem.copy(defaultItemUnit = it) }
+            )
+            NumberTextField(
+                "Preis",
+                initialValue = editItem.price,
+                onValueChange = { editItem = editItem.copy(price = it) }
+            )
+            Button(onClick = {
+                endEditMode()
+                saveAction(editItem)
+            }) {
+                Text("Save")
+            }
         }
     }
 }
@@ -77,7 +86,7 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
 fun JustView(
     cartItem: CartItem,
     addAction: (Item) -> Unit,
-    beginEditMode: () -> Unit
+    beginEditMode: () -> Unit,
 ) {
     val item = cartItem.item
     val cartItemProperties = cartItem.cartItemProperties
@@ -92,13 +101,7 @@ fun JustView(
                 .clickable(onClick = beginEditMode)
         )
         Button(
-            onClick = {
-                Log.i(
-                    TAG,
-                    "clicked on add action button with action ${addAction::class.java} =================================================="
-                )
-                addAction(item)
-            },
+            onClick = { addAction(item) },
             colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
         ) {
             Text(text = "🛒 ${getAmountText(cartItemProperties)}".trim())

@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.ui.RecipeListView
 import de.moyapro.nushppinglist.ui.amountText
+import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 import de.moyapro.nushppinglist.ui.model.ViewModelFactory
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
@@ -21,7 +22,7 @@ class RecipeListViewTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    val database = DbTestHelper.createAppDatabase()
+    val database = DbTestHelper.createTestDatabase()
 
     @Before
     fun setup() {
@@ -63,11 +64,12 @@ class RecipeListViewTest {
     }
 
     private fun createComposable(rezeptList: List<Recipe>) {
-        val viewModel = ViewModelFactory(database).create(RecipeViewModel::class.java)
-        viewModel.save(*rezeptList.toTypedArray())
+        val recipeViewModel = ViewModelFactory(database).create(RecipeViewModel::class.java)
+        val cartViewModel = ViewModelFactory(database).create(CartViewModel::class.java)
+        recipeViewModel.save(*rezeptList.toTypedArray())
         composeTestRule.setContent {
             NuShppingListTheme {
-                RecipeListView(viewModel)
+                RecipeListView(recipeViewModel, cartViewModel)
             }
         }
     }

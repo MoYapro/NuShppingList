@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.view
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

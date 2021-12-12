@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.ui.util
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
+import java.math.BigDecimal
 import kotlin.random.Random
 
 class LabelProvider : PreviewParameterProvider<String> {
@@ -45,7 +46,9 @@ fun createSampleItem() = Item(
     itemId = ItemId(1),
     name = "Sugar",
     defaultItemAmount = 1000,
-    defaultItemUnit = "g")
+    defaultItemUnit = "g",
+    price = BigDecimal.ZERO,
+)
 
 fun createSampleCartItem(recipeId: RecipeId = RecipeId(-1)) =
     CartItem(createSampleItem()).apply { cartItemProperties.recipeId = recipeId }
@@ -55,10 +58,13 @@ fun createSampleRecipeItem(recipeId: Long = 1) = RecipeItem(
     recipeItemId = Random.nextLong(),
     recipeId = RecipeId(recipeId),
     amount = 14.0,
-    item = Item(itemId = ItemId(99),
+    item = Item(
+        itemId = ItemId(99),
         name = "Bacon",
         defaultItemAmount = 250,
-        defaultItemUnit = "g"),
+        defaultItemUnit = "g",
+        price = BigDecimal.ZERO,
+    ),
 )
 
 fun createSampleRecipeCake(recipeId: Long = 1, title: String = "Cake"): Recipe {
@@ -75,19 +81,25 @@ fun createSampleRecipeCake(recipeId: Long = 1, title: String = "Cake"): Recipe {
                 recipeItemId = Random.nextLong(),
                 recipeId = RecipeId(recipeId),
                 amount = 0.3,
-                item = Item(itemId = ItemId(30),
+                item = Item(
+                    itemId = ItemId(30),
                     name = "Milk",
                     defaultItemAmount = 1,
-                    defaultItemUnit = "l"),
+                    defaultItemUnit = "l",
+                    price = BigDecimal.ZERO,
+                ),
             ),
             RecipeItem(
                 recipeItemId = Random.nextLong(),
                 recipeId = RecipeId(recipeId),
                 amount = 12.0,
-                item = Item(itemId = ItemId(31),
+                item = Item(
+                    itemId = ItemId(31),
                     name = "Sugar",
                     defaultItemAmount = 1000,
-                    defaultItemUnit = "g"),
+                    defaultItemUnit = "g",
+                    price = BigDecimal.ZERO,
+                ),
             ),
         ),
         recipeSteps = listOf(
@@ -121,19 +133,25 @@ fun createSampleRecipeNoodels(recipeId: Long = 2, title: String = "Noodles"): Re
                 recipeItemId = Random.nextLong(),
                 recipeId = RecipeId(recipeId),
                 amount = 0.3,
-                item = Item(itemId = ItemId(60),
+                item = Item(
+                    itemId = ItemId(60),
                     name = "Noodels",
                     defaultItemAmount = 1,
-                    defaultItemUnit = "l"),
+                    defaultItemUnit = "l",
+                    price = BigDecimal.ZERO,
+                ),
             ),
             RecipeItem(
                 recipeItemId = Random.nextLong(),
                 recipeId = RecipeId(recipeId),
                 amount = 12.0,
-                item = Item(itemId = ItemId(61),
+                item = Item(
+                    itemId = ItemId(61),
                     name = "Tomato",
                     defaultItemAmount = 1000,
-                    defaultItemUnit = "g"),
+                    defaultItemUnit = "g",
+                    price = BigDecimal.ZERO,
+                ),
             ),
         )
     )
