@@ -23,7 +23,8 @@ fun RecipeListView(
         recipes.forEach { recipe ->
             RecipeListElement(
                 recipe = recipe,
-                addSelectedItemsToCartAction = cartViewModel::addToCart
+                addSelectedItemsToCartAction = cartViewModel::addToCart,
+                cartViewModel = cartViewModel
             )
         }
     }
