@@ -3,12 +3,11 @@ package de.moyapro.nushppinglist.db.model
 import androidx.room.Embedded
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import kotlin.random.Random
 
 data class Recipe(
     @Embedded
     var recipeProperties    :RecipeProperties,
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @get:JvmName("getRecipeId")
     @set:JvmName("setRecipeId")
     var recipeId: RecipeId,
@@ -23,5 +22,5 @@ data class Recipe(
     )
     var recipeItems: List<RecipeItem> = emptyList()
 ) {
-    constructor(): this(RecipeProperties(), RecipeId(Random.nextLong()), listOf(), listOf())
+    constructor(): this(RecipeProperties(), RecipeId(), listOf(), listOf())
 }

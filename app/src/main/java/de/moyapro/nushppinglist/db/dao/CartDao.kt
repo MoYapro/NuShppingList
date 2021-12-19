@@ -6,6 +6,7 @@ import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 @Suppress("FunctionName")
 @Dao
@@ -50,7 +51,7 @@ interface CartDao {
     )
     @Transaction
     @Query("select * from Item i where i.itemId = :itemId")
-    suspend fun getItemByItemId_internal(itemId: Long): Item?
+    suspend fun getItemByItemId_internal(itemId: UUID): Item?
 
     @Deprecated(
         "This is just for the generated Dao_Impl",
@@ -59,7 +60,7 @@ interface CartDao {
     )
     @Transaction
     @Query("select * from CartItemProperties p where p.itemId = :itemId")
-    suspend fun getCartItemByItemId_internal(itemId: Long): CartItemProperties?
+    suspend fun getCartItemByItemId_internal(itemId: UUID): CartItemProperties?
 
     @Transaction
     @Query("select * from Item i where i.name = :itemName")

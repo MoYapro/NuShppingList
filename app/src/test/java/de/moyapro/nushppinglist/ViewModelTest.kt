@@ -164,7 +164,7 @@ class ViewModelTest {
 
     @Test
     fun getItemByItemId() {
-        val randomId = ItemId(Random.nextLong())
+        val randomId = ItemId()
         val itemInDb = Item("ItemName", randomId)
         viewModel.add(itemInDb)
         val itemFromDb = viewModel.getItemByItemId(randomId)
@@ -256,7 +256,7 @@ class ViewModelTest {
 
     @Test
     fun updateCartItemProperties() = runBlocking {
-        val itemId = ItemId(Random.nextLong())
+        val itemId = ItemId()
         val cartItemProperties = CartItemProperties(11, 12, itemId, RecipeId(-1), 14, true)
         val cartItem = CartItem(
             cartItemProperties,

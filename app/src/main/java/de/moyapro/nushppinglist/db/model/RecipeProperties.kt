@@ -2,17 +2,17 @@ package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlin.random.Random
+import java.util.*
 
 @Entity
 data class RecipeProperties(
-    @PrimaryKey(autoGenerate = true)
-    var recipePropertiesId: Long,
+    @PrimaryKey
+    var recipePropertiesId: UUID = UUID.randomUUID(),
     @get:JvmName("getRecipeId")
     @set:JvmName("setRecipeId")
     var recipeId: RecipeId,
     var title: String,
     var description: String,
 ) {
-    constructor() : this(Random.nextLong(), RecipeId(1), "", "")
+    constructor() : this(recipeId = RecipeId(), title = "", description = "")
 }

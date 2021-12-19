@@ -3,24 +3,24 @@ package de.moyapro.nushppinglist.db.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.moyapro.nushppinglist.db.ids.ItemId
-import kotlin.random.Random
+import java.util.*
 
 @Entity
 data class CartItemProperties(
-    @PrimaryKey(autoGenerate = true)
-    var cartItemPropertiesId: Long,
-    var cartItemId: Long,
+    @PrimaryKey
+    var cartItemPropertiesId: UUID = UUID.randomUUID(),
+    var cartItemId: UUID,
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
     var itemId: ItemId,
     @get:JvmName("getRecipeId")
     @set:JvmName("setRecipeId")
-    var recipeId: RecipeId,
+    var recipeId: RecipeId?,
     var amount: Int,
     var checked: Boolean,
 ) {
     constructor(newItemId: ItemId, recipeId: RecipeId, amount: Int = 1) : this(
-        cartItemPropertiesId = newItemId.id,
+        cartItemPropertiesId = UUID.randomUUID(),
         cartItemId = newItemId.id,
         itemId = newItemId,
         recipeId = recipeId,
@@ -30,8 +30,8 @@ data class CartItemProperties(
 
     constructor(newItemId: ItemId, amount: Int = 1) : this(
         newItemId,
-        RecipeId(-1),
+        RecipeId(),
     )
 
-    constructor() : this(ItemId(Random.nextLong()))
+    constructor() : this(ItemId())
 }

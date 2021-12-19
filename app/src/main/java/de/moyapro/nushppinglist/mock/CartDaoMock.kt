@@ -9,6 +9,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import java.util.*
 
 @FlowPreview
 class CartDaoMock(
@@ -83,11 +84,11 @@ class CartDaoMock(
         return itemTable.toList()
     }
 
-    override suspend fun getItemByItemId_internal(itemId: Long): Item? {
+    override suspend fun getItemByItemId_internal(itemId: UUID): Item? {
         return itemTable.firstOrNull { itemInDb -> itemInDb.itemId.id == itemId }
     }
 
-    override suspend fun getCartItemByItemId_internal(itemId: Long): CartItemProperties? {
+    override suspend fun getCartItemByItemId_internal(itemId: UUID): CartItemProperties? {
         return cartItemPropertiesTable.firstOrNull { itemId == it.itemId.id }
     }
 

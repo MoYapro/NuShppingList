@@ -3,7 +3,6 @@ package de.moyapro.nushppinglist.db.model
 import androidx.room.Embedded
 import androidx.room.Relation
 import de.moyapro.nushppinglist.db.ids.ItemId
-import kotlin.random.Random
 
 data class CartItem(
     @Embedded
@@ -12,31 +11,30 @@ data class CartItem(
         parentColumn = "itemId",
         entityColumn = "itemId"
     )
-    val item: Item
+    val item: Item,
 ) {
     constructor(
         newItemName: String,
         checked: Boolean = false,
-        newItemId: ItemId = ItemId(Random.nextLong())
+        newItemId: ItemId = ItemId(),
     ) : this(
-        CartItemProperties(
-            newItemId.id,
-            newItemId.id,
-            newItemId,
-            RecipeId(-1),
-            1,
-            checked
-        ), Item(newItemName, newItemId)
+        cartItemProperties = CartItemProperties(
+            cartItemId = newItemId.id,
+            itemId = newItemId,
+            recipeId = RecipeId(),
+            amount = 1,
+            checked = checked
+        ),
+        item = Item(newItemName, newItemId)
     )
 
     constructor(item: Item) : this(
         CartItemProperties(
-            item.itemId.id,
-            item.itemId.id,
-            item.itemId,
-            RecipeId(-1),
-            1,
-            false),
+            cartItemId = item.itemId.id,
+            itemId = item.itemId,
+            recipeId = RecipeId(),
+            amount = 1,
+            checked = false),
         item
     )
 

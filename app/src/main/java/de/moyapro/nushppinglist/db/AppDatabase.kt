@@ -12,7 +12,7 @@ import de.moyapro.nushppinglist.ui.model.converter.Converters
 import kotlinx.coroutines.CoroutineScope
 
 @Database(entities = [Item::class, CartItemProperties::class, RecipeItem::class, RecipeProperties::class, RecipeStep::class],
-    version = 4)
+    version = 5)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartDao(): CartDao
