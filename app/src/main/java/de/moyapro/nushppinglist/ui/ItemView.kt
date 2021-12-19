@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Text
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,9 +29,8 @@ fun ItemView(viewModel: CartViewModel) {
             Arrangement.End
         ) {
             FloatingActionButton(
-                onClick = { viewModel.add(Item("?")) },
-            ) {
-                Text(text = "+")
+                onClick = { viewModel.add(Item("?")) }) {
+                Icon(Icons.Filled.Add, contentDescription = "Hinzufügen")
             }
         }
         ItemList(viewModel)
