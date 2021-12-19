@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import de.moyapro.nushppinglist.constants.CONSTANTS.CHECKED
 import de.moyapro.nushppinglist.db.AppDatabase
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
@@ -40,12 +39,50 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initTestData() {
+        val items = listOf(
+            "EintestwoallesineinemlangenWortistundkeinLeerzeichenzumumbrechen",
+            "Handkäse mit Pflaumen (Anmerkung) am besten die kleinen",
+        )
+
+        val cartItems = listOf(
+            "Milch",
+            "Butter",
+            "Vanillekipferl",
+            "Wasser",
+            "Trinken",
+            "Bier",
+            "Waschmittel",
+            "Hundefutter (Dose)",
+            "Weintrauben",
+            "UnicodeTest: ℰℯໂ६£Ē℮ē",
+            "Eis",
+            "Marmelade",
+            "Chips",
+            "Dounuts",
+            "Gurken",
+            "Tomaten",
+            "Zwiebeln",
+            "Rosinen",
+            "Mehl",
+            "Zucker",
+            "Kaffee",
+            "Tee",
+            "Senf",
+            "Salat",
+            "Möhren",
+            "Petersilie",
+            "Basilikum",
+            "Salz",
+            "Apfel",
+            "Banane",
+
+
+            )
+
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             database.clearAllTables()
-            cartViewModel.add(CartItem("Milk"))
-            cartViewModel.add(CartItem("Butter"))
-            cartViewModel.add(CartItem("Eggs", CHECKED))
-            cartViewModel.add(Item("Toast"))
+            items.map(::Item).forEach(cartViewModel::add)
+            cartItems.map(::CartItem).forEach(cartViewModel::add)
             recipeViewModel.save(createSampleRecipeCake())
             recipeViewModel.save(createSampleRecipeNoodels())
         }
