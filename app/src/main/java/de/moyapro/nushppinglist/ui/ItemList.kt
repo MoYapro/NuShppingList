@@ -1,11 +1,20 @@
 package de.moyapro.nushppinglist.ui
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
@@ -32,13 +41,28 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
             )
     }
 
-    Column {
-        cartItemList.forEach { cartItem ->
-            ItemListElement(
-                cartItem,
-                viewModel::update,
-                viewModel::addToCart
-            )
+    Scaffold(
+        modifier = Modifier.fillMaxWidth(),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { viewModel.add(Item("?")) }) {
+                Icon(Icons.Filled.Add, contentDescription = "Hinzufügen")
+            }
+        },
+        content = { innerPadding ->
+            LazyColumn(
+                contentPadding = innerPadding,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(count = cartItemList.size) { index ->
+                    val cartItem = cartItemList[index]
+                    ItemListElement(
+                        cartItem,
+                        viewModel::update,
+                        viewModel::addToCart
+                    )
+                }
+            }
         }
-    }
+    )
 }

@@ -1,17 +1,16 @@
 package de.moyapro.nushppinglist.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
@@ -28,15 +27,19 @@ fun ItemListElement(
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item
 
-    Column {
+    Column(Modifier.fillMaxWidth()) {
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
         }
 
-        Column {
-            JustView(cartItem, addAction) { isEdited = !isEdited }
-            if (isEdited) {
-                EditView(item, saveAction) { isEdited = false }
+        Surface(
+            elevation = 3.dp,
+        ) {
+            Column {
+                JustView(cartItem, addAction) { isEdited = !isEdited }
+                if (isEdited) {
+                    EditView(item, saveAction) { isEdited = false }
+                }
             }
         }
     }
@@ -91,8 +94,9 @@ fun JustView(
     val item = cartItem.item
     val cartItemProperties = cartItem.cartItemProperties
     Row(
-        Modifier.background(color = Color.Red),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(1.dp)
     ) {
         Text(
             item.name,
