@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.ui
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.verticalScroll
@@ -31,12 +32,18 @@ fun CartView(viewModel: CartViewModel) {
     val autocompleteAction: (String) -> List<String> = { searchString ->
         viewModel.getAutocompleteItems(searchString)
     }
-    Scaffold(Modifier.fillMaxHeight(), topBar = {
-        Button(onClick = { viewModel.removeCheckedFromCart() }) {
-            Text("⎚")
-        }
-    },
-        bottomBar = { Autocomplete(chooseAction, autocompleteAction) },
+    Scaffold(
+        Modifier.fillMaxHeight(),
+        topBar = {
+            Button(onClick = { viewModel.removeCheckedFromCart() }) {
+                Text("⎚")
+            }
+        },
+        bottomBar = {
+            Box {
+                Autocomplete(chooseAction, autocompleteAction)
+            }
+        },
     ) {
         Column(Modifier
             .background(color = Color.Green)

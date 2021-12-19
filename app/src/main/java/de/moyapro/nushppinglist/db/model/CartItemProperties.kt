@@ -29,8 +29,9 @@ data class CartItemProperties(
     )
 
     constructor(newItemId: ItemId, amount: Int = 1) : this(
-        newItemId,
-        RecipeId(),
+        newItemId = newItemId,
+        recipeId = RecipeId(),
+        amount = amount
     )
 
     constructor() : this(ItemId())

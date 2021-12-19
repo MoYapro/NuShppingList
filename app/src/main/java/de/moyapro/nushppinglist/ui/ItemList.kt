@@ -19,17 +19,20 @@ import de.moyapro.nushppinglist.ui.util.ItemListProvider
 @Preview
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel) {
     val allItemList: List<Item> by viewModel.allItems.collectAsState(listOf())
-    val cartItemProperties: List<CartItemProperties> by viewModel.cartItems.collectAsState(
+    val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(
         listOf()
     )
-    val cartItemList = allItemList.map { item ->
-        CartItem(
-            cartItemProperties.firstOrNull { item.itemId == it.itemId } ?: CartItemProperties(
-                newItemId = item.itemId,
-                amount = 0
-            ),
-            item,
-        )
+
+    val cartItemList: List<CartItem> = allItemList.map { item ->
+        val cartItem = cartItems.firstOrNull { it.item.itemId == item.itemId }
+        cartItem
+            ?: CartItem(
+                CartItemProperties(
+                    newItemId = item.itemId,
+                    amount = 0
+                ),
+                item,
+            )
     }
 
     Column(Modifier.background(color = Color.Blue)) {

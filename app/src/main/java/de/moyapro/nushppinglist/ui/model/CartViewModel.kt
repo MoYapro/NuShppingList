@@ -10,7 +10,9 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 
 @FlowPreview
 class CartViewModel(
@@ -94,7 +96,7 @@ class CartViewModel(
     }
 
     fun getAutocompleteItems(searchString: String): List<String> {
-        return nonCartItems.value
+        return allItems.value
             .filter { matched(it.name, searchString) }
             .map { it.name }
     }
@@ -102,8 +104,6 @@ class CartViewModel(
     fun addToCart(item: Item) = runBlocking {
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(item.itemId)
-        val cartItems = cartDao.findAllInCart().take(1).toList().flatten()
-            .filter { it.cartItemPropertiesId == item.itemId.id }
         if (null == existingCartItem) {
             add(CartItem(item))
         } else {
