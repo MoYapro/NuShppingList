@@ -23,7 +23,7 @@ fun CartListElement(
     if (null != item) {
         Row(
             Modifier
-                .background(color = Color.Yellow)
+                .background(color = Color.DarkGray)
                 .fillMaxWidth(),
         ) {
             Spacer(modifier = Modifier.width(Dp(4F)))
@@ -44,6 +44,6 @@ fun CartListElement(
 
 @Composable
 private fun getBackgroundColor(checked: Boolean) = when (checked) {
-    true -> Color.DarkGray
+    true -> Color.LightGray
     false -> Color.Unspecified
 }

@@ -10,9 +10,7 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 
 @FlowPreview
 class CartViewModel(
@@ -64,8 +62,17 @@ class CartViewModel(
 
     @Transaction
     fun add(newItem: CartItem) = runBlocking {
-        cartDao.save(newItem.item)
-        cartDao.save(newItem.cartItemProperties)
+        if (allItems.value.map { it.itemId }.contains(newItem.item.itemId)) {
+            cartDao.updateAll(newItem.item)
+        } else {
+            cartDao.save(newItem.item)
+        }
+        if (allCartItems.value.map { it.cartItemProperties.cartItemPropertiesId }
+                .contains(newItem.cartItemProperties.cartItemPropertiesId)) {
+            cartDao.updateAll(newItem.cartItemProperties)
+        } else {
+            cartDao.save(newItem.cartItemProperties)
+        }
     }
 
     fun toggleChecked(itemToToggle: CartItemProperties) = runBlocking {
@@ -95,6 +102,8 @@ class CartViewModel(
     fun addToCart(item: Item) = runBlocking {
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(item.itemId)
+        val cartItems = cartDao.findAllInCart().take(1).toList().flatten()
+            .filter { it.cartItemPropertiesId == item.itemId.id }
         if (null == existingCartItem) {
             add(CartItem(item))
         } else {

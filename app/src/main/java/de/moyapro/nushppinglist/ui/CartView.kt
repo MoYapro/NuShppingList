@@ -1,8 +1,12 @@
 package de.moyapro.nushppinglist.ui
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -21,23 +25,32 @@ fun CartView(viewModel: CartViewModel) {
         viewModel.allCartItemsGrouped.collectAsState(
             mapOf()
         )
+    val scrollState = ScrollState(0)
     val cartItemProperties: Map<RecipeId?, List<CartItem>> by collectAsState
     val chooseAction: (String) -> Unit = viewModel::addToCart
     val autocompleteAction: (String) -> List<String> = { searchString ->
         viewModel.getAutocompleteItems(searchString)
     }
-    Column(Modifier.background(color = Color.Green)) {
+    Scaffold(Modifier.fillMaxHeight(), topBar = {
         Button(onClick = { viewModel.removeCheckedFromCart() }) {
             Text("⎚")
         }
-
-        cartItemProperties.forEach { (recipeId, itemList) ->
-            itemList.forEach { cartItem ->
-                CartListElement(cartItem.cartItemProperties, viewModel)
+    },
+        bottomBar = { Autocomplete(chooseAction, autocompleteAction) },
+    ) {
+        Column(Modifier
+            .background(color = Color.Green)
+            .verticalScroll(scrollState)
+        ) {
+            cartItemProperties.forEach { (recipeId, itemList) ->
+                itemList.forEach { cartItem ->
+                    CartListElement(cartItem.cartItemProperties, viewModel)
+                }
             }
         }
-        Autocomplete(chooseAction, autocompleteAction)
     }
+
+
 }
 
 
