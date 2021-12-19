@@ -34,7 +34,10 @@ fun ItemListElement(
         }
 
         if (isEdited) {
-            EditView(item, saveAction) { isEdited = false }
+            Column {
+                JustView(cartItem, addAction) { isEdited = false }
+                EditView(item, saveAction) { isEdited = false }
+            }
         } else {
             JustView(cartItem, addAction) { isEdited = true }
         }
