@@ -1,7 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 
@@ -21,7 +19,6 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 fun ItemView(viewModel: CartViewModel) {
     val scrollState = ScrollState(0)
     Column(Modifier
-        .background(color = Color.Cyan)
         .verticalScroll(scrollState)
     ) {
         Row(

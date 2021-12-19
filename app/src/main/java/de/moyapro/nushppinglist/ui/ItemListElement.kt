@@ -28,18 +28,16 @@ fun ItemListElement(
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item
 
-    Column(Modifier.background(color = Color.White)) {
+    Column {
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
         }
 
-        if (isEdited) {
-            Column {
-                JustView(cartItem, addAction) { isEdited = false }
+        Column {
+            JustView(cartItem, addAction) { isEdited = !isEdited }
+            if (isEdited) {
                 EditView(item, saveAction) { isEdited = false }
             }
-        } else {
-            JustView(cartItem, addAction) { isEdited = true }
         }
     }
 }
@@ -54,7 +52,6 @@ fun getAmountText(cartItemProperties: CartItemProperties?): String {
 @Composable
 fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
     Row(
-        Modifier.background(color = Color.Yellow),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         var editItem by remember { mutableStateOf(item) }

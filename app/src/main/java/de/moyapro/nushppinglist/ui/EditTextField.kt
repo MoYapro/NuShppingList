@@ -1,10 +1,8 @@
 package de.moyapro.nushppinglist.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.material.TextField
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 
@@ -16,16 +14,15 @@ object EditTextField {
 fun EditTextField(
     label: String? = null,
     initialValue: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
 ) {
-    if (!label.isNullOrBlank()) {
-        Label(labelText = label)
-    }
-    TextField(
-        value = initialValue, onValueChange, modifier = Modifier
+    OutlinedTextField(
+        label = { Label(labelText = label ?: "") },
+        value = initialValue,
+        onValueChange = onValueChange,
+        modifier = Modifier
             .semantics {
                 contentDescription = EditTextField.DESCRIPTION
             }
-            .background(color = Color.Cyan)
     )
 }

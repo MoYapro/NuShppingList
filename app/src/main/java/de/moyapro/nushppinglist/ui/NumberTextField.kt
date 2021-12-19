@@ -1,11 +1,9 @@
 package de.moyapro.nushppinglist.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.TextField
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,12 +37,10 @@ fun NumberTextField(
     initialValue: BigDecimal,
     onValueChange: (BigDecimal) -> Unit,
 ) {
-    if (!label.isNullOrBlank()) {
-        Label(labelText = label)
-    }
-    TextField(
+    OutlinedTextField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         value = initialValue.toString(),
+        label = { Label(labelText = label ?: "") },
         onValueChange = { newTextValue ->
             onValueChange(NumberTextField.bigDecimalFromStringInput(newTextValue))
         },
@@ -52,6 +48,5 @@ fun NumberTextField(
             .semantics {
                 contentDescription = NumberTextField.DESCRIPTION
             }
-            .background(color = Color.Cyan)
     )
 }
