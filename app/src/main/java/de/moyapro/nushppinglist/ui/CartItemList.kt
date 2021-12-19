@@ -23,7 +23,6 @@ fun CartListElement(
     if (null != item) {
         Row(
             Modifier
-                .background(color = Color.DarkGray)
                 .fillMaxWidth(),
         ) {
             Spacer(modifier = Modifier.width(Dp(4F)))
