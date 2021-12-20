@@ -120,7 +120,6 @@ fun JustView(
 ) {
     Row(
         Modifier
-            .background(color = Color.Red)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
