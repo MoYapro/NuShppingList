@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import android.util.Log
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -9,13 +10,19 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import java.math.BigDecimal
 import java.math.RoundingMode.HALF_UP
+import java.util.*
+
+private const val TAG = "NumberTextField"
 
 object NumberTextField {
     const val DESCRIPTION = "NumberTextField"
     fun bigDecimalFromStringInput(text: String): BigDecimal {
+        val conversionId = UUID.randomUUID()
+        Log.i(TAG, "$conversionId - convert text to bigDecimal: String was $text")
         val fixedText = text
             .replace(',', '.')
             .replace(Regex("[^0-9.]"), "")
+        Log.i(TAG, "$conversionId - convert text to bigDecimal: String now $text")
         if (isEmptyValue(fixedText)) return BigDecimal.ZERO.setScale(2)
         return BigDecimal(fixedText).setScale(2, HALF_UP)
     }
