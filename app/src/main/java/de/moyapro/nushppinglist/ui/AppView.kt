@@ -42,4 +42,10 @@ fun AppView(
     }
 }
 
+enum class MainView(val text: String) {
+    EINKAUFSLISTE("Einkaufsliste"),
+    DINGE("Dinge"),
+    REZEPTE("Rezepte"),
+}
+
 

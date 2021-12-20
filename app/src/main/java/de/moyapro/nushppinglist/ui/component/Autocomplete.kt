@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist.ui
+package de.moyapro.nushppinglist.ui.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -34,7 +34,7 @@ fun Autocomplete(
                         it,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(Dp(4F))
+                            .padding(Dp(6F))
                             .clickable(
                                 onClick = {
                                     chooseAction(it)

@@ -5,9 +5,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
-import de.moyapro.nushppinglist.ui.EditTextField
 import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.ItemListElement
+import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import org.junit.Assert.*

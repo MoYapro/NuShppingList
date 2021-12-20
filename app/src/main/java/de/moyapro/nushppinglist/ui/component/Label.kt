@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist.ui
+package de.moyapro.nushppinglist.ui.component
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable

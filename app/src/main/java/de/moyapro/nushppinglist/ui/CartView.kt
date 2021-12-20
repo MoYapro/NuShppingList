@@ -2,8 +2,10 @@ package de.moyapro.nushppinglist.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -14,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
+import de.moyapro.nushppinglist.ui.component.Autocomplete
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CartView(viewModel: CartViewModel) {
     val collectAsState: State<Map<RecipeId?, List<CartItem>>> =
@@ -46,10 +50,9 @@ fun CartView(viewModel: CartViewModel) {
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val list = (0..75).map { it.toString() }
                 items(count = cartItemProperties.size) { index ->
                     val (recipeId, cartItem) = cartItemProperties[index]
                     CartListElement(cartItem.cartItemProperties, viewModel)

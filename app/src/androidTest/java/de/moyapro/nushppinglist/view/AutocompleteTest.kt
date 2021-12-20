@@ -2,8 +2,8 @@ package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import de.moyapro.nushppinglist.ui.Autocomplete
-import de.moyapro.nushppinglist.ui.EditTextField
+import de.moyapro.nushppinglist.ui.component.Autocomplete
+import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule

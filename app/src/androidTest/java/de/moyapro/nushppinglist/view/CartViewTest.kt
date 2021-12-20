@@ -8,7 +8,7 @@ import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.CartView
-import de.moyapro.nushppinglist.ui.EditTextField
+import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import kotlinx.coroutines.CoroutineScope

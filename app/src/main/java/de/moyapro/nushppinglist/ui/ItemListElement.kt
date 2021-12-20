@@ -13,9 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.SWITCHES
+import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.ui.component.Dropdown
+import de.moyapro.nushppinglist.ui.component.EditTextField
+import de.moyapro.nushppinglist.ui.component.NumberTextField
 import de.moyapro.nushppinglist.ui.theme.Purple700
 
 @Composable
@@ -66,9 +70,10 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
                 initialValue = editItem.name,
                 onValueChange = { editItem = editItem.copy(name = it) }
             )
-            EditTextField(
-                "Einheit",
+            Dropdown(
+             label =  "Einheit",
                 initialValue = editItem.defaultItemUnit,
+                values = UNIT.values().toList(),
                 onValueChange = { editItem = editItem.copy(defaultItemUnit = it) }
             )
             NumberTextField(

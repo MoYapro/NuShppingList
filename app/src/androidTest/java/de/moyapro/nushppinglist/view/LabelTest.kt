@@ -5,7 +5,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import de.moyapro.nushppinglist.ui.Label
+import de.moyapro.nushppinglist.ui.component.Label
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import org.junit.Rule
 import org.junit.Test

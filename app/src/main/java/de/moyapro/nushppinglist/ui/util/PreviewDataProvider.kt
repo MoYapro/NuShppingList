@@ -1,6 +1,8 @@
 package de.moyapro.nushppinglist.ui.util
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.moyapro.nushppinglist.constants.UNIT.GRAM
+import de.moyapro.nushppinglist.constants.UNIT.LITER
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import java.math.BigDecimal
@@ -46,7 +48,7 @@ fun createSampleItem() = Item(
     itemId = ItemId(),
     name = "Sugar",
     defaultItemAmount = 1000,
-    defaultItemUnit = "g",
+    defaultItemUnit = GRAM,
     price = BigDecimal.ZERO,
 )
 
@@ -61,7 +63,7 @@ fun createSampleRecipeItem(recipeId: UUID = UUID.randomUUID()) = RecipeItem(
         itemId = ItemId(),
         name = "Bacon",
         defaultItemAmount = 250,
-        defaultItemUnit = "g",
+        defaultItemUnit = GRAM,
         price = BigDecimal.ZERO,
     ),
 )
@@ -82,7 +84,7 @@ fun createSampleRecipeCake(recipeId: UUID = UUID.randomUUID(), title: String = "
                     itemId = ItemId(),
                     name = "Milk",
                     defaultItemAmount = 1,
-                    defaultItemUnit = "l",
+                    defaultItemUnit = LITER,
                     price = BigDecimal.ZERO,
                 ),
             ),
@@ -93,7 +95,7 @@ fun createSampleRecipeCake(recipeId: UUID = UUID.randomUUID(), title: String = "
                     itemId = ItemId(),
                     name = "Sugar",
                     defaultItemAmount = 1000,
-                    defaultItemUnit = "g",
+                    defaultItemUnit = GRAM,
                     price = BigDecimal.ZERO,
                 ),
             ),
@@ -132,7 +134,7 @@ fun createSampleRecipeNoodels(
                     itemId = ItemId(),
                     name = "Noodels",
                     defaultItemAmount = 1,
-                    defaultItemUnit = "l",
+                    defaultItemUnit = LITER,
                     price = BigDecimal.ZERO,
                 ),
             ),
@@ -143,7 +145,7 @@ fun createSampleRecipeNoodels(
                     itemId = ItemId(),
                     name = "Tomato",
                     defaultItemAmount = 1000,
-                    defaultItemUnit = "g",
+                    defaultItemUnit = GRAM,
                     price = BigDecimal.ZERO,
                 ),
             ),

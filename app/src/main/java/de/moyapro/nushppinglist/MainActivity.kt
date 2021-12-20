@@ -1,10 +1,12 @@
 package de.moyapro.nushppinglist
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import de.moyapro.nushppinglist.constants.SWITCHES
+import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.AppDatabase
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
@@ -26,6 +28,7 @@ class MainActivity : ComponentActivity() {
     private val recipeViewModel by viewModels<RecipeViewModel>() { ViewModelFactory(database) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         super.onCreate(savedInstanceState)
         if(SWITCHES.INIT_DB_ON_BOOT) initTestData()
@@ -82,7 +85,7 @@ class MainActivity : ComponentActivity() {
 
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             database.clearAllTables()
-            items.map(::Item).forEach(cartViewModel::add)
+            items.map { Item(name = it, itemUnit = UNIT.KILOGRAM) }.forEach(cartViewModel::add)
             cartItems.map{CartItem(it)}.forEach(cartViewModel::add)
             recipeViewModel.save(createSampleRecipeCake())
             recipeViewModel.save(createSampleRecipeNoodels())

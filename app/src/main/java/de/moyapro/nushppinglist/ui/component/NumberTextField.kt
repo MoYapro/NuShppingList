@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist.ui
+package de.moyapro.nushppinglist.ui.component
 
 import android.util.Log
 import androidx.compose.foundation.text.KeyboardOptions

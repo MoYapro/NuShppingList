@@ -4,7 +4,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.performTextInput
-import de.moyapro.nushppinglist.ui.EditTextField
+import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule

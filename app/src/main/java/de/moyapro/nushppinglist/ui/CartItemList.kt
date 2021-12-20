@@ -28,6 +28,8 @@ fun CartListElement(
             Spacer(modifier = Modifier.width(Dp(4F)))
             Text(text = cartItem.amount.toString())
             Spacer(modifier = Modifier.width(Dp(4F)))
+            Text(text = item.defaultItemUnit.short)
+            Spacer(modifier = Modifier.width(Dp(4F)))
             Text(
                 text = item.name,
                 modifier = Modifier
