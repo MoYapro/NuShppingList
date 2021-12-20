@@ -4,7 +4,6 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
-import de.moyapro.nushppinglist.db.model.RecipeId
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
@@ -23,6 +22,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.*
 import org.junit.Assert.*
+import java.util.*
 import kotlin.random.Random
 
 
@@ -173,9 +173,11 @@ class ViewModelTest {
 
     @Test
     fun getNoItemByItemId() {
-        val itemInDb = Item("ItemName", ItemId(1))
+        val uuid1 = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val itemInDb = Item("ItemName", ItemId(uuid1))
         viewModel.add(itemInDb)
-        val itemFromDb = viewModel.getItemByItemId(ItemId(-1))
+        val itemFromDb = viewModel.getItemByItemId(ItemId(uuid2))
         assertNull("Should get NO item from DB", itemFromDb)
     }
 
@@ -257,12 +259,12 @@ class ViewModelTest {
     @Test
     fun updateCartItemProperties() = runBlocking {
         val itemId = ItemId()
-        val cartItemProperties = CartItemProperties(11, 12, itemId, RecipeId(-1), 14, true)
+        val cartItemProperties = CartItemProperties(newItemId = itemId).apply { checked = true }
         val cartItem = CartItem(
             cartItemProperties,
             Item("x", itemId)
         )
-        val expectedUpdated = CartItemProperties(11, 16, itemId, RecipeId(-1), 18, false)
+        val expectedUpdated = cartItemProperties.copy(checked = false)
         viewModel.add(cartItem)
         assertEquals(
             "Should have saved original state",
@@ -302,8 +304,8 @@ class ViewModelTest {
 
     @Test
     fun getCartGroupedByRecipe(): Unit = runBlocking {
-        val recipeCake = createSampleRecipeCake(recipeId = 1)
-        val recipeNoodels = createSampleRecipeNoodels(recipeId = 2)
+        val recipeCake = createSampleRecipeCake()
+        val recipeNoodels = createSampleRecipeNoodels()
         viewModel.addRecipeToCart(recipeCake)
         viewModel.addRecipeToCart(recipeNoodels)
         viewModel.addToCart("Vanilla Coke")

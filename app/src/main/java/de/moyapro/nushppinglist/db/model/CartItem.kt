@@ -21,7 +21,7 @@ data class CartItem(
         cartItemProperties = CartItemProperties(
             cartItemId = newItemId.id,
             itemId = newItemId,
-            recipeId = RecipeId(),
+            recipeId = null,
             amount = 1,
             checked = checked
         ),

@@ -57,6 +57,7 @@ class ItemListElementTest {
                 ItemListElement(cartItem = existingItem, addAction = action)
             }
         }
+        Thread.sleep(5000)
         composeTestRule.onNodeWithText("🛒 x 1").performClick()
         assertNotNull("add action should be called", addedItem)
         assertEquals("Should have added correct item", existingItem.item, addedItem)

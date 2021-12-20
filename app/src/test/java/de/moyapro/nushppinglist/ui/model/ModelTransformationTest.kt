@@ -9,16 +9,16 @@ import org.junit.Test
 class ModelTransformationTest {
     @Test
     fun groupCartItemsByRecipe__noRecipe() {
-        val cartItem = createSampleCartItem()
+        val cartItem = createSampleCartItem(recipeId = null)
         val result = ModelTransformation.groupCartItemsByRecipe(listOf(cartItem))
         result[null]?.single() shouldBe cartItem
     }
 
     @Test
     fun groupCartItemsByRecipe__noRecipeAndRecipes() {
-        val recipeId = RecipeId(1)
+        val recipeId = RecipeId()
         val cartItems = listOf(
-            createSampleCartItem(),
+            createSampleCartItem(recipeId = null),
             createSampleCartItem(recipeId),
             createSampleCartItem(recipeId)
         )

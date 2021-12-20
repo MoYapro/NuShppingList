@@ -41,12 +41,13 @@ class RecipeDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun writeAndLoadRecipe(): Unit = runBlocking {
-        val recipeCake = createSampleRecipeCake(recipeId = 1)
-        val recipeNoodles = createSampleRecipeNoodels(recipeId = 2)
+        val recipeCake = createSampleRecipeCake()
+        val recipeNoodles = createSampleRecipeNoodels()
 
         recipeViewModel.save(recipeCake, recipeNoodles)
 
-        val dbRecipe: Recipe = recipeViewModel.allRecipes.take(1).first().single { it.recipeId == recipeCake.recipeId }
+        val dbRecipe: Recipe =
+            recipeViewModel.allRecipes.take(1).first().single { it.recipeId == recipeCake.recipeId }
 
         dbRecipe.recipeId shouldBe recipeCake.recipeId
         dbRecipe.recipeProperties.description shouldBe recipeCake.recipeProperties.description

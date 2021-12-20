@@ -50,7 +50,7 @@ fun createSampleItem() = Item(
     price = BigDecimal.ZERO,
 )
 
-fun createSampleCartItem(recipeId: RecipeId = RecipeId()) =
+fun createSampleCartItem(recipeId: RecipeId? = RecipeId()) =
     CartItem(createSampleItem()).apply { cartItemProperties.recipeId = recipeId }
 
 
@@ -114,19 +114,19 @@ fun createSampleRecipeCake(recipeId: UUID = UUID.randomUUID(), title: String = "
 }
 
 fun createSampleRecipeNoodels(
-    recipeId: UUID = UUID.randomUUID(),
+    recipeId: RecipeId = RecipeId(),
     title: String = "Noodles",
 ): Recipe {
     return Recipe(
         RecipeProperties(
-            recipeId = RecipeId(recipeId),
+            recipeId = recipeId,
             title = title,
             description = "This is some tasty cake",
         ),
-        recipeId = RecipeId(recipeId),
+        recipeId = recipeId,
         recipeItems = listOf(
             RecipeItem(
-                recipeId = RecipeId(recipeId),
+                recipeId = recipeId,
                 amount = 0.3,
                 item = Item(
                     itemId = ItemId(),
@@ -137,7 +137,7 @@ fun createSampleRecipeNoodels(
                 ),
             ),
             RecipeItem(
-                recipeId = RecipeId(recipeId),
+                recipeId = recipeId,
                 amount = 12.0,
                 item = Item(
                     itemId = ItemId(),
