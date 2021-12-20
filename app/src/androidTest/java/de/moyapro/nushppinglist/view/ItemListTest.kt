@@ -1,10 +1,7 @@
 package de.moyapro.nushppinglist.view
 
-import androidx.compose.ui.test.assertHasClickAction
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
@@ -67,7 +64,7 @@ internal class ItemListTest {
         val name = "Milk"
         createComposable(CartItem(name), true)
         composeTestRule.onNodeWithText("Save").assertIsDisplayed()
-        composeTestRule.onNodeWithText(name).assertIsDisplayed()
+        composeTestRule.onAllNodesWithText(name).assertCountEquals(2)
     }
 
 

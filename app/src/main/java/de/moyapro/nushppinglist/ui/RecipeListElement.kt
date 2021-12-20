@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItemProperties
@@ -91,7 +92,7 @@ fun EditView(
         Text("+")
     }
     Button(onClick = if (!toBeAdded.isActive) startAdding else doAdding) {
-        Text(text = if (toBeAdded.isActive) "🛒!" else "🛒")
+        Text(text = CONSTANTS.CART_CHAR + if (toBeAdded.isActive) "!" else "")
     }
 
     recipe.recipeItems.forEach { recipeItem ->
@@ -103,7 +104,8 @@ fun EditView(
                 .clickable { toBeAdded = toBeAdded.toggle(itemId) })
             {
                 Text(amountText(recipeItem), modifier = Modifier.width(80.dp))
-                Text("${recipeItem.item.name} - $isInCart")
+                Text(recipeItem.item.name)
+                Text(" - $isInCart")
             }
         }
     }

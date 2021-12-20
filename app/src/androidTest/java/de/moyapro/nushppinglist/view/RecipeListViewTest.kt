@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.ui.RecipeListView
 import de.moyapro.nushppinglist.ui.amountText
@@ -59,7 +60,7 @@ class RecipeListViewTest {
         val recipe = createSampleRecipeCake(title = "Cake")
         createComposable(listOf(recipe))
         composeTestRule.onNodeWithText(recipe.recipeProperties.title).performClick()
-        composeTestRule.onNodeWithText("🛒").performClick()
+        composeTestRule.onNodeWithText(CONSTANTS.CART_CHAR).performClick()
 
     }
 

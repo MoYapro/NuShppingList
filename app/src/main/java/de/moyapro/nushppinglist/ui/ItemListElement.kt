@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
@@ -108,7 +109,7 @@ fun JustView(
             onClick = { addAction(item) },
             colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
         ) {
-            Text(text = "🛒 ${getAmountText(cartItemProperties)}".trim())
+            Text(text = "${CONSTANTS.CART_CHAR} ${getAmountText(cartItemProperties)}".trim())
         }
     }
 
