@@ -9,10 +9,17 @@ class NumberTextFieldTest {
 
     @Test
     fun bigDecimalFromStringInput__simple() {
-        sut.bigDecimalFromStringInput("1").toString() shouldBe "1.00"
-        sut.bigDecimalFromStringInput("1.0").toString() shouldBe "1.00"
+        sut.bigDecimalFromStringInput("1").toString() shouldBe "0.0" +
+                "1"
+        sut.bigDecimalFromStringInput("1.0").toString() shouldBe "0.10"
         sut.bigDecimalFromStringInput("0.01").toString() shouldBe "0.01"
         sut.bigDecimalFromStringInput("1.23").toString() shouldBe "1.23"
+    }
+
+    @Test
+    fun withNewCharsTyped() {
+        sut.bigDecimalFromStringInput("0.001").toString() shouldBe "0.01"
+        sut.bigDecimalFromStringInput("0.012").toString() shouldBe "0.12"
     }
 
     @Test
@@ -48,12 +55,12 @@ class NumberTextFieldTest {
 
     @Test
     fun bigDecimalFromStringInput__endsWithDot() {
-        sut.bigDecimalFromStringInput("12.").toString() shouldBe "12.00"
+        sut.bigDecimalFromStringInput("12.").toString() shouldBe "0.12"
     }
 
     @Test
     fun bigDecimalFromStringInput__endsWithComma() {
-        sut.bigDecimalFromStringInput("12,").toString() shouldBe "12.00"
+        sut.bigDecimalFromStringInput("12,").toString() shouldBe "0.12"
     }
 
 

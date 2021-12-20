@@ -19,12 +19,15 @@ object NumberTextField {
     fun bigDecimalFromStringInput(text: String): BigDecimal {
         val conversionId = UUID.randomUUID()
         Log.i(TAG, "$conversionId - convert text to bigDecimal: String was $text")
-        val fixedText = text
-            .replace(',', '.')
-            .replace(Regex("[^0-9.]"), "")
+        val onlyNumberChars = text.replace(Regex("[^0-9]"), "").padStart(3, '0')
+
+        val numbersWithAddedDot = onlyNumberChars.replaceRange(
+            startIndex = onlyNumberChars.length - 2,
+            endIndex = onlyNumberChars.length - 2,
+            replacement = ".")
+
         Log.i(TAG, "$conversionId - convert text to bigDecimal: String now $text")
-        if (isEmptyValue(fixedText)) return BigDecimal.ZERO.setScale(2)
-        return BigDecimal(fixedText).setScale(2, HALF_UP)
+        return BigDecimal(numbersWithAddedDot).setScale(2, HALF_UP)
     }
 
     private fun isEmptyValue(text: String): Boolean {
