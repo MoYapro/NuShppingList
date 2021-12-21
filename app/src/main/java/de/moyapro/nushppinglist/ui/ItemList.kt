@@ -1,13 +1,17 @@
 package de.moyapro.nushppinglist.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Button
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,7 +58,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         },
         content = { innerPadding ->
             LazyColumn(
-                contentPadding = innerPadding,
+                modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(count = cartItemList.size) { index ->
@@ -68,7 +72,14 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
             }
         },
         bottomBar = {
-            EditTextField(initialValue = filter, onValueChange = { filter = it })
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                EditTextField(initialValue = filter, onValueChange = { filter = it }, widthPercentage = .8F)
+                Button(onClick = { filter = "" }) {
+                    Icon(Icons.Filled.Clear, contentDescription = "Leeren")
+                }
+            }
         }
     )
 }

@@ -16,6 +16,7 @@ fun EditTextField(
     label: String? = null,
     initialValue: String,
     onValueChange: (String) -> Unit,
+    widthPercentage: Float =  1.0F
 ) {
     OutlinedTextField(
         label = { Label(labelText = label ?: "") },
@@ -23,6 +24,6 @@ fun EditTextField(
         onValueChange = onValueChange,
         modifier = Modifier
             .semantics { contentDescription = EditTextField.DESCRIPTION }
-            .fillMaxWidth()
+            .fillMaxWidth(widthPercentage)
     )
 }

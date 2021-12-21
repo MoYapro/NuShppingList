@@ -45,6 +45,18 @@ internal class ItemListTest {
         composeTestRule.onAllNodesWithText(filter).assertCountEquals(2)
     }
 
+    @Test
+    fun cleanFilterInput() {
+        val names = listOf("Milk", "Apple")
+        val filterText = "some filter text"
+        createComposable(names.map { Item(it) })
+        val input = composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
+        input.performTextInput(filterText)
+        composeTestRule.onNodeWithContentDescription("Leeren").performClick()
+        composeTestRule.onNodeWithText(filterText).assertDoesNotExist()
+        composeTestRule.onNodeWithText(names.random()).assertIsDisplayed()
+    }
+
 
     private fun createComposable(items: List<Item>) = runBlocking {
         val viewModel = CartViewModel(cartDao)
