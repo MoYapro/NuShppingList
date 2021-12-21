@@ -75,14 +75,16 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
                 "Name",
                 initialValue = editItem.name,
                 onValueChange = { editItem = editItem.copy(name = it) },
-
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Dropdown(
                 label = "Einheit",
                 initialValue = editItem.defaultItemUnit,
                 values = UNIT.values().toList(),
-                onValueChange = { editItem = editItem.copy(defaultItemUnit = it) }
+                onValueChange = { editItem = editItem.copy(defaultItemUnit = it) },
+                itemLabel = { "${it.long} (${it.short})" }
             )
+            Spacer(modifier = Modifier.height(4.dp))
             NumberTextField(
                 "Preis",
                 initialValue = editItem.price,
@@ -91,8 +93,7 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .absolutePadding(top = 2.dp)
-                ,
+                    .absolutePadding(top = 2.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 Button(
@@ -106,9 +107,9 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
                 Spacer(modifier = Modifier.width(Dp(4F)))
                 Button(
                     onClick = {
-                    endEditMode()
-                    saveAction(editItem)
-                }) {
+                        endEditMode()
+                        saveAction(editItem)
+                    }) {
                     Icon(Icons.Filled.Done, contentDescription = "Hinzufügen")
                 }
             }

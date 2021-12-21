@@ -1,17 +1,17 @@
 package de.moyapro.nushppinglist.constants
 
-enum class UNIT(val short: String) {
+enum class UNIT(val long: String, val short: String) {
 
-    UNSPECIFIED(""),
+    UNSPECIFIED("", ""),
 
     // weights
-    GRAM("g"),
-    KILOGRAM("kg"),
+    GRAMM("Gramm", "g"),
+    KILOGRAMM("Kilogramm", "kg"),
 
     //volume
-    LITER("l"),
-    TEELOEFFEL("TL"),
-    ESSLOEFFEL("EL"),
+    LITER("Liter", "l"),
+    TEELOEFFEL("Teelöffel", "TL"),
+    ESSLOEFFEL("Esslöffel", "EL"),
 
 
 }
