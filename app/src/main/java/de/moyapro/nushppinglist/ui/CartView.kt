@@ -55,7 +55,7 @@ fun CartView(viewModel: CartViewModel) {
             ) {
                 items(count = cartItemProperties.size) { index ->
                     val (recipeId, cartItem) = cartItemProperties[index]
-                    CartListElement(cartItem.cartItemProperties, viewModel)
+                    CartListElement(cartItem, viewModel)
                 }
             }
         }

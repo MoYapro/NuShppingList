@@ -11,35 +11,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import de.moyapro.nushppinglist.db.model.CartItemProperties
+import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 @Composable
 fun CartListElement(
-    cartItem: CartItemProperties,
-    viewModel: CartViewModel
+    cartItem: CartItem,
+    viewModel: CartViewModel,
 ) {
-    val item = viewModel.getItemByItemId(cartItem.itemId)
-    if (null != item) {
-        Row(
-            Modifier
-                .fillMaxWidth(),
-        ) {
-            Spacer(modifier = Modifier.width(Dp(4F)))
-            Text(text = cartItem.amount.toString())
-            Spacer(modifier = Modifier.width(Dp(4F)))
-            Text(text = item.defaultItemUnit.short)
-            Spacer(modifier = Modifier.width(Dp(4F)))
-            Text(
-                text = item.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = { viewModel.toggleChecked(cartItem) })
-                    .background(getBackgroundColor(cartItem.checked))
-            )
-        }
-    } else {
-        Text(text = "Unbekanntes Dings")
+    Row(
+        Modifier
+            .fillMaxWidth(),
+    ) {
+        Spacer(modifier = Modifier.width(Dp(4F)))
+        Text(text = cartItem.cartItemProperties.amount.toString())
+        Spacer(modifier = Modifier.width(Dp(4F)))
+        Text(text = cartItem.item.defaultItemUnit.short)
+        Spacer(modifier = Modifier.width(Dp(4F)))
+        Text(
+            text = cartItem.item.name,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = { viewModel.toggleChecked(cartItem.cartItemProperties) })
+                .background(getBackgroundColor(cartItem.cartItemProperties.checked))
+        )
     }
 }
 
