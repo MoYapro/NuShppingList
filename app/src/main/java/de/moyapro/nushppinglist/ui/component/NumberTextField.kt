@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.ui.component
 
 import android.util.Log
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -13,6 +14,25 @@ import java.math.RoundingMode.HALF_UP
 import java.util.*
 
 private const val TAG = "NumberTextField"
+
+@Composable
+fun NumberTextField(
+    label: String? = null,
+    initialValue: BigDecimal,
+    onValueChange: (BigDecimal) -> Unit,
+) {
+    OutlinedTextField(
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        value = initialValue.toString(),
+        label = { Label(labelText = label ?: "") },
+        onValueChange = { newTextValue ->
+            onValueChange(NumberTextField.bigDecimalFromStringInput(newTextValue))
+        },
+        modifier = Modifier
+            .semantics { contentDescription = NumberTextField.DESCRIPTION }
+            .fillMaxWidth()
+    )
+}
 
 object NumberTextField {
     const val DESCRIPTION = "NumberTextField"
@@ -39,24 +59,4 @@ object NumberTextField {
             else -> false
         }
     }
-}
-
-@Composable
-fun NumberTextField(
-    label: String? = null,
-    initialValue: BigDecimal,
-    onValueChange: (BigDecimal) -> Unit,
-) {
-    OutlinedTextField(
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        value = initialValue.toString(),
-        label = { Label(labelText = label ?: "") },
-        onValueChange = { newTextValue ->
-            onValueChange(NumberTextField.bigDecimalFromStringInput(newTextValue))
-        },
-        modifier = Modifier
-            .semantics {
-                contentDescription = NumberTextField.DESCRIPTION
-            }
-    )
 }

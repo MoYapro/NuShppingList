@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui.component
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,8 +22,7 @@ fun EditTextField(
         value = initialValue,
         onValueChange = onValueChange,
         modifier = Modifier
-            .semantics {
-                contentDescription = EditTextField.DESCRIPTION
-            }
+            .semantics { contentDescription = EditTextField.DESCRIPTION }
+            .fillMaxWidth()
     )
 }

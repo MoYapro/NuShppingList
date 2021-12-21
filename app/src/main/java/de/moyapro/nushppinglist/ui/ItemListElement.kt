@@ -3,14 +3,15 @@ package de.moyapro.nushppinglist.ui
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.SWITCHES
@@ -40,7 +41,6 @@ fun ItemListElement(
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
         }
-
         Surface(
             elevation = 3.dp,
         ) {
@@ -70,12 +70,12 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         var editItem by remember { mutableStateOf(item) }
-        Column() {
-
+        Column(Modifier.fillMaxWidth()) {
             EditTextField(
                 "Name",
                 initialValue = editItem.name,
-                onValueChange = { editItem = editItem.copy(name = it) }
+                onValueChange = { editItem = editItem.copy(name = it) },
+
             )
             Dropdown(
                 label = "Einheit",
@@ -88,11 +88,29 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
                 initialValue = editItem.price,
                 onValueChange = { editItem = editItem.copy(price = it) }
             )
-            Button(onClick = {
-                endEditMode()
-                saveAction(editItem)
-            }) {
-                Text("Save")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .absolutePadding(top = 2.dp)
+                ,
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    onClick = {
+                        endEditMode()
+                        saveAction(editItem)
+                    },
+                ) {
+                    Icon(Icons.Filled.Delete, contentDescription = "Löschen")
+                }
+                Spacer(modifier = Modifier.width(Dp(4F)))
+                Button(
+                    onClick = {
+                    endEditMode()
+                    saveAction(editItem)
+                }) {
+                    Icon(Icons.Filled.Done, contentDescription = "Hinzufügen")
+                }
             }
         }
     }
