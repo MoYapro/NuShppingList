@@ -53,7 +53,8 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         floatingActionButton = if (displayNewItemFab) {
             {
                 FloatingActionButton(onClick = {
-                    viewModel.addToCart(filter)
+                    viewModel.addToCart(filter.trim())
+                    filter = filter.trim()
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Neu")
                 }
