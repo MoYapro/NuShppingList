@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -32,7 +33,10 @@ fun ItemListElement(
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item
 
-    Column(Modifier.fillMaxWidth()) {
+    Column(Modifier
+        .fillMaxWidth()
+        .padding(4.dp)
+    ) {
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
         }
@@ -40,7 +44,10 @@ fun ItemListElement(
         Surface(
             elevation = 3.dp,
         ) {
-            Column {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize()
+            ) {
                 JustView(cartItem, addAction) { isEdited = !isEdited }
                 if (isEdited) {
                     EditView(item, saveAction) { isEdited = false }
@@ -71,7 +78,7 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
                 onValueChange = { editItem = editItem.copy(name = it) }
             )
             Dropdown(
-             label =  "Einheit",
+                label = "Einheit",
                 initialValue = editItem.defaultItemUnit,
                 values = UNIT.values().toList(),
                 onValueChange = { editItem = editItem.copy(defaultItemUnit = it) }
@@ -100,15 +107,15 @@ fun JustView(
     val item = cartItem.item
     val cartItemProperties = cartItem.cartItemProperties
     Row(
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(1.dp)
+        modifier = Modifier
+            .absolutePadding(left = 4.dp)
+            .fillMaxWidth()
+            .clickable(onClick = beginEditMode)
     ) {
         Text(
             item.name,
-            modifier = Modifier
-                .fillMaxWidth(.6F)
-                .clickable(onClick = beginEditMode)
         )
         Button(
             onClick = { addAction(item) },

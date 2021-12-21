@@ -52,7 +52,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         content = { innerPadding ->
             LazyColumn(
                 contentPadding = innerPadding,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(count = cartItemList.size) { index ->
                     val cartItem = cartItemList[index]
