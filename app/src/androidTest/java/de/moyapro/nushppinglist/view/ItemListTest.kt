@@ -3,11 +3,10 @@ package de.moyapro.nushppinglist.view
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import de.moyapro.nushppinglist.db.dao.CartDao
-import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.ItemList
-import de.moyapro.nushppinglist.ui.ItemListElement
+import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import kotlinx.coroutines.CoroutineScope
@@ -26,13 +25,6 @@ internal class ItemListTest {
         CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
 
     @Test
-    fun showItemName() {
-        val name = "Milk"
-        createComposable(CartItem(name))
-        composeTestRule.onNodeWithText(name).assertIsDisplayed()
-    }
-
-    @Test
     fun showItemList() {
         val names = listOf("Milk", "Apple")
         createComposable(names.map { Item(it) })
@@ -42,39 +34,17 @@ internal class ItemListTest {
     }
 
     @Test
-    fun clickableItemList() {
-        val name = "Milk"
-        createComposable(CartItem(name))
-        val itemNode = composeTestRule.onNodeWithText(name)
-        itemNode.assertHasClickAction()
+    fun filterInput() {
+        val filter = "Apple"
+        val otherItemName = "Milk"
+        val names = listOf(otherItemName, filter)
+        createComposable(names.map { Item(it) })
+        val input = composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
+        input.performTextInput(filter)
+        composeTestRule.onNodeWithText(otherItemName).assertDoesNotExist()
+        composeTestRule.onAllNodesWithText(filter).assertCountEquals(2)
     }
 
-    @Test
-    fun switchToEditItem() {
-        val name = "Milk"
-        createComposable(CartItem(name))
-        val itemNode = composeTestRule.onNodeWithText(name)
-        composeTestRule.onNodeWithText("Save").assertDoesNotExist()
-        itemNode.performClick()
-        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
-    }
-
-    @Test
-    fun editInputsAreShown() {
-        val name = "Milk"
-        createComposable(CartItem(name), true)
-        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
-        composeTestRule.onAllNodesWithText(name).assertCountEquals(2)
-    }
-
-
-    private fun createComposable(cartItem: CartItem, editMode: Boolean = false) {
-        composeTestRule.setContent {
-            NuShppingListTheme {
-                ItemListElement(cartItem = cartItem, editMode = editMode)
-            }
-        }
-    }
 
     private fun createComposable(items: List<Item>) = runBlocking {
         val viewModel = CartViewModel(cartDao)

@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
-import de.moyapro.nushppinglist.ui.component.Autocomplete
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.util.sumByBigDecimal
 import java.math.BigDecimal
@@ -45,9 +44,6 @@ fun CartView(viewModel: CartViewModel) {
             Button(onClick = { viewModel.removeCheckedFromCart() }) {
                 Text("⎚")
             }
-        },
-        bottomBar = {
-            Autocomplete(chooseAction, viewModel::getAutocompleteItems)
         },
         content = { innerPadding ->
             Column() {

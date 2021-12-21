@@ -79,6 +79,14 @@ class ItemListElementTest {
     }
 
     @Test
+    fun editInputsAreShown() {
+        val name = "Milk"
+        createComposable(CartItem(name), true)
+        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+        composeTestRule.onAllNodesWithText(name).assertCountEquals(2)
+    }
+
+    @Test
     @Ignore
     fun increaseAmountOnAddAgain() {
         val cartItem = CartItem("thing")
@@ -96,4 +104,12 @@ class ItemListElementTest {
         composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 2").assertIsDisplayed()
     }
 
+
+    private fun createComposable(cartItem: CartItem, editMode: Boolean = false) {
+        composeTestRule.setContent {
+            NuShppingListTheme {
+                ItemListElement(cartItem = cartItem, editMode = editMode)
+            }
+        }
+    }
 }

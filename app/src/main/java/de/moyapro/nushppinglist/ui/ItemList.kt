@@ -8,9 +8,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -18,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.ItemListProvider
 
@@ -29,17 +28,21 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         listOf()
     )
 
-    val cartItemList: List<CartItem> = allItemList.map { item ->
-        val cartItem = cartItems.firstOrNull { it.item.itemId == item.itemId }
-        cartItem
-            ?: CartItem(
-                CartItemProperties(
-                    newItemId = item.itemId,
-                    amount = 0
-                ),
-                item,
-            )
-    }
+    var filter: String by remember { mutableStateOf("") }
+
+    val cartItemList: List<CartItem> = allItemList
+        .filter { it.name.lowercase().contains(filter.lowercase()) }
+        .map { item ->
+            val cartItem = cartItems.firstOrNull { it.item.itemId == item.itemId }
+            cartItem
+                ?: CartItem(
+                    CartItemProperties(
+                        newItemId = item.itemId,
+                        amount = 0
+                    ),
+                    item,
+                )
+        }
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
@@ -63,6 +66,9 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                     )
                 }
             }
+        },
+        bottomBar = {
+            EditTextField(initialValue = filter, onValueChange = { filter = it })
         }
     )
 }
