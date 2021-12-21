@@ -2,10 +2,7 @@ package de.moyapro.nushppinglist.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,20 +18,26 @@ fun CartListElement(
 ) {
     Row(
         Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable(onClick = { viewModel.toggleChecked(cartItem.cartItemProperties) })
+            .background(getBackgroundColor(cartItem.cartItemProperties.checked)),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        Row(modifier = Modifier.fillMaxWidth(.8F)) {
+            Spacer(modifier = Modifier.width(Dp(4F)))
+            Text(text = cartItem.cartItemProperties.amount.toString())
+            Spacer(modifier = Modifier.width(Dp(4F)))
+            Text(text = cartItem.item.defaultItemUnit.short)
+            Spacer(modifier = Modifier.width(Dp(4F)))
+            Text(
+                text = cartItem.item.name,
+            )
+        }
+        Row {
+            Text("${cartItem.item.price} €")
+        }
         Spacer(modifier = Modifier.width(Dp(4F)))
-        Text(text = cartItem.cartItemProperties.amount.toString())
-        Spacer(modifier = Modifier.width(Dp(4F)))
-        Text(text = cartItem.item.defaultItemUnit.short)
-        Spacer(modifier = Modifier.width(Dp(4F)))
-        Text(
-            text = cartItem.item.name,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = { viewModel.toggleChecked(cartItem.cartItemProperties) })
-                .background(getBackgroundColor(cartItem.cartItemProperties.checked))
-        )
+
     }
 }
 

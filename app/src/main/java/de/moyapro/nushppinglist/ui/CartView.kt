@@ -1,13 +1,8 @@
 package de.moyapro.nushppinglist.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -18,6 +13,8 @@ import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
 import de.moyapro.nushppinglist.ui.component.Autocomplete
 import de.moyapro.nushppinglist.ui.model.CartViewModel
+import de.moyapro.nushppinglist.util.sumByBigDecimal
+import java.math.BigDecimal
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -38,6 +35,10 @@ fun CartView(viewModel: CartViewModel) {
         }
             .flatten()
 
+    val total: BigDecimal =
+        cartItemProperties.map { it.second.item.price * BigDecimal(it.second.cartItemProperties.amount) }
+            .sumByBigDecimal()
+
     Scaffold(
         Modifier.fillMaxHeight(),
         topBar = {
@@ -49,13 +50,30 @@ fun CartView(viewModel: CartViewModel) {
             Autocomplete(chooseAction, viewModel::getAutocompleteItems)
         },
         content = { innerPadding ->
-            LazyColumn(
-                modifier = Modifier.padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(count = cartItemProperties.size) { index ->
-                    val (recipeId, cartItem) = cartItemProperties[index]
-                    CartListElement(cartItem, viewModel)
+            Column() {
+                Surface(
+                    elevation = 4.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Gesamtpreis")
+                        Text(
+                            modifier = Modifier.absolutePadding(right = 21.dp),
+                            text = "$total €")
+                    }
+                }
+                LazyColumn(
+                    modifier = Modifier.padding(innerPadding),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(count = cartItemProperties.size) { index ->
+                        val (recipeId, cartItem) = cartItemProperties[index]
+                        CartListElement(cartItem, viewModel)
+                    }
                 }
             }
         }

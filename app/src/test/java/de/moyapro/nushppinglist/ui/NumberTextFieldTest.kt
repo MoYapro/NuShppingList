@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import de.moyapro.nushppinglist.ui.component.NumberTextField
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 
