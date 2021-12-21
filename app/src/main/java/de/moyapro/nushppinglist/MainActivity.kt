@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             database.clearAllTables()
             cartItems.map{CartItem(it)}.forEach(cartViewModel::add)
-            items.map { Item(name = it, itemUnit = UNIT.KILOGRAMM) }.forEach(cartViewModel::add)
+            items.map { Item(name = it, itemUnit = UNIT.values().random()) }.forEach(cartViewModel::add)
             recipeViewModel.save(createSampleRecipeCake())
             recipeViewModel.save(createSampleRecipeNoodels())
         }

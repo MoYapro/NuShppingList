@@ -13,5 +13,10 @@ enum class UNIT(val long: String, val short: String) {
     TEELOEFFEL("Teelöffel", "TL"),
     ESSLOEFFEL("Esslöffel", "EL"),
 
+    // count
+    DOSE("Dosen", " x "),
+    STUECK("Stück", " x "),
+    PACK("Packung", " x "),
+    KISTE("Kiste", " x ")
 
 }
