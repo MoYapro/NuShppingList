@@ -1,18 +1,14 @@
 package de.moyapro.nushppinglist.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -50,33 +46,42 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.add(Item("?")) }) {
-                Icon(Icons.Filled.Add, contentDescription = "Hinzufügen")
-            }
-        },
         content = { innerPadding ->
-            LazyColumn(
-                modifier = Modifier.padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+            Box(
+                modifier = Modifier.fillMaxHeight(),
+                contentAlignment = Alignment.BottomEnd
             ) {
-                items(count = cartItemList.size) { index ->
-                    val cartItem = cartItemList[index]
-                    ItemListElement(
-                        cartItem,
-                        viewModel::update,
-                        viewModel::addToCart
-                    )
+                LazyColumn(
+                    modifier = Modifier.padding(innerPadding),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(count = cartItemList.size) { index ->
+                        val cartItem = cartItemList[index]
+                        ItemListElement(
+                            cartItem,
+                            viewModel::update,
+                            viewModel::addToCart
+                        )
+                    }
                 }
             }
         },
         bottomBar = {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
             ) {
-                EditTextField(initialValue = filter, onValueChange = { filter = it }, widthPercentage = .8F)
-                Button(onClick = { filter = "" }) {
+                EditTextField(initialValue = filter,
+                    onValueChange = { filter = it },
+                    widthPercentage = .8F)
+                Button(
+                    modifier = Modifier
+                        .absolutePadding(top = 7.dp, left= 4.dp)
+                        .fillMaxWidth()
+                        .height(57.dp)
+                    ,
+                    onClick = { filter = "" }
+                ) {
                     Icon(Icons.Filled.Clear, contentDescription = "Leeren")
                 }
             }
