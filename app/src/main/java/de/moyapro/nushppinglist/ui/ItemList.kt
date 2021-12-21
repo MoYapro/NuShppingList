@@ -3,9 +3,11 @@ package de.moyapro.nushppinglist.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,7 +31,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     )
 
     var filter: String by remember { mutableStateOf("") }
-
+// is filtering on cartItemList executed every frame?
     val cartItemList: List<CartItem> = allItemList
         .filter { it.name.lowercase().contains(filter.lowercase()) }
         .map { item ->
@@ -44,8 +46,21 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                 )
         }
 
+    val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
+
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
+        floatingActionButton = if (displayNewItemFab) {
+            {
+                FloatingActionButton(onClick = {
+                    viewModel.addToCart(filter)
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Neu")
+                }
+            }
+        } else {
+            {} // emptyFab
+        },
         content = { innerPadding ->
             Box(
                 modifier = Modifier.fillMaxHeight(),
@@ -77,10 +92,9 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                     widthPercentage = .8F)
                 Button(
                     modifier = Modifier
-                        .absolutePadding(top = 7.dp, left= 4.dp)
+                        .absolutePadding(top = 7.dp, left = 4.dp)
                         .fillMaxWidth()
-                        .height(57.dp)
-                    ,
+                        .height(57.dp),
                     onClick = { filter = "" }
                 ) {
                     Icon(Icons.Filled.Clear, contentDescription = "Leeren")

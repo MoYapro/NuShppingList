@@ -34,12 +34,24 @@ internal class ItemListTest {
     }
 
     @Test
+    fun addNewItemByName() {
+        val newItemName = "some new item"
+        createComposable(emptyList())
+        val input = composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
+        input.performTextInput(newItemName)
+        val addNewItemButton = composeTestRule.onNodeWithContentDescription("Neu")
+        addNewItemButton.performClick()
+
+
+    }
+
+    @Test
     fun filterInput() {
         val filter = "Apple"
         val otherItemName = "Milk"
         val names = listOf(otherItemName, filter)
         createComposable(names.map { Item(it) })
-        val input = composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
+        val input = composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
         input.performTextInput(filter)
         composeTestRule.onNodeWithText(otherItemName).assertDoesNotExist()
         composeTestRule.onAllNodesWithText(filter).assertCountEquals(2)
@@ -50,7 +62,7 @@ internal class ItemListTest {
         val names = listOf("Milk", "Apple")
         val filterText = "some filter text"
         createComposable(names.map { Item(it) })
-        val input = composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
+        val input = composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
         input.performTextInput(filterText)
         composeTestRule.onNodeWithContentDescription("Leeren").performClick()
         composeTestRule.onNodeWithText(filterText).assertDoesNotExist()

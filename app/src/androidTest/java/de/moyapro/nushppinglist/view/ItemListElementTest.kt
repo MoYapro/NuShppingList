@@ -34,7 +34,6 @@ class ItemListElementTest {
                     cartItem = CartItem("Milk"),
                     saveAction = saveAction,
                     editMode = true,
-                    subtractAction = viewModel::subtractFromCart
                 )
             }
         }
@@ -58,8 +57,7 @@ class ItemListElementTest {
         composeTestRule.setContent {
             NuShppingListTheme {
                 ItemListElement(cartItem = existingItem,
-                    addAction = action,
-                    subtractAction = viewModel::subtractFromCart)
+                    addAction = action)
             }
         }
         composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").performClick()
@@ -102,7 +100,8 @@ class ItemListElementTest {
             }
         }
 
-        composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").assertIsDisplayed().performClick()
+        composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").assertIsDisplayed()
+            .performClick()
         Thread.sleep(10000)
         composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 2").assertIsDisplayed()
     }
@@ -112,8 +111,7 @@ class ItemListElementTest {
         composeTestRule.setContent {
             NuShppingListTheme {
                 ItemListElement(cartItem = cartItem,
-                    editMode = editMode,
-                    subtractAction = viewModel::subtractFromCart)
+                    editMode = editMode)
             }
         }
     }
