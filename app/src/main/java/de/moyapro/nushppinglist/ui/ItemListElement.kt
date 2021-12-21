@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.constants.UNIT
+import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
@@ -29,6 +30,7 @@ fun ItemListElement(
     cartItem: CartItem,
     saveAction: (Item) -> Unit = {},
     addAction: (Item) -> Unit = {},
+    subtractAction: (ItemId) -> Unit = {},
     editMode: Boolean = false,
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
@@ -48,7 +50,7 @@ fun ItemListElement(
                 .fillMaxWidth()
                 .animateContentSize()
             ) {
-                JustView(cartItem, addAction) { isEdited = !isEdited }
+                JustView(cartItem, addAction, subtractAction) { isEdited = !isEdited }
                 if (isEdited) {
                     EditView(item, saveAction) { isEdited = false }
                 }
@@ -121,6 +123,7 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
 fun JustView(
     cartItem: CartItem,
     addAction: (Item) -> Unit,
+    subtractAction: (ItemId) -> Unit = {},
     beginEditMode: () -> Unit,
 ) {
     val item = cartItem.item
@@ -136,11 +139,20 @@ fun JustView(
         Text(
             item.name,
         )
-        Button(
-            onClick = { addAction(item) },
-            colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
-        ) {
-            Text(text = "${CONSTANTS.CART_CHAR} ${getAmountText(cartItemProperties)}".trim())
+        Row {
+
+            Button(
+                onClick = { subtractAction(item.itemId) },
+                colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
+            ) {
+                Text(text = "-")
+            }
+            Button(
+                onClick = { addAction(item) },
+                colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
+            ) {
+                Text(text = "${CONSTANTS.CART_CHAR} ${getAmountText(cartItemProperties)}".trim())
+            }
         }
     }
 

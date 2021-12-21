@@ -156,6 +156,16 @@ class CartViewModel(
     fun addRecipeToCart(recipe: Recipe) {
         recipe.recipeItems.forEach(::addToCart)
     }
+
+    fun subtractFromCart(itemId: ItemId) = runBlocking {
+        val cartItem = cartDao.getCartItemByItemId(itemId)
+        when {
+            cartItem == null -> {}
+            cartItem.amount <= 1 -> cartDao.remove(cartItem)
+            cartItem.amount > 1 -> cartDao.updateAll(cartItem.copy(amount = cartItem.amount - 1))
+            else -> {}
+        }
+    }
 }
 
 fun matched(name: String, searchString: String): Boolean {

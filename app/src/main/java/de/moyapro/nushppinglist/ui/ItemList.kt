@@ -58,9 +58,10 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                     items(count = cartItemList.size) { index ->
                         val cartItem = cartItemList[index]
                         ItemListElement(
-                            cartItem,
-                            viewModel::update,
-                            viewModel::addToCart
+                            cartItem = cartItem,
+                            saveAction = viewModel::update,
+                            addAction = viewModel::addToCart,
+                            subtractAction = viewModel::subtractFromCart
                         )
                     }
                 }

@@ -13,9 +13,11 @@ import de.moyapro.nushppinglist.util.MainCoroutineRule
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -76,6 +78,23 @@ class ViewModelTest {
         val collectedList = cartDao.findAllItems().take(1).toList()
         assertEquals("Should have added item to database", newItem, collectedList[0][0])
     }
+
+    @Test
+    fun subtractItemFromCart() = runBlocking {
+        val newItem = Item("bar")
+        val timesAdded = 3
+        repeat(timesAdded) {
+            viewModel.addToCart(newItem)
+        }
+
+        viewModel.cartItems.take(1).first().first().amount shouldBe timesAdded
+
+        viewModel.subtractFromCart(newItem.itemId)
+        viewModel.cartItems.take(1).first().first().amount shouldBe timesAdded - 1
+        viewModel.subtractFromCart(newItem.itemId)
+        viewModel.cartItems.take(1).first().first().amount shouldBe timesAdded - 2
+    }
+
 
     @Test
     fun updateItem() = runBlocking {
@@ -289,7 +308,7 @@ class ViewModelTest {
 
         val cartItems = viewModel.cartItems.take(1).toList().flatten()
         cartItems.map { it.itemId } shouldContainExactly listOf(recipeItem.item.itemId)
-        cartItems.map {it.recipeId}.toSet() shouldContainExactly setOf(recipeItem.recipeId)
+        cartItems.map { it.recipeId }.toSet() shouldContainExactly setOf(recipeItem.recipeId)
     }
 
     @Test

@@ -57,7 +57,6 @@ internal class ItemListTest {
         composeTestRule.onNodeWithText(names.random()).assertIsDisplayed()
     }
 
-
     private fun createComposable(items: List<Item>) = runBlocking {
         val viewModel = CartViewModel(cartDao)
         items.forEach { cartDao.save(it) }

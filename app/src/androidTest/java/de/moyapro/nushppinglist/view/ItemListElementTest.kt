@@ -33,7 +33,8 @@ class ItemListElementTest {
                 ItemListElement(
                     cartItem = CartItem("Milk"),
                     saveAction = saveAction,
-                    editMode = true
+                    editMode = true,
+                    subtractAction = viewModel::subtractFromCart
                 )
             }
         }
@@ -56,7 +57,9 @@ class ItemListElementTest {
         val action: (Item) -> Unit = { item -> addedItem = item }
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(cartItem = existingItem, addAction = action)
+                ItemListElement(cartItem = existingItem,
+                    addAction = action,
+                    subtractAction = viewModel::subtractFromCart)
             }
         }
         composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").performClick()
@@ -72,7 +75,7 @@ class ItemListElementTest {
 
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(cartItem)
+                ItemListElement(cartItem, subtractAction = viewModel::subtractFromCart)
             }
         }
         composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").assertIsDisplayed()
@@ -108,7 +111,9 @@ class ItemListElementTest {
     private fun createComposable(cartItem: CartItem, editMode: Boolean = false) {
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(cartItem = cartItem, editMode = editMode)
+                ItemListElement(cartItem = cartItem,
+                    editMode = editMode,
+                    subtractAction = viewModel::subtractFromCart)
             }
         }
     }
