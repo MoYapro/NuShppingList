@@ -33,6 +33,7 @@ fun ItemListElement(
     subtractAction: (ItemId) -> Unit = {},
     deleteAction: (Item) -> Unit = {},
     editMode: Boolean = false,
+    scrollIntoViewAction: () -> Unit,
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item
@@ -51,7 +52,10 @@ fun ItemListElement(
                 .fillMaxWidth()
                 .animateContentSize()
             ) {
-                JustView(cartItem, addAction, subtractAction) { isEdited = !isEdited }
+                JustView(cartItem, addAction, subtractAction) {
+                    isEdited = !isEdited
+                    if (isEdited) scrollIntoViewAction()
+                }
                 if (isEdited) {
                     EditView(item, saveAction, deleteAction) { isEdited = false }
                 }

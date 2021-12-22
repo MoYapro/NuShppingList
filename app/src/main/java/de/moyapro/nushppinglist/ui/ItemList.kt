@@ -1,7 +1,9 @@
 package de.moyapro.nushppinglist.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Button
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -22,6 +24,7 @@ import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.ItemListProvider
 import de.moyapro.nushppinglist.util.CartItemByCheckedAndName
+import kotlinx.coroutines.launch
 
 @Composable
 @Preview
@@ -46,8 +49,12 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                     item,
                 )
         }.sortedWith(CartItemByCheckedAndName)
-
+    val listState = rememberLazyListState()
     val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
+
+    Log.i("ItemList", listState.firstVisibleItemIndex.toString())
+
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
@@ -71,6 +78,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                 LazyColumn(
                     modifier = Modifier.padding(innerPadding),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
+                    state = listState,
                 ) {
                     items(count = cartItemList.size) { index ->
                         val cartItem = cartItemList[index]
@@ -80,8 +88,14 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                             addAction = viewModel::addToCart,
                             deleteAction = viewModel::removeItem,
                             subtractAction = viewModel::subtractFromCart,
+                            scrollIntoViewAction = {
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(index)
+                                }
+                            }
                         )
                     }
+                    item { Spacer(modifier = Modifier.height(220.dp)) }
                 }
             }
         },
