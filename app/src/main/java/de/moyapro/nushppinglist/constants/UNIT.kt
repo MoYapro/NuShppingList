@@ -17,6 +17,7 @@ enum class UNIT(val long: String, val short: String) {
     DOSE("Dosen", " x "),
     STUECK("Stück", " x "),
     PACK("Packung", " x "),
-    KISTE("Kiste", " x ")
+    KISTE("Kiste", " x "),
+    NETZ("Netz", " x "),
 
 }
