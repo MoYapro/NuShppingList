@@ -144,8 +144,8 @@ class CartViewModel(
     fun removeCheckedFromCart() = runBlocking {
         cartItems.value
             .filter { it.checked }
-            .forEach { cartItem ->
-                cartDao.remove(cartItem)
+            .forEach { cartItemProperties ->
+                cartDao.remove(cartItemProperties)
             }
     }
 
@@ -165,6 +165,14 @@ class CartViewModel(
             cartItem.amount > 1 -> cartDao.updateAll(cartItem.copy(amount = cartItem.amount - 1))
             else -> {}
         }
+    }
+
+    fun removeItemByItemId(itemToRemove: Item) = runBlocking {
+        cartDao.remove(itemToRemove)
+        val cartItemProperties = cartDao.getCartItemByItemId(itemToRemove.itemId)
+//        if (null != cartItemProperties) {
+            cartDao.remove(cartItemProperties!!)
+//        }
     }
 }
 

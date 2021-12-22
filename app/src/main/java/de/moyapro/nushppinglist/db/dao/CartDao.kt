@@ -70,6 +70,10 @@ interface CartDao {
     @Delete
     suspend fun remove(cartItem: CartItemProperties)
 
+    @Transaction
+    @Delete
+    suspend fun remove(item: Item)
+
 }
 
 suspend fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId_internal(itemId.id)

@@ -22,8 +22,11 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
-import org.junit.*
+import org.junit.After
 import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import java.util.*
 import kotlin.random.Random
 
@@ -126,10 +129,16 @@ class ViewModelTest {
         assertEquals("Item should be persisted", 1, cartDao.findNotAddedItems().size)
     }
 
-    @Ignore("not implemented")
     @Test
-    fun removeItemFromCart() {
+    fun removeItemFromCart() = runBlocking {
+        val itemToRemove = Item("remove me")
+        viewModel.add(CartItem(itemToRemove).apply { cartItemProperties.checked = true })
 
+        viewModel.removeCheckedFromCart()
+
+        viewModel.getItemByItemId(itemToRemove.itemId) shouldBe itemToRemove
+        viewModel.getCartItemPropertiesByItemId(itemToRemove.itemId) shouldBe null
+        viewModel.cartItems.take(1).first() shouldBe emptyList()
     }
 
     @Test
@@ -334,5 +343,20 @@ class ViewModelTest {
         cartItemsGrouped[recipeCake.recipeId]!! shouldHaveSize recipeCake.recipeItems.size
         cartItemsGrouped[recipeNoodels.recipeId]!! shouldHaveSize recipeNoodels.recipeItems.size
     }
+
+    @Test
+    fun deleteItem() = runBlocking {
+        val itemToRemove = Item("Dubiose Matsche")
+        val recipe = createSampleRecipeCake()
+        recipe.recipeItems = listOf(createSampleRecipeItem().apply { item = itemToRemove })
+        viewModel.addToCart(itemToRemove)
+
+        viewModel.removeItemByItemId(itemToRemove)
+
+
+        viewModel.getItemByItemId(itemToRemove.itemId) shouldBe null
+        viewModel.getCartItemPropertiesByItemId(itemToRemove.itemId) shouldBe null
+    }
+
 
 }

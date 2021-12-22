@@ -13,7 +13,7 @@ import java.util.*
 
 @FlowPreview
 class CartDaoMock(
-    private val externalScope: CoroutineScope
+    private val externalScope: CoroutineScope,
 ) : CartDao {
 
     private val itemTable: MutableSet<Item> = mutableSetOf()
@@ -97,9 +97,14 @@ class CartDaoMock(
     }
 
     override suspend fun remove(cartItem: CartItemProperties) {
-        cartItemPropertiesTable.removeIf { it.checked }
+        cartItemPropertiesTable.remove(cartItem)
         pushCartItemProperties()
 
+    }
+
+    override suspend fun remove(item: Item) {
+        itemTable.remove(item)
+        pushItems()
     }
 
     private fun pushCartItems() {
@@ -111,7 +116,7 @@ class CartDaoMock(
 
     private fun getJoin(
         itemTable: Set<Item>,
-        cartItemPropertiesTable: Set<CartItemProperties>
+        cartItemPropertiesTable: Set<CartItemProperties>,
     ): List<CartItem> {
         return cartItemPropertiesTable
             .mapNotNull { cartItemProperties ->
