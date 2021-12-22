@@ -40,11 +40,8 @@ class ItemListElementTest {
         val editField =
             composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
         editField.performClick()
-        Thread.sleep(1000)
         editField.performTextInput("Milk2")
-        Thread.sleep(1000)
-        composeTestRule.onNodeWithText("Save").performClick()
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithContentDescription("Hinzufügen").assertHasClickAction().performClick()
         assertTrue("Saveaction should be called", saveActionCalled)
         assertEquals("Itemname should be updated", "Milk2", itemText)
     }

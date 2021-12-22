@@ -15,9 +15,11 @@ import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
 import de.moyapro.nushppinglist.util.DbTestHelper
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
+@Ignore("Recipes are disabled currently - will be available in the future")
 class RecipeListViewTest {
 
     @get:Rule

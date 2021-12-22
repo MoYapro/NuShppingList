@@ -33,7 +33,7 @@ fun ItemListElement(
     subtractAction: (ItemId) -> Unit = {},
     deleteAction: (Item) -> Unit = {},
     editMode: Boolean = false,
-    scrollIntoViewAction: () -> Unit,
+    scrollIntoViewAction: () -> Unit = {},
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item

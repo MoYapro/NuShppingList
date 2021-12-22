@@ -16,8 +16,8 @@ class SortTest {
             createSampleCartItem().apply { item.name = "D"; cartItemProperties.checked = false },
             createSampleCartItem().apply { item.name = "C"; cartItemProperties.checked = false },
         )
-        val sorted = cartItems.sortedWith(CartItemByCheckedAndName)
-        sorted.map { it.item.name } shouldContainInOrder listOf("C", "D", "A", "B")
+        val sorted = cartItems.sortedWith(CartItemByName)
+        sorted.map { it.item.name } shouldContainInOrder listOf("A", "B", "C", "D")
     }
     @Test
     fun sortCartPairs() {
@@ -27,7 +27,7 @@ class SortTest {
             Pair(RecipeId(), createSampleCartItem().apply { item.name = "D"; cartItemProperties.checked = false }),
             Pair(RecipeId(), createSampleCartItem().apply { item.name = "C"; cartItemProperties.checked = false }),
         )
-        val sorted = cartItems.sortedWith(SortCartItemPairByName)
+        val sorted = cartItems.sortedWith(SortCartItemPairByCheckedAndName)
         sorted.map { it.second.item.name } shouldContainInOrder listOf("C", "D", "A", "B")
     }
 }
