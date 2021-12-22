@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
 import de.moyapro.nushppinglist.ui.model.CartViewModel
+import de.moyapro.nushppinglist.util.SortCartItemPairByName
 import de.moyapro.nushppinglist.util.sumByBigDecimal
 import java.math.BigDecimal
 
@@ -33,6 +34,7 @@ fun CartView(viewModel: CartViewModel) {
             }
         }
             .flatten()
+            .sortedWith(SortCartItemPairByName)
 
     val total: BigDecimal =
         cartItemProperties.map { it.second.item.price * BigDecimal(it.second.cartItemProperties.amount) }

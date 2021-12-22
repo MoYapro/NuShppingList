@@ -21,6 +21,7 @@ import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.ItemListProvider
+import de.moyapro.nushppinglist.util.CartItemByCheckedAndName
 
 @Composable
 @Preview
@@ -44,7 +45,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                     ),
                     item,
                 )
-        }
+        }.sortedWith(CartItemByCheckedAndName)
 
     val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
 
