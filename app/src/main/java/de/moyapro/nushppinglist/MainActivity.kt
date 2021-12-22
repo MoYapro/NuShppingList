@@ -15,8 +15,6 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 import de.moyapro.nushppinglist.ui.model.ViewModelFactory
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
-import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
-import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import kotlinx.coroutines.*
 
 @FlowPreview
@@ -87,8 +85,8 @@ class MainActivity : ComponentActivity() {
             database.clearAllTables()
             cartItems.map{CartItem(it)}.forEach(cartViewModel::add)
             items.map { Item(name = it, itemUnit = UNIT.values().random()) }.forEach(cartViewModel::add)
-            recipeViewModel.save(createSampleRecipeCake())
-            recipeViewModel.save(createSampleRecipeNoodels())
+//            recipeViewModel.save(createSampleRecipeCake())
+//            recipeViewModel.save(createSampleRecipeNoodels())
         }
     }
 

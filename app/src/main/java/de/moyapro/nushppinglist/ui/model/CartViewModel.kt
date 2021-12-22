@@ -167,12 +167,12 @@ class CartViewModel(
         }
     }
 
-    fun removeItemByItemId(itemToRemove: Item) = runBlocking {
+    fun removeItem(itemToRemove: Item) = runBlocking {
         cartDao.remove(itemToRemove)
         val cartItemProperties = cartDao.getCartItemByItemId(itemToRemove.itemId)
-//        if (null != cartItemProperties) {
-            cartDao.remove(cartItemProperties!!)
-//        }
+        if (null != cartItemProperties) {
+            cartDao.remove(cartItemProperties)
+        }
     }
 }
 

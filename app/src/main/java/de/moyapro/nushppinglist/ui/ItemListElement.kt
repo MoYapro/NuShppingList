@@ -31,6 +31,7 @@ fun ItemListElement(
     saveAction: (Item) -> Unit = {},
     addAction: (Item) -> Unit = {},
     subtractAction: (ItemId) -> Unit = {},
+    deleteAction: (Item) -> Unit = {},
     editMode: Boolean = false,
 ) {
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
@@ -52,7 +53,7 @@ fun ItemListElement(
             ) {
                 JustView(cartItem, addAction, subtractAction) { isEdited = !isEdited }
                 if (isEdited) {
-                    EditView(item, saveAction) { isEdited = false }
+                    EditView(item, saveAction, deleteAction) { isEdited = false }
                 }
             }
         }
@@ -67,7 +68,12 @@ fun getAmountText(cartItemProperties: CartItemProperties?): String {
 }
 
 @Composable
-fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
+fun EditView(
+    item: Item,
+    saveAction: (Item) -> Unit,
+    deleteAction: (Item) -> Unit,
+    endEditMode: () -> Unit,
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -96,13 +102,14 @@ fun EditView(item: Item, saveAction: (Item) -> Unit, endEditMode: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .absolutePadding(top = 2.dp),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
                     onClick = {
                         endEditMode()
-                        saveAction(editItem)
+                        deleteAction(editItem)
                     },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
                 ) {
                     Icon(Icons.Filled.Delete, contentDescription = "Löschen")
                 }

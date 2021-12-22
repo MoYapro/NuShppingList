@@ -7,6 +7,7 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.ui.MainView.*
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
@@ -23,16 +24,18 @@ fun AppView(
 
     Column(Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = state) {
-            values().forEachIndexed { index, mainView ->
-                Tab(
-                    text = { Text(mainView.text) },
-                    selected = state == index,
-                    onClick = {
-                        state = index
-                        displayedView = mainView
-                    }
-                )
-            }
+            values()
+                .filter { it.enabled }
+                .forEachIndexed { index, mainView ->
+                    Tab(
+                        text = { Text(mainView.text) },
+                        selected = state == index,
+                        onClick = {
+                            state = index
+                            displayedView = mainView
+                        }
+                    )
+                }
         }
         when (displayedView) {
             EINKAUFSLISTE -> CartView(cartViewModel)
@@ -42,10 +45,11 @@ fun AppView(
     }
 }
 
-enum class MainView(val text: String) {
+enum class MainView(val text: String, val enabled: Boolean = true) {
     EINKAUFSLISTE("Einkaufsliste"),
     DINGE("Dinge"),
-    REZEPTE("Rezepte"),
+    REZEPTE("Rezepte", CONSTANTS.DISABLED);
+
 }
 
 

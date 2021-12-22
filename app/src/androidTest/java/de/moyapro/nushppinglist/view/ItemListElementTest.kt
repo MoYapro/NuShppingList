@@ -83,9 +83,11 @@ class ItemListElementTest {
     fun editInputsAreShown() {
         val name = "Milk"
         createComposable(CartItem(name), true)
-        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Hinzufügen").assertHasClickAction()
+        composeTestRule.onNodeWithContentDescription("Löschen").assertHasClickAction()
         composeTestRule.onAllNodesWithText(name).assertCountEquals(2)
     }
+
 
     @Test
     @Ignore

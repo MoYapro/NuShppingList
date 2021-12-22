@@ -6,4 +6,8 @@ object CONSTANTS {
     const val ACTIVE = "ACTIVE"
     const val IN_ACTIVE = "IN_ACTIVE"
     const val CART_CHAR = "🛒"
+
+
+    const val DISABLED: Boolean = false
+
 }

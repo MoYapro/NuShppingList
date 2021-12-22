@@ -351,7 +351,7 @@ class ViewModelTest {
         recipe.recipeItems = listOf(createSampleRecipeItem().apply { item = itemToRemove })
         viewModel.addToCart(itemToRemove)
 
-        viewModel.removeItemByItemId(itemToRemove)
+        viewModel.removeItem(itemToRemove)
 
 
         viewModel.getItemByItemId(itemToRemove.itemId) shouldBe null

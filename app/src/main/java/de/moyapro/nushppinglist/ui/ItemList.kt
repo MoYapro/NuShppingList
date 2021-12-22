@@ -78,7 +78,8 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                             cartItem = cartItem,
                             saveAction = viewModel::update,
                             addAction = viewModel::addToCart,
-                            subtractAction = viewModel::subtractFromCart
+                            deleteAction = viewModel::removeItem,
+                            subtractAction = viewModel::subtractFromCart,
                         )
                     }
                 }
