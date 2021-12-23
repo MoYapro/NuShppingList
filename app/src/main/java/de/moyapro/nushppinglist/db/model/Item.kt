@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import de.moyapro.nushppinglist.constants.KATEGORY
 import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.constants.UNIT.UNSPECIFIED
 import de.moyapro.nushppinglist.db.ids.ItemId
@@ -18,6 +19,7 @@ data class Item(
     var defaultItemAmount: Int,
     var defaultItemUnit: UNIT = UNSPECIFIED,
     var price: BigDecimal,
+    var kategory: KATEGORY = KATEGORY.SONSTIGES,
 ) {
 
     init {

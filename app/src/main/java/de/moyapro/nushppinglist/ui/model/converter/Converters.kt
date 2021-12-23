@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.ui.model.converter
 
 import androidx.room.TypeConverter
+import de.moyapro.nushppinglist.constants.KATEGORY
 import de.moyapro.nushppinglist.constants.UNIT
 import java.math.BigDecimal
 import java.math.RoundingMode.HALF_UP
@@ -22,4 +23,10 @@ class Converters {
 
     @TypeConverter
     fun fromUnit(value: UNIT) = value.name
+
+    @TypeConverter
+    fun toKategory(value: String) = KATEGORY.values().singleOrNull { it.name == value }
+
+    @TypeConverter
+    fun fromKategory(value: KATEGORY) = value.name
 }

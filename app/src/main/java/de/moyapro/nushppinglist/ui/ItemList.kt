@@ -95,7 +95,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                             }
                         )
                     }
-                    item { Spacer(modifier = Modifier.height(220.dp)) }
+                    item { Spacer(modifier = Modifier.height(240.dp)) }
                 }
             }
         },

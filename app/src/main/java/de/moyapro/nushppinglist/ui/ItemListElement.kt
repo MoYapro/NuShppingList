@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.ui
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.constants.KATEGORY
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.ids.ItemId
@@ -78,15 +80,22 @@ fun EditView(
     deleteAction: (Item) -> Unit,
     endEditMode: () -> Unit,
 ) {
+    var editItem by remember { mutableStateOf(item) }
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        var editItem by remember { mutableStateOf(item) }
+        KategoryIndicator(editItem, 280.dp)
         Column(Modifier.fillMaxWidth()) {
             EditTextField(
                 "Name",
                 initialValue = editItem.name,
                 onValueChange = { editItem = editItem.copy(name = it) },
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            NumberTextField(
+                "Preis",
+                initialValue = editItem.price,
+                onValueChange = { editItem = editItem.copy(price = it) }
             )
             Spacer(modifier = Modifier.height(4.dp))
             Dropdown(
@@ -97,11 +106,14 @@ fun EditView(
                 itemLabel = { "${it.long} (${it.short})" }
             )
             Spacer(modifier = Modifier.height(4.dp))
-            NumberTextField(
-                "Preis",
-                initialValue = editItem.price,
-                onValueChange = { editItem = editItem.copy(price = it) }
+            Dropdown(
+                label = "Kategorie",
+                initialValue = editItem.kategory,
+                values = KATEGORY.values().toList(),
+                onValueChange = { editItem = editItem.copy(kategory = it) },
+                itemLabel = { it.displayName }
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -131,6 +143,15 @@ fun EditView(
 }
 
 @Composable
+private fun KategoryIndicator(item: Item, height: Dp = 24.dp) {
+    Box(modifier = Modifier
+        .width(2.dp)
+        .height(height)
+        .background(item.kategory.color)
+    )
+}
+
+@Composable
 fun JustView(
     cartItem: CartItem,
     addAction: (Item) -> Unit,
@@ -147,9 +168,11 @@ fun JustView(
             .fillMaxWidth()
             .clickable(onClick = beginEditMode)
     ) {
-        Text(
-            item.name,
-        )
+        Row {
+            KategoryIndicator(item)
+            Spacer(modifier = Modifier.width(2.dp))
+            Text(item.name)
+        }
         Row {
 
             Button(
