@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -82,6 +83,7 @@ fun EditView(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         var editItem by remember { mutableStateOf(item) }
+        Log.i("ItemListElement", "render ItemListElement for $editItem")
         Column(Modifier.fillMaxWidth()) {
             EditTextField(
                 "Name",
