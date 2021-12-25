@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.ui.component.KategoryIndicator
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -31,9 +32,12 @@ fun CartListElement(
             Spacer(modifier = Modifier.width(Dp(4F)))
             Text(text = cartItem.item.defaultItemUnit.short)
             Spacer(modifier = Modifier.width(Dp(4F)))
-            Text(
-                text = cartItem.item.name,
-            )
+            Column {
+                Text(text = cartItem.item.name)
+                if (cartItem.item.description.isNotBlank()) {
+                    Text(text = cartItem.item.description, fontSize= 13.sp)
+                }
+            }
         }
         Row {
             Text("${cartItem.item.price} €")

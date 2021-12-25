@@ -33,7 +33,7 @@ data class CartItem(
             cartItemId = item.itemId.id,
             itemId = item.itemId,
             recipeId = RecipeId(),
-            amount = 1,
+            amount = item.defaultItemAmount,
             checked = false),
         item
     )

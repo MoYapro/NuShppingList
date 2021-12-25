@@ -168,18 +168,21 @@ fun JustView(
             .fillMaxWidth()
             .clickable(onClick = beginEditMode)
     ) {
-        Row {
+        Row(Modifier.fillMaxWidth(.63F)) {
             KategoryIndicator(item)
             Spacer(modifier = Modifier.width(2.dp))
             Text(item.name)
         }
         Row {
-            Button(
-                modifier = Modifier.height(35.dp),
-                onClick = { subtractAction(item.itemId) },
-                colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
-            ) {
-                Icon(Icons.Outlined.RemoveShoppingCart, contentDescription = "Löschen")
+            if (cartItem.cartItemProperties.amount > 0) {
+                Button(
+                    modifier = Modifier.height(35.dp),
+                    onClick = { subtractAction(item.itemId) },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
+                ) {
+                    Icon(Icons.Outlined.RemoveShoppingCart, contentDescription = "Löschen")
+                }
+                Spacer(modifier = Modifier.width(1.dp))
             }
             Button(
                 modifier = Modifier.height(35.dp),
