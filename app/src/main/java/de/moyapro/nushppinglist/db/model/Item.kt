@@ -16,6 +16,7 @@ data class Item(
     @set:JvmName("setItemId")
     var itemId: ItemId,
     var name: String,
+    var description: String,
     var defaultItemAmount: Int,
     var defaultItemUnit: UNIT = UNSPECIFIED,
     var price: BigDecimal,
@@ -29,7 +30,8 @@ data class Item(
     constructor(name: String, newItemId: ItemId = ItemId(), itemUnit: UNIT = UNSPECIFIED) : this(
         itemId = newItemId,
         name = name,
-        defaultItemAmount = 99,
+        description = "",
+        defaultItemAmount = 1,
         defaultItemUnit = itemUnit,
         price = BigDecimal.ZERO.setScale(2)
     )

@@ -11,13 +11,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import java.math.BigDecimal
+import java.math.RoundingMode.HALF_UP
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun NumberTextField(
+fun DecimalTextField(
     label: String? = null,
-    initialValue: Int,
-    onValueChange: (Int) -> Unit,
+    initialValue: BigDecimal,
+    onValueChange: (BigDecimal) -> Unit,
 ) {
 
     OutlinedTextField(
@@ -26,18 +28,22 @@ fun NumberTextField(
             selection = TextRange(initialValue.toString().length)),
         label = { Label(labelText = label ?: "") },
         onValueChange = { newTextValue ->
-            onValueChange(NumberTextField.intFromStringInput(newTextValue.text))
+            onValueChange(DecimalTextField.bigDecimalFromStringInput(newTextValue.text))
         },
         modifier = Modifier
-            .semantics { contentDescription = NumberTextField.DESCRIPTION }
+            .semantics { contentDescription = DecimalTextField.DESCRIPTION }
             .fillMaxWidth()
     )
 }
 
-object NumberTextField {
-    const val DESCRIPTION = "NumberTextField"
-    fun intFromStringInput(text: String): Int {
-        val onlyNumberChars = text.replace(Regex("[^0-9]"), "")
-        return if (onlyNumberChars.isBlank()) 0 else onlyNumberChars.toInt()
+object DecimalTextField {
+    const val DESCRIPTION = "DecimalTextField"
+    fun bigDecimalFromStringInput(text: String): BigDecimal {
+        val onlyNumberChars = text.replace(Regex("[^0-9]"), "").padStart(3, '0')
+        val numbersWithAddedDecimal = onlyNumberChars.replaceRange(
+            startIndex = onlyNumberChars.length - 2,
+            endIndex = onlyNumberChars.length - 2,
+            replacement = ".")
+        return BigDecimal(numbersWithAddedDecimal).setScale(2, HALF_UP)
     }
 }

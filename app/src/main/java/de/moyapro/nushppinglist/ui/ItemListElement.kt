@@ -22,10 +22,7 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
-import de.moyapro.nushppinglist.ui.component.Dropdown
-import de.moyapro.nushppinglist.ui.component.EditTextField
-import de.moyapro.nushppinglist.ui.component.KategoryIndicator
-import de.moyapro.nushppinglist.ui.component.NumberTextField
+import de.moyapro.nushppinglist.ui.component.*
 import de.moyapro.nushppinglist.ui.theme.Purple700
 
 @Composable
@@ -92,10 +89,22 @@ fun EditView(
                 onValueChange = { editItem = editItem.copy(name = it) },
             )
             Spacer(modifier = Modifier.height(4.dp))
-            NumberTextField(
+            EditTextField(
+                "Beschreibung",
+                initialValue = editItem.description,
+                onValueChange = { editItem = editItem.copy(description = it) },
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            DecimalTextField(
                 "Preis",
                 initialValue = editItem.price,
                 onValueChange = { editItem = editItem.copy(price = it) }
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            NumberTextField(
+                "Menge",
+                initialValue = editItem.defaultItemAmount,
+                onValueChange = { editItem = editItem.copy(defaultItemAmount = it) }
             )
             Spacer(modifier = Modifier.height(4.dp))
             Dropdown(

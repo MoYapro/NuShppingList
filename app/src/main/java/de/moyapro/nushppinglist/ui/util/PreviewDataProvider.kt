@@ -47,6 +47,7 @@ class RecipePropertiesProvider : PreviewParameterProvider<RecipeProperties> {
 fun createSampleItem() = Item(
     itemId = ItemId(),
     name = "Sugar",
+    description = "weiss",
     defaultItemAmount = 1000,
     defaultItemUnit = GRAMM,
     price = BigDecimal.ZERO,
@@ -62,6 +63,7 @@ fun createSampleRecipeItem(recipeId: UUID = UUID.randomUUID()) = RecipeItem(
     item = Item(
         itemId = ItemId(),
         name = "Bacon",
+        description = "Pork",
         defaultItemAmount = 250,
         defaultItemUnit = GRAMM,
         price = BigDecimal.ZERO,
@@ -83,6 +85,7 @@ fun createSampleRecipeCake(recipeId: UUID = UUID.randomUUID(), title: String = "
                 item = Item(
                     itemId = ItemId(),
                     name = "Milk",
+                    description = "organic",
                     defaultItemAmount = 1,
                     defaultItemUnit = LITER,
                     price = BigDecimal.ZERO,
@@ -94,6 +97,7 @@ fun createSampleRecipeCake(recipeId: UUID = UUID.randomUUID(), title: String = "
                 item = Item(
                     itemId = ItemId(),
                     name = "Sugar",
+                    description = "white",
                     defaultItemAmount = 1000,
                     defaultItemUnit = GRAMM,
                     price = BigDecimal.ZERO,
@@ -133,6 +137,7 @@ fun createSampleRecipeNoodels(
                 item = Item(
                     itemId = ItemId(),
                     name = "Noodels",
+                    description = "instant",
                     defaultItemAmount = 1,
                     defaultItemUnit = LITER,
                     price = BigDecimal.ZERO,
@@ -144,6 +149,7 @@ fun createSampleRecipeNoodels(
                 item = Item(
                     itemId = ItemId(),
                     name = "Tomato",
+                    description = "sweet, italy",
                     defaultItemAmount = 1000,
                     defaultItemUnit = GRAMM,
                     price = BigDecimal.ZERO,
