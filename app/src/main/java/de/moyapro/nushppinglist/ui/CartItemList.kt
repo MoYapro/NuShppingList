@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.ui.component.KategoryIndicator
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 @Composable
@@ -24,6 +25,7 @@ fun CartListElement(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(modifier = Modifier.fillMaxWidth(.8F)) {
+            KategoryIndicator(cartItem.item)
             Spacer(modifier = Modifier.width(Dp(4F)))
             Text(text = cartItem.cartItemProperties.amount.toString())
             Spacer(modifier = Modifier.width(Dp(4F)))

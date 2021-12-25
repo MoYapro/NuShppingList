@@ -1,7 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -24,6 +23,7 @@ import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.component.Dropdown
 import de.moyapro.nushppinglist.ui.component.EditTextField
+import de.moyapro.nushppinglist.ui.component.KategoryIndicator
 import de.moyapro.nushppinglist.ui.component.NumberTextField
 import de.moyapro.nushppinglist.ui.theme.Purple700
 
@@ -140,15 +140,6 @@ fun EditView(
             }
         }
     }
-}
-
-@Composable
-private fun KategoryIndicator(item: Item, height: Dp = 24.dp) {
-    Box(modifier = Modifier
-        .width(2.dp)
-        .height(height)
-        .background(item.kategory.color)
-    )
 }
 
 @Composable
