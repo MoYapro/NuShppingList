@@ -5,15 +5,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.outlined.RemoveShoppingCart
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.KATEGORY
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.constants.UNIT
@@ -42,7 +43,6 @@ fun ItemListElement(
 
     Column(Modifier
         .fillMaxWidth()
-        .padding(4.dp)
     ) {
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
@@ -165,18 +165,20 @@ fun JustView(
             Text(item.name)
         }
         Row {
-
             Button(
+                modifier = Modifier.height(35.dp),
                 onClick = { subtractAction(item.itemId) },
                 colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
             ) {
-                Text(text = "-")
+                Icon(Icons.Outlined.RemoveShoppingCart, contentDescription = "Löschen")
             }
             Button(
+                modifier = Modifier.height(35.dp),
                 onClick = { addAction(item) },
                 colors = ButtonDefaults.buttonColors(backgroundColor = if (0 == cartItemProperties.amount) Color.Gray else Purple700),
             ) {
-                Text(text = "${CONSTANTS.CART_CHAR} ${getAmountText(cartItemProperties)}".trim())
+                Icon(Icons.Filled.AddShoppingCart, contentDescription = "Hinzufügen")
+                Text(text = getAmountText(cartItemProperties).trim())
             }
         }
     }

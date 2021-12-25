@@ -72,7 +72,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         },
         content = { innerPadding ->
             Box(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier.fillMaxHeight().fillMaxWidth(),
                 contentAlignment = Alignment.BottomEnd
             ) {
                 LazyColumn(
