@@ -26,11 +26,14 @@ fun CartListElement(
 ) {
     val backgroundColor = getBackgroundColor(checked = cartItem.cartItemProperties.checked)
     val textColor = contentColorFor(backgroundColor)
+    val alpha = if(cartItem.cartItemProperties.checked) .7F else 1F
     Row(
         Modifier
             .fillMaxWidth()
             .clickable(onClick = { viewModel.toggleChecked(cartItem.cartItemProperties) })
-            .background(backgroundColor),
+            .background(backgroundColor)
+            .alpha(alpha)
+        ,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(modifier = Modifier.fillMaxWidth(.8F)) {

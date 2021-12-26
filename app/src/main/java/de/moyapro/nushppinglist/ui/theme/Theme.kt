@@ -8,9 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200
+    primary = Color(78, 5, 160),
+    primaryVariant = Color(37, 1, 78),
+    secondary = Color(122, 2, 156),
+    secondaryVariant = Color(93, 1, 119),
+    background = Color.Black,
+    surface = Color(10,2,20),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onBackground = Color.White,
+    onSurface = Color.White,
 )
 
 private val LightColorPalette = lightColors(
@@ -38,7 +45,7 @@ fun NuShppingListTheme(
     }
 
     MaterialTheme(
-        colors = LightColorPalette,
+        colors = colors,
         typography = Typography,
         shapes = Shapes,
         content = content

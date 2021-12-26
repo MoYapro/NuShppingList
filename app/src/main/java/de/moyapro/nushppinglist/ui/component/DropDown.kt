@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +19,7 @@ fun <T> Dropdown(
     values: List<T>,
     onValueChange: (T) -> Unit,
     itemLabel: (T) -> String = { it.toString() },
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val itemIndex = values.indexOf(initialValue)
@@ -30,7 +27,7 @@ fun <T> Dropdown(
     Surface(
         elevation = 0.dp,
         shape = RoundedCornerShape(20),
-        ) {
+    ) {
         Row(
             modifier = modifier
                 .clickable(onClick = { expanded = true })
@@ -55,7 +52,7 @@ fun <T> Dropdown(
             onDismissRequest = { expanded = false },
             modifier = Modifier
                 .fillMaxWidth(.8F)
-                .background(Color.White)
+                .background(MaterialTheme.colors.background)
 
         ) {
             values.forEachIndexed { index, itemValue: T ->
@@ -66,7 +63,8 @@ fun <T> Dropdown(
                         onValueChange(itemValue)
                     }
                 ) {
-                    Text(itemLabel(itemValue))
+                    Text(text = itemLabel(itemValue),
+                        color = contentColorFor(backgroundColor = MaterialTheme.colors.background))
                 }
             }
         }
