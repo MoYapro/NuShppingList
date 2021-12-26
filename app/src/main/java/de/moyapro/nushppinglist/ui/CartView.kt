@@ -25,7 +25,6 @@ fun CartView(viewModel: CartViewModel) {
             mapOf()
         )
     val cartItemPropertiesMap: Map<RecipeId?, List<CartItem>> by collectAsState
-    val chooseAction: (String) -> Unit = viewModel::addToCart
 
     val cartItemProperties: List<Pair<RecipeId?, CartItem>> =
         cartItemPropertiesMap.map { (recipeId, itemList) ->
@@ -48,22 +47,8 @@ fun CartView(viewModel: CartViewModel) {
             }
         },
         content = { innerPadding ->
-            Column() {
-                Surface(
-                    elevation = 4.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Gesamtpreis")
-                        Text(
-                            modifier = Modifier.absolutePadding(right = 21.dp),
-                            text = "$total €")
-                    }
-                }
+            Column(Modifier.fillMaxWidth()) {
+                SumDisplay(total)
                 LazyColumn(
                     modifier = Modifier.padding(innerPadding),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -78,6 +63,24 @@ fun CartView(viewModel: CartViewModel) {
     )
 
 
+}
+
+@Composable
+private fun SumDisplay(total: BigDecimal) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Gesamtpreis")
+            Text(
+                modifier = Modifier.absolutePadding(right = 21.dp),
+                text = "$total €")
+        }
+    }
 }
 
 

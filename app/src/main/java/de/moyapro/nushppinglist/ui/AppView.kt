@@ -16,7 +16,7 @@ import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 fun AppView(
     cartViewModel: CartViewModel,
     recipeViewModel: RecipeViewModel,
-    selectedView: MainView = EINKAUFSLISTE,
+    selectedView: MainView = DINGE,
 ) {
 
     var state by remember { mutableStateOf(selectedView.ordinal) }

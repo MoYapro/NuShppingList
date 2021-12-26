@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.ui.component
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -15,6 +14,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NumberTextField(
+    modifier: Modifier = Modifier,
     label: String? = null,
     initialValue: Int,
     onValueChange: (Int) -> Unit,
@@ -28,9 +28,8 @@ fun NumberTextField(
         onValueChange = { newTextValue ->
             onValueChange(NumberTextField.intFromStringInput(newTextValue.text))
         },
-        modifier = Modifier
+        modifier = modifier
             .semantics { contentDescription = NumberTextField.DESCRIPTION }
-            .fillMaxWidth()
     )
 }
 

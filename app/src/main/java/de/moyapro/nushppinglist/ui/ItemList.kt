@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -77,7 +78,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
             ) {
                 LazyColumn(
                     modifier = Modifier.padding(innerPadding),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(1.dp),
                     state = listState,
                 ) {
                     items(count = cartItemList.size) { index ->
@@ -112,6 +113,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                         .absolutePadding(top = 7.dp, left = 4.dp)
                         .fillMaxWidth()
                         .height(57.dp),
+                    shape = RoundedCornerShape(topStart = 4.dp),
                     onClick = { filter = "" }
                 ) {
                     Icon(Icons.Filled.Clear, contentDescription = "Leeren")

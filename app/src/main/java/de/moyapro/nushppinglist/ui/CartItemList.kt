@@ -4,12 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.contentColorFor
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
@@ -22,7 +24,7 @@ fun CartListElement(
     cartItem: CartItem,
     viewModel: CartViewModel,
 ) {
-    val backgroundColor = getBackgroundColor(cartItem.cartItemProperties.checked)
+    val backgroundColor = getBackgroundColor(checked = cartItem.cartItemProperties.checked)
     val textColor = contentColorFor(backgroundColor)
     Row(
         Modifier
@@ -39,13 +41,18 @@ fun CartListElement(
             Text(text = cartItem.item.defaultItemUnit.short, color = textColor)
             Spacer(modifier = Modifier.width(Dp(4F)))
             if (cartItem.cartItemProperties.checked) {
-                Icon(Icons.Filled.CheckCircle, contentDescription = "Gekauft")
+                Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
                 Spacer(modifier = Modifier.width(Dp(4F)))
             }
             Column {
                 Text(text = cartItem.item.name, color = textColor)
                 if (cartItem.item.description.isNotBlank()) {
-                    Text(text = cartItem.item.description, fontSize = 13.sp, color = textColor)
+                    Text(
+                        text = cartItem.item.description,
+                        fontSize = 13.sp,
+                        color = textColor,
+                        modifier = Modifier.alpha(.7F)
+                    )
                 }
             }
         }
@@ -58,6 +65,6 @@ fun CartListElement(
 
 @Composable
 private fun getBackgroundColor(checked: Boolean) = when (checked) {
-    true -> Color.DarkGray
+    true -> MaterialTheme.colors.surface
     false -> Color.Unspecified
 }

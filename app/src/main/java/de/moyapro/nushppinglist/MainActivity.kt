@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         super.onCreate(savedInstanceState)
-        if(SWITCHES.INIT_DB_ON_BOOT) initTestData()
+        if (SWITCHES.INIT_DB_ON_BOOT) initTestData()
         setContent {
             NuShppingListTheme {
                 AppView(
@@ -83,8 +83,9 @@ class MainActivity : ComponentActivity() {
 
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             database.clearAllTables()
-            cartItems.map{CartItem(it)}.forEach(cartViewModel::add)
-            items.map { Item(name = it, itemUnit = UNIT.values().random()) }.forEach(cartViewModel::add)
+            cartItems.map { CartItem(it) }.forEach(cartViewModel::add)
+            items.map { Item(name = it, itemUnit = UNIT.values().random()) }
+                .forEach(cartViewModel::add)
 //            recipeViewModel.save(createSampleRecipeCake())
 //            recipeViewModel.save(createSampleRecipeNoodels())
         }

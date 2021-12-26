@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.ui.component
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -20,6 +19,7 @@ fun DecimalTextField(
     label: String? = null,
     initialValue: BigDecimal,
     onValueChange: (BigDecimal) -> Unit,
+    modifier: Modifier
 ) {
 
     OutlinedTextField(
@@ -30,9 +30,8 @@ fun DecimalTextField(
         onValueChange = { newTextValue ->
             onValueChange(DecimalTextField.bigDecimalFromStringInput(newTextValue.text))
         },
-        modifier = Modifier
+        modifier = modifier
             .semantics { contentDescription = DecimalTextField.DESCRIPTION }
-            .fillMaxWidth()
     )
 }
 
