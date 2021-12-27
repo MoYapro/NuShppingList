@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import de.moyapro.nushppinglist.MainActivity
+import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
@@ -63,7 +65,11 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
             {
                 FloatingActionButton(onClick = {
                     viewModel.addToCart(filter.trim())
-                    filter = filter.trim()
+                    filter =
+                        if (MainActivity.preferences.getBoolean(SETTING.CLEAR_AFTER_ADD.name,
+                                false)
+                        )
+                            "" else filter.trim()
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Neu")
                 }
@@ -73,7 +79,9 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         },
         content = { innerPadding ->
             Box(
-                modifier = Modifier.fillMaxHeight().fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.BottomEnd
             ) {
                 LazyColumn(

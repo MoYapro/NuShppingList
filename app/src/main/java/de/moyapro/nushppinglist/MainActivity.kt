@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -26,15 +27,19 @@ class MainActivity : ComponentActivity() {
     private val cartViewModel by viewModels<CartViewModel>() { ViewModelFactory(database) }
     private val recipeViewModel by viewModels<RecipeViewModel>() { ViewModelFactory(database) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    companion object {
+        lateinit var preferences: SharedPreferences
+    }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        preferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
+
         if (SWITCHES.INIT_DB_ON_BOOT) initTestData()
         setContent {
             NuShppingListTheme {
                 AppView(
-                    applicationContext.getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE),
                     cartViewModel,
                     recipeViewModel,
                 )

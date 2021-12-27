@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.ui
 
-import android.content.SharedPreferences
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Tab
@@ -18,7 +17,6 @@ import de.moyapro.nushppinglist.ui.test.ColorTest
 
 @Composable
 fun AppView(
-    preferences: SharedPreferences,
     cartViewModel: CartViewModel,
     recipeViewModel: RecipeViewModel,
     selectedView: MainView = SWITCHES.INITIAL_SCREEN,
@@ -48,7 +46,7 @@ fun AppView(
             REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
             COLOR_TEST -> ColorTest()
             ANIMATION_TEST -> AnimationTest()
-            SETTINGS -> SettingsView(preferences)
+            SETTINGS -> SettingsView()
         }
     }
 }

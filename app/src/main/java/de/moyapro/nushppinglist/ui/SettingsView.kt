@@ -3,18 +3,20 @@ package de.moyapro.nushppinglist.ui
 import android.content.SharedPreferences
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceBetween
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.contentColorFor
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import de.moyapro.nushppinglist.constants.CONSTANTS
-import de.moyapro.nushppinglist.constants.SETTINGS
+import de.moyapro.nushppinglist.MainActivity
+import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.constants.SWITCHES
+import de.moyapro.nushppinglist.ui.component.settings.BooleanSettings
 
 @Composable
-fun SettingsView(preferences: SharedPreferences) {
+fun SettingsView() {
+    val preferences: SharedPreferences = MainActivity.preferences
 
     Column() {
         if (SWITCHES.DEBUG)
@@ -31,28 +33,8 @@ fun SettingsView(preferences: SharedPreferences) {
             }
 
         Spacer(modifier = Modifier.height(20.dp))
-        SETTINGS.values().forEach { setting ->
-            Surface() {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp),
-                    horizontalArrangement = SpaceBetween
-                ) {
-                    Column(Modifier.fillMaxWidth(.8F)) {
-                        Text(text = setting.label)
-                        Text(
-                            text = setting.description,
-                            modifier = Modifier.alpha(CONSTANTS.MUTED_ALPHA)
-                        )
-                    }
-                    var checkedState by remember { mutableStateOf(preferences.getBoolean(setting.name, false)) }
-                    Switch(
-                        checked = checkedState,
-                        onCheckedChange = { preferences.edit().putBoolean(setting.name, it).apply() }
-                    )
-                }
-            }
+        SETTING.values().forEach { setting ->
+            BooleanSettings(setting = setting, preferences = preferences)
         }
     }
 }
