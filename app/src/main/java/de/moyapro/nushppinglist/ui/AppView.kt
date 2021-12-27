@@ -8,15 +8,18 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.ui.MainView.*
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
+import de.moyapro.nushppinglist.ui.test.AnimationTest
+import de.moyapro.nushppinglist.ui.test.ColorTest
 
 @Composable
 fun AppView(
     cartViewModel: CartViewModel,
     recipeViewModel: RecipeViewModel,
-    selectedView: MainView = EINKAUFSLISTE,
+    selectedView: MainView = SWITCHES.INITIAL_SCREEN,
 ) {
 
     var state by remember { mutableStateOf(selectedView.ordinal) }
@@ -25,7 +28,7 @@ fun AppView(
     Column(Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = state) {
             values()
-                .filter { it.enabled }
+                .filter { it.enabled || SWITCHES.SHOW_ALL_SCREENS}
                 .forEachIndexed { index, mainView ->
                     Tab(
                         text = { Text(mainView.text) },
@@ -41,6 +44,8 @@ fun AppView(
             EINKAUFSLISTE -> CartView(cartViewModel)
             DINGE -> ItemList(cartViewModel)
             REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
+            COLOR_TEST -> ColorTest()
+            ANIMATION_TEST -> AnimationTest()
         }
     }
 }
@@ -48,7 +53,11 @@ fun AppView(
 enum class MainView(val text: String, val enabled: Boolean = true) {
     EINKAUFSLISTE("Einkaufsliste"),
     DINGE("Dinge"),
-    REZEPTE("Rezepte", CONSTANTS.DISABLED);
+    REZEPTE("Rezepte", CONSTANTS.DISABLED),
+    COLOR_TEST("Color", CONSTANTS.DISABLED),
+    ANIMATION_TEST("Animation", CONSTANTS.DISABLED),
+    ;
+
 
 }
 

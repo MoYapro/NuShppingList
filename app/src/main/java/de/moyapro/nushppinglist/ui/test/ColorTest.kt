@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist.ui
+package de.moyapro.nushppinglist.ui.test
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
