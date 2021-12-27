@@ -5,6 +5,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import de.moyapro.nushppinglist.constants.CONSTANTS.PREFERENCES_FILE_NAME
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.AppDatabase
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             NuShppingListTheme {
                 AppView(
+                    applicationContext.getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE),
                     cartViewModel,
                     recipeViewModel,
                 )

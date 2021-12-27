@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.ui.component.KategoryIndicator
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -54,7 +55,7 @@ fun CartListElement(
                         text = cartItem.item.description,
                         fontSize = 13.sp,
                         color = textColor,
-                        modifier = Modifier.alpha(.7F)
+                        modifier = Modifier.alpha(CONSTANTS.MUTED_ALPHA)
                     )
                 }
             }

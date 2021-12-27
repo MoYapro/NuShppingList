@@ -1,6 +1,12 @@
 package de.moyapro.nushppinglist.constants
 
 object CONSTANTS {
+
+    const val PREFERENCES_FILE_NAME = "nuShoppingListPreferences"
+
+
+    const val MUTED_ALPHA = .7F
+
     const val CHECKED = true
     const val UNCHECKED = false
     const val ACTIVE = "ACTIVE"
