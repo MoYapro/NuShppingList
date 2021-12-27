@@ -136,11 +136,12 @@ fun EditView(
                     .absolutePadding(top = 2.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Button(
-                    onClick = {
+                HoldableButton(
+                    onLongPress = {
                         endEditMode()
                         deleteAction(editItem)
                     },
+                    holdHintText = "Halten zum Löschen",
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
                 ) {
                     Icon(Icons.Filled.Delete, contentDescription = "Löschen")
