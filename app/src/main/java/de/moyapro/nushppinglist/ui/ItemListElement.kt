@@ -83,13 +83,13 @@ fun EditView(
         KategoryIndicator(editItem, 280.dp)
         Column(Modifier.fillMaxWidth()) {
             EditTextField(
-                "Name",
+                label = "Name",
                 initialValue = editItem.name,
                 onValueChange = { editItem = editItem.copy(name = it) },
             )
             Spacer(modifier = Modifier.height(4.dp))
             EditTextField(
-                "Beschreibung",
+                label = "Beschreibung",
                 initialValue = editItem.description,
                 onValueChange = { editItem = editItem.copy(description = it) },
             )

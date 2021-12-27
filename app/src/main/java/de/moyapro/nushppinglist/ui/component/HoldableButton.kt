@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.ui.component
 
-import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -22,6 +21,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import de.moyapro.nushppinglist.MainActivity
 
 @Composable
 fun HoldableButton(
@@ -68,11 +68,7 @@ fun HoldableButton(
                     },
                 onClick = {
                     if (holdHintText.isNotBlank())
-                        Toast.makeText(
-                            context,
-                            holdHintText,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        MainActivity.makeToast(holdHintText, context)
                 },
                 interactionSource = interactionSource,
                 colors = colors,

@@ -13,16 +13,17 @@ object EditTextField {
 
 @Composable
 fun EditTextField(
+    modifier: Modifier = Modifier,
     label: String? = null,
     initialValue: String,
     onValueChange: (String) -> Unit,
-    widthPercentage: Float =  1.0F
+    widthPercentage: Float =  1.0F,
 ) {
     OutlinedTextField(
         label = { Label(labelText = label ?: "") },
         value = initialValue,
         onValueChange = onValueChange,
-        modifier = Modifier
+        modifier = modifier
             .semantics { contentDescription = EditTextField.DESCRIPTION }
             .fillMaxWidth(widthPercentage)
     )

@@ -1,8 +1,11 @@
 package de.moyapro.nushppinglist
 
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -29,12 +32,23 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         lateinit var preferences: SharedPreferences
+        lateinit var clipboardManager: ClipboardManager
+
+        fun makeToast(text: String, context: Context) {
+            Toast.makeText(
+                context,
+                text,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         preferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
+        clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
 
         if (SWITCHES.INIT_DB_ON_BOOT) initTestData()
         setContent {
