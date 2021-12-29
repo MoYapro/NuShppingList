@@ -17,24 +17,26 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.ui.component.KategoryIndicator
-import de.moyapro.nushppinglist.ui.model.CartViewModel
+import java.math.BigDecimal
 
 @Composable
 fun CartListElement(
     cartItem: CartItem,
-    viewModel: CartViewModel,
+    toggleCheckedAction: (CartItemProperties) -> Unit,
 ) {
     val backgroundColor = getBackgroundColor(checked = cartItem.cartItemProperties.checked)
     val textColor = contentColorFor(backgroundColor)
-    val alpha = if(cartItem.cartItemProperties.checked) .7F else 1F
+    val alpha = if (cartItem.cartItemProperties.checked) .7F else 1F
+    val rowTotal = cartItem.item.price * BigDecimal(cartItem.cartItemProperties.amount)
+
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable(onClick = { viewModel.toggleChecked(cartItem.cartItemProperties) })
+            .clickable(onClick = {toggleCheckedAction(cartItem.cartItemProperties)})
             .background(backgroundColor)
-            .alpha(alpha)
-        ,
+            .alpha(alpha),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(modifier = Modifier.fillMaxWidth(.8F)) {
@@ -61,7 +63,7 @@ fun CartListElement(
             }
         }
         Row {
-            Text(text = "${cartItem.item.price} €", color = textColor)
+            Text(text = "$rowTotal €", color = textColor)
         }
         Spacer(modifier = Modifier.width(Dp(4F)))
     }
