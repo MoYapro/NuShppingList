@@ -1,18 +1,17 @@
 package de.moyapro.nushppinglist.ui.component
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Autocomplete(
@@ -20,8 +19,9 @@ fun Autocomplete(
     autocompleteAction: (String) -> List<String>,
 ) {
 
-    val currentSearchText = remember { mutableStateOf("") }
-    val autocompleteList = remember { mutableStateOf(emptyList<String>()) }
+    var currentSearchText by remember { mutableStateOf("") }
+    var autocompleteList by remember { mutableStateOf(emptyList<String>()) }
+    val showAddActionButton = autocompleteList.isEmpty() && currentSearchText.trim().isNotBlank()
 
     Column {
         Card(
@@ -29,7 +29,7 @@ fun Autocomplete(
                 .padding(Dp(12F))
         ) {
             Column {
-                autocompleteList.value.forEach {
+                autocompleteList.forEach {
                     Text(
                         it,
                         modifier = Modifier
@@ -38,32 +38,55 @@ fun Autocomplete(
                             .clickable(
                                 onClick = {
                                     chooseAction(it)
-                                    currentSearchText.value = ""
-                                    autocompleteList.value = emptyList()
+                                    currentSearchText = ""
+                                    autocompleteList = emptyList()
                                 }
                             )
                     )
                 }
             }
         }
-        Row {
+        if (showAddActionButton) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                FloatingActionButton(onClick = {
+                    chooseAction(currentSearchText)
+                    currentSearchText = ""
+                    autocompleteList = emptyList()
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Neu")
+                }
+            }
+        }
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom,
+        ) {
             EditTextField(
-                initialValue = currentSearchText.value,
+                initialValue = currentSearchText,
                 onValueChange = { newText: String ->
-                    currentSearchText.value = newText.trim()
-                    autocompleteList.value = if (currentSearchText.value.isBlank()) {
+                    currentSearchText = newText.trim()
+                    autocompleteList = if (currentSearchText.isBlank()) {
                         emptyList()
                     } else {
-                        autocompleteAction(currentSearchText.value)
+                        autocompleteAction(currentSearchText)
                     }
 
-                })
-            Button(onClick = {
-                chooseAction(currentSearchText.value)
-                currentSearchText.value = ""
-                autocompleteList.value = emptyList()
-            }) {
-                Label(labelText = "+")
+                },
+                widthPercentage = .8F
+            )
+            Button(
+                modifier = Modifier
+                    .absolutePadding(top = 7.dp, left = 4.dp)
+                    .fillMaxWidth()
+                    .height(57.dp),
+                shape = RoundedCornerShape(topStart = 4.dp),
+                onClick = { currentSearchText = "" }
+            ) {
+                Icon(Icons.Filled.Clear, contentDescription = "Leeren")
             }
         }
     }

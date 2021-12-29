@@ -137,7 +137,12 @@ class CartViewModel(
         if (null == existingItem) {
             add(CartItem(itemName))
         } else {
-            cartDao.save(CartItem(existingItem).cartItemProperties)
+            val existingCartItem = cartDao.getCartItemByItemId(existingItem.itemId)
+            if (null == existingCartItem) {
+                cartDao.save(CartItem(existingItem).cartItemProperties)
+            } else {
+                cartDao.updateAll(existingCartItem.copy(amount = existingCartItem.amount + 1))
+            }
         }
     }
 
