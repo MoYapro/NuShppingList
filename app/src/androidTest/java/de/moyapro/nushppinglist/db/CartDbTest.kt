@@ -1,7 +1,5 @@
 package de.moyapro.nushppinglist.db
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import de.moyapro.nushppinglist.db.dao.CartDao
@@ -28,7 +26,6 @@ class CartDbTest {
 
     @Before
     fun createDb() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         db = DbTestHelper.createTestDatabase()
         cartDao = db.cartDao()
         viewModel = CartViewModel(cartDao)

@@ -1,12 +1,12 @@
 package de.moyapro.nushppinglist.ui
 
-import de.moyapro.nushppinglist.ui.component.NumberTextField
+import de.moyapro.nushppinglist.ui.component.DecimalTextField
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 
-class NumberTextFieldTest {
+class DecimalTextFieldTest {
 
-    private val sut = NumberTextField
+    private val sut = DecimalTextField
 
     @Test
     fun bigDecimalFromStringInput__simple() {
