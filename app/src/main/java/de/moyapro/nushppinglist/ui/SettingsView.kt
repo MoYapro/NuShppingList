@@ -13,7 +13,6 @@ import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.ui.component.settings.BooleanSettings
-import de.moyapro.nushppinglist.ui.component.settings.CartIdentSettings
 
 @Composable
 fun SettingsView() {
@@ -35,6 +34,6 @@ fun SettingsView() {
 
         Spacer(modifier = Modifier.height(20.dp))
         BooleanSettings(setting = SETTING.CLEAR_AFTER_ADD, preferences = preferences)
-        CartIdentSettings(setting = SETTING.CART_IDENT, preferences)
+//        CartIdentSettings(setting = SETTING.CART_IDENT, preferences)
     }
 }
