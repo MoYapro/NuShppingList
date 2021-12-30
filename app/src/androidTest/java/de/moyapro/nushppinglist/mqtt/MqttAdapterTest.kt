@@ -8,6 +8,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDateTime
 
 @RunWith(AndroidJUnit4::class)
 class MqttAdapterTest {
@@ -28,17 +29,26 @@ class MqttAdapterTest {
         sut = MqttAdapter(context, mqttConnectOptions)
     }
 
-    @Test
-//    @Test(timeout = 20_000)
-    fun connect() {
+    @Test(timeout = 10_000)
+    fun connectAndPublish() {
+        val topic = "nuShoppingList/testtopic"
         var isConnected = false
+        var sendSuccessfully = false
+        var gotMessage = false
 
         sut.connect { isConnected = true }
         while (!isConnected) {
             Thread.sleep(100)
         }
         isConnected shouldBe true
-        sut.publish("sometopic", "hello android world ${System.currentTimeMillis()}")
+        sut.subscribe(topic) { gotMessage = true }
+        sut.publish(topic, "hello android world ${LocalDateTime.now()}") { sendSuccessfully = true }
+        sut.disconnect()
+        sendSuccessfully shouldBe true
+        while (!gotMessage) {
+            Thread.sleep(100) // wait a bit until message arrived
+        }
+        gotMessage shouldBe true
     }
 
 

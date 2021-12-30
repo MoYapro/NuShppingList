@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.mqtt
 
 import android.content.Context
 import android.util.Log
+import de.moyapro.nushppinglist.constants.SWITCHES
 import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import java.nio.charset.StandardCharsets
@@ -13,7 +14,9 @@ class MqttAdapter(
 ) {
 
 
-    private val TAG = "MqttAdapter"
+    companion object {
+        const val TAG = "MqttAdapter"
+    }
 
     private val clientId: String = "NuShoppingListClient"
     private val host: String = mqttConnectOptions.serverURIs[0]
@@ -31,24 +34,28 @@ class MqttAdapter(
     }
 
     init {
-        mqttClient.setCallback(object : MqttCallbackExtended {
-            override fun connectComplete(reconnect: Boolean, serverURI: String) {
-                Log.i(TAG, "connectComplete with serverURI: $serverURI")
-            }
+        if (SWITCHES.DEBUG) {
+            mqttClient.setCallback(object : MqttCallbackExtended {
+                override fun connectComplete(reconnect: Boolean, serverURI: String) {
+                    isConnected = true
+                    Log.i(TAG, "connectComplete with serverURI: $serverURI")
+                }
 
-            override fun connectionLost(cause: Throwable) {
-                cause.printStackTrace()
-                throw cause
-            }
+                override fun connectionLost(cause: Throwable?) {
+                    isConnected = false
+                    Log.w(TAG, cause?.message ?: "Connection Lost without error message")
+                    cause?.printStackTrace()
+                }
 
-            override fun messageArrived(topic: String, message: MqttMessage) {
-                Log.i(TAG, "messageArraived: $message")
-            }
+                override fun messageArrived(topic: String, message: MqttMessage) {
+                    Log.i(TAG, "messageArraived: $message")
+                }
 
-            override fun deliveryComplete(token: IMqttDeliveryToken) {
-                Log.i(TAG, "deliveryComplete: $token")
-            }
-        })
+                override fun deliveryComplete(token: IMqttDeliveryToken) {
+                    Log.i(TAG, "deliveryComplete: $token")
+                }
+            })
+        }
     }
 
     val disconnectedBufferOptions = DisconnectedBufferOptions().apply {
@@ -66,42 +73,15 @@ class MqttAdapter(
     }
 
     fun disconnect() {
-        if (!isConnected) return
-
-        mqttClient.disconnect(null, object : IMqttActionListener {
-            /**
-             * This method is invoked when an action has completed successfully.
-             * @param asyncActionToken associated with the action that has completed
-             */
-            override fun onSuccess(asyncActionToken: IMqttToken?) {
-            }
-
-            /**
-             * This method is invoked when an action fails.
-             * If a client is disconnected while an action is in progress
-             * onFailure will be called. For connections
-             * that use cleanSession set to false, any QoS 1 and 2 messages that
-             * are in the process of being delivered will be delivered to the requested
-             * quality of service next time the client connects.
-             * @param asyncActionToken associated with the action that has failed
-             */
-            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-            }
-
-        })
+        if (!isConnected) {
+            return
+        }
+        mqttClient.disconnect(null, MqttActionListener { isConnected = false })
     }
 
     // Subscribe to topic
-    fun subscribe(topic: String) {
-        mqttClient.subscribe(topic, 0, null, object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.i(TAG, "Subscription!")
-            }
-
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.i(TAG, "Subscription fail!")
-            }
-        })
+    fun subscribe(topic: String, successAction: (IMqttToken?) -> Unit) {
+        mqttClient.subscribe(topic, 0, null, MqttActionListener(successAction))
     }
 
     // Unsubscribe the topic
@@ -118,39 +98,12 @@ class MqttAdapter(
 
     }
 
-    fun publish(topic: String, message: String) {
+    fun publish(topic: String, message: String, successAction: (IMqttToken?) -> Unit = {}) {
         mqttClient.publish(topic,
             message.toByteArray(StandardCharsets.UTF_8),
             0,
             false,
             null,
-            object : IMqttActionListener {
-                override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    Log.i(TAG, "Publish Success!")
-                }
-
-                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    Log.i(TAG, "Publish Failed!")
-                }
-
-            })
+            MqttActionListener(successAction))
     }
-}
-
-private class MqttActionListener(
-    val successAction: (IMqttToken?) -> Unit = {},
-) : IMqttActionListener {
-
-    override fun onSuccess(asyncActionToken: IMqttToken?) {
-        successAction(asyncActionToken)
-    }
-
-
-    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-        println("Could not connect to mqtt server")
-        println("token is: $asyncActionToken")
-        exception?.printStackTrace()
-        throw exception!!
-    }
-
 }
