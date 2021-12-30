@@ -3,19 +3,22 @@ package de.moyapro.nushppinglist.mqtt
 
 import android.content.Context
 import android.util.Log
-import org.eclipse.paho.android.service.MqttAndroidClient
+import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import java.nio.charset.StandardCharsets
 
-class MqttAdapter(val context: Context) {
+class MqttAdapter(
+    val context: Context,
+    val mqttConnectOptions: MqttConnectOptions,
+) {
+
 
     private val TAG = "MqttAdapter"
 
-    private val clientId: String = ""
-    private val host: String = ""
-    private val topic: String = ""
-    private val username: String = ""
-    private val password: String = ""
+    private val clientId: String = "NuShoppingListClient"
+    private val host: String = mqttConnectOptions.serverURIs[0]
+    private val username: String = mqttConnectOptions.userName
+    private val password: CharArray = mqttConnectOptions.password
 
     private var isConnected = false
 
@@ -55,7 +58,7 @@ class MqttAdapter(val context: Context) {
         isDeleteOldestMessages = DisconnectedBufferOptions.DELETE_OLDEST_MESSAGES_DEFAULT
     }
 
-    fun connect(mqttConnectOptions: MqttConnectOptions, successAction: (IMqttToken?) -> Unit = {}) {
+    fun connect(successAction: (IMqttToken?) -> Unit = {}) {
         mqttClient.connect(mqttConnectOptions, null, MqttActionListener { mqttToken ->
             isConnected = true
             println("messageId: ${mqttToken?.messageId}")

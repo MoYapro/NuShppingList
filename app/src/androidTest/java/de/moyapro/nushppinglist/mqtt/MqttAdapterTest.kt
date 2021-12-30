@@ -20,25 +20,26 @@ class MqttAdapterTest {
     @Before
     fun setup() {
 
-        sut = MqttAdapter(context)
-    }
-
-    @Test(timeout = 20_000)
-    fun connect() {
-        var isConnected = false
-
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.serverURIs = arrayOf("tcp://192.168.1.101:31883")
         mqttConnectOptions.userName = "homeassistant"
         mqttConnectOptions.password = "password".toCharArray()
-        sut.connect(mqttConnectOptions) { isConnected = true }
+        mqttConnectOptions.isCleanSession = false
+        sut = MqttAdapter(context, mqttConnectOptions)
+    }
+
+    @Test
+//    @Test(timeout = 20_000)
+    fun connect() {
+        var isConnected = false
+
+        sut.connect { isConnected = true }
         while (!isConnected) {
             Thread.sleep(100)
         }
 //        sut.publish("sometopic", "hello android world ${System.currentTimeMillis()}")
         isConnected shouldBe true
     }
-
 
 
 }
