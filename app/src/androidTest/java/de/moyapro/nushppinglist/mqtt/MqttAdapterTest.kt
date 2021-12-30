@@ -37,8 +37,8 @@ class MqttAdapterTest {
         while (!isConnected) {
             Thread.sleep(100)
         }
-//        sut.publish("sometopic", "hello android world ${System.currentTimeMillis()}")
         isConnected shouldBe true
+        sut.publish("sometopic", "hello android world ${System.currentTimeMillis()}")
     }
 
 
