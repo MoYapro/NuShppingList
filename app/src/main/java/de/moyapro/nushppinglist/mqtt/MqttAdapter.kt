@@ -61,9 +61,6 @@ class MqttAdapter(
     fun connect(successAction: (IMqttToken?) -> Unit = {}) {
         mqttClient.connect(mqttConnectOptions, null, MqttActionListener { mqttToken ->
             isConnected = true
-            println("messageId: ${mqttToken?.messageId}")
-            println("exception: ${mqttToken?.exception}")
-            println("response: ${mqttToken?.response}")
             successAction(mqttToken)
         })
     }
