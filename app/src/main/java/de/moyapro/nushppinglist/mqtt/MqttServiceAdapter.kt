@@ -93,7 +93,7 @@ class MqttServiceAdapter private constructor(
         mqttClient.unsubscribe(topic, null, MqttActionListener())
     }
 
-    fun publish(topic: String, message: String, successAction: (IMqttToken?) -> Unit) {
+    fun publish(topic: String, message: String, successAction: (IMqttToken?) -> Unit = {}) {
         mqttClient.publish(topic,
             message.toByteArray(StandardCharsets.UTF_8),
             0,
