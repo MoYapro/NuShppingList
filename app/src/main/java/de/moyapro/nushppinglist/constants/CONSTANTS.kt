@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.constants
 object CONSTANTS {
 
     const val PREFERENCES_FILE_NAME = "nuShoppingListPreferences"
+    const val MQTT_TOPIC = "nuShoppingList/testtopic"
 
 
     const val MUTED_ALPHA = .7F

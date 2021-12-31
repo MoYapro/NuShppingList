@@ -5,8 +5,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.moyapro.nushppinglist.util.waitFor
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
-import org.eclipse.paho.client.mqttv3.IMqttToken
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.junit.After
 import org.junit.Before
@@ -20,7 +18,7 @@ class MqttCommunicationTest {
 
     companion object {
         val mqttConnectOptions = MqttConnectOptions()
-        val topic = "nuShoppingList/testtopic"
+        const val topic = "nuShoppingList/testtopic"
 
         init {
             mqttConnectOptions.serverURIs = arrayOf("tcp://192.168.1.101:31883")
@@ -32,7 +30,6 @@ class MqttCommunicationTest {
     }
 
     private lateinit var serviceAdapterAlice: MqttServiceAdapter
-    private lateinit var serviceAdapterBob: MqttServiceAdapter
 
     @Before
     fun setup() {
@@ -40,12 +37,7 @@ class MqttCommunicationTest {
             MqttServiceAdapter.Builder
                 .createMqttAdapter(mqttConnectOptions, "alice")
                 .connect()
-        serviceAdapterBob =
-            MqttServiceAdapter.Builder
-                .createMqttServiceAdapter(context, mqttConnectOptions, "bob")
-                .connect()
-
-        while (!serviceAdapterAlice.isConnected() || !serviceAdapterBob.isConnected()) {
+        while (!serviceAdapterAlice.isConnected()) {
             Thread.sleep(100)
         }
     }
@@ -53,21 +45,25 @@ class MqttCommunicationTest {
     @After
     fun tearDown() {
         serviceAdapterAlice.disconnect()
-        serviceAdapterBob.disconnect()
-    }
-
-    @Test(timeout = 10_000)
-    fun clientsAreConnected() {
-        serviceAdapterAlice.isConnected() shouldBe true
-        serviceAdapterBob.isConnected() shouldBe true
     }
 
     @Test(timeout = 10_000)
     fun communication() {
-        var receivedMessage: IMqttToken? = null
-        serviceAdapterBob.subscribe(topic) { receivedMessage = it }
+        var messageReceived = false
+        val serviceAdapterBob =
+            MqttServiceAdapter.Builder
+                .createMqttServiceAdapter(context, mqttConnectOptions, "bob")
+                {usedTopic, message -> messageReceived = true}
+                .connect()
+
+
+        waitFor { serviceAdapterBob.isConnected() }
+
+        serviceAdapterBob.subscribe(topic)
         serviceAdapterAlice.publish(topic, "Hello Bob")
-        waitFor { null != receivedMessage }
-        receivedMessage shouldNotBe null
+
+        waitFor { messageReceived }
+        messageReceived shouldBe true
+
     }
 }

@@ -3,7 +3,6 @@ package de.moyapro.nushppinglist.mqtt
 
 import android.content.Context
 import android.util.Log
-import de.moyapro.nushppinglist.constants.SWITCHES
 import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
@@ -11,7 +10,8 @@ import java.nio.charset.StandardCharsets
 
 
 class MqttServiceAdapter private constructor(
-    private val mqttClient: IMqttAsyncClient
+    private val mqttClient: IMqttAsyncClient,
+    messageHandler: (String, MqttMessage) -> Unit,
 ) {
     private val tag = "MqttClient"
 
@@ -20,61 +20,61 @@ class MqttServiceAdapter private constructor(
             context: Context,
             mqttConnectOptions: MqttConnectOptions,
             clientIdSuffix: String = "",
-        )= MqttServiceAdapter(
-        MqttAndroidClient(
-            context,
-            mqttConnectOptions.serverURIs[0],
-            "NuShoppingListServiceClient_$clientIdSuffix"
+            messageHandler: (String, MqttMessage) -> Unit = { _, _ -> },
+        ) = MqttServiceAdapter(
+            MqttAndroidClient(
+                context,
+                mqttConnectOptions.serverURIs[0],
+                "NuShoppingListServiceClient_$clientIdSuffix"
+            ),
+            messageHandler
         )
-        )
+
         fun createMqttAdapter(
             mqttConnectOptions: MqttConnectOptions,
             clientIdSuffix: String = "",
-        )= MqttServiceAdapter(
+            messageHandler: (String, MqttMessage) -> Unit = { _, _ -> },
+        ) = MqttServiceAdapter(
             MqttAsyncClient(
                 mqttConnectOptions.serverURIs[0],
                 "NuShoppingListClient_$clientIdSuffix",
                 MemoryPersistence()
-            )
+            ),
+            messageHandler
         )
-        }
+    }
 
     private var isConnected = false
     fun isConnected() = isConnected
 
 
-
     init {
-        if (SWITCHES.DEBUG) {
-            mqttClient.setCallback(object : MqttCallbackExtended {
-                override fun connectComplete(reconnect: Boolean, serverURI: String) {
-                    isConnected = true
-                    Log.i(tag, "connectComplete with serverURI: $serverURI")
-                }
+        mqttClient.setCallback(object : MqttCallbackExtended {
+            override fun connectComplete(reconnect: Boolean, serverURI: String) {
+                isConnected = true
+                Log.i(tag, "connectComplete with serverURI: $serverURI")
+            }
 
-                override fun connectionLost(cause: Throwable?) {
-                    isConnected = false
-                    Log.w(tag,
-                        cause?.message ?: "Connection Lost without error message")
-                    cause?.printStackTrace()
-                }
+            override fun connectionLost(cause: Throwable?) {
+                isConnected = false
+                Log.w(tag,
+                    cause?.message ?: "Connection Lost without error message")
+                cause?.printStackTrace()
+            }
 
-                override fun messageArrived(topic: String, message: MqttMessage) {
-                    Log.i(tag, "messageArraived: $message")
-                }
+            override fun messageArrived(topic: String, message: MqttMessage) {
+                Log.i(tag, "messageArraived: $message")
+                messageHandler(topic, message)
+            }
 
-                override fun deliveryComplete(token: IMqttDeliveryToken) {
-                    Log.i(tag, "deliveryComplete: $token")
-                }
-            })
-        }
+            override fun deliveryComplete(token: IMqttDeliveryToken) {
+                Log.i(tag, "deliveryComplete: $token")
+            }
+        })
     }
 
-    fun connect(successAction: (IMqttToken?) -> Unit = {}): MqttServiceAdapter {
-        mqttClient.connect(MqttConnectOptions(), null, MqttActionListener { mqttToken ->
-            isConnected = true
-            successAction(mqttToken)
-        })
+    fun connect(): MqttServiceAdapter {
+        mqttClient.connect(MqttConnectOptions(), null, MqttActionListener { isConnected = true })
         return this
     }
 
@@ -85,20 +85,18 @@ class MqttServiceAdapter private constructor(
         mqttClient.disconnect(null, MqttActionListener { isConnected = false })
     }
 
-    fun subscribe(topic: String, successAction: (IMqttToken?) -> Unit) {
-        mqttClient.subscribe(topic, 0, null, MqttActionListener(successAction))
+    fun subscribe(topic: String) {
+        mqttClient.subscribe(topic, 0)
     }
 
     fun unsubscribe(topic: String) {
-        mqttClient.unsubscribe(topic, null, MqttActionListener())
+        mqttClient.unsubscribe(topic)
     }
 
-    fun publish(topic: String, message: String, successAction: (IMqttToken?) -> Unit = {}) {
+    fun publish(topic: String, message: String) {
         mqttClient.publish(topic,
             message.toByteArray(StandardCharsets.UTF_8),
             0,
-            false,
-            null,
-            MqttActionListener(successAction))
+            false)
     }
 }
