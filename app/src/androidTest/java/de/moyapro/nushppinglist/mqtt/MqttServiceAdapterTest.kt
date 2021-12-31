@@ -11,22 +11,21 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 
 @RunWith(AndroidJUnit4::class)
-class MqttAdapterTest {
+class MqttServiceAdapterTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
 
-    private lateinit var sut: MqttAdapter
+    private lateinit var sut: MqttServiceAdapter
 
     @Before
     fun setup() {
-
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.serverURIs = arrayOf("tcp://192.168.1.101:31883")
         mqttConnectOptions.userName = "homeassistant"
         mqttConnectOptions.password = "password".toCharArray()
         mqttConnectOptions.isCleanSession = false
-        sut = MqttAdapter(context, mqttConnectOptions)
+        sut = MqttServiceAdapter.Builder.createMqttServiceAdapter(context, mqttConnectOptions)
     }
 
     @Test(timeout = 10_000)
