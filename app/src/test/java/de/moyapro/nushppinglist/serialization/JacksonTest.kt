@@ -35,9 +35,9 @@ class JacksonTest(
 
     @Test
     fun serialize_deserialize() {
-        val messageAsString = ConfiguredObjectMapper().writeValueAsString(objectToSerialize)
+        val messageAsString = ConfiguredObjectMapper.writeValueAsString(objectToSerialize)
         val result =
-            ConfiguredObjectMapper().readValue(messageAsString, objectToSerialize.javaClass)
+            ConfiguredObjectMapper.readValue(messageAsString, objectToSerialize.javaClass)
         result shouldBeEqualToComparingFields objectToSerialize
     }
 

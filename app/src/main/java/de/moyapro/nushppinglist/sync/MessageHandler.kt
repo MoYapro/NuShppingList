@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets
 
 class MessageHandler : (String, MqttMessage) -> Unit {
     var lastItem: Any? = null
-    private val objectMapper = ConfiguredObjectMapper()
+    private val objectMapper = ConfiguredObjectMapper
 
     override fun invoke(topic: String, message: MqttMessage) {
         when (topic) {
@@ -39,7 +39,7 @@ class MessageHandler : (String, MqttMessage) -> Unit {
     }
 
     private inline fun <reified T> readMessage(message: MqttMessage): T =
-        ConfiguredObjectMapper().readValue(String(message.payload, StandardCharsets.UTF_8))
+        objectMapper.readValue(String(message.payload, StandardCharsets.UTF_8))
 
     fun handleItemRequest(message: RequestItemMessage) {
         lastItem = message

@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.sync
 
 import android.content.Context
 import android.util.Log
+import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
@@ -12,7 +13,7 @@ import java.nio.charset.StandardCharsets
 class MqttServiceAdapter private constructor(
     private val mqttClient: IMqttAsyncClient,
     messageHandler: (String, MqttMessage) -> Unit,
-) {
+) : Publisher {
     private val tag = "MqttClient"
 
     companion object Builder {
@@ -93,9 +94,10 @@ class MqttServiceAdapter private constructor(
         mqttClient.unsubscribe(topic)
     }
 
-    fun publish(topic: String, message: String) {
+    override fun publish(topic: String, messageObject: Any) {
         mqttClient.publish(topic,
-            message.toByteArray(StandardCharsets.UTF_8),
+            ConfiguredObjectMapper.writeValueAsString(messageObject)
+                .toByteArray(StandardCharsets.UTF_8),
             0,
             false)
     }
