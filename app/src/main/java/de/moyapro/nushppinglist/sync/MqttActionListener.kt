@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist.mqtt
+package de.moyapro.nushppinglist.sync
 
 import android.util.Log
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
