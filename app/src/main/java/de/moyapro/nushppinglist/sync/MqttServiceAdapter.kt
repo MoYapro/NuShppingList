@@ -3,7 +3,9 @@ package de.moyapro.nushppinglist.sync
 
 import android.content.Context
 import android.util.Log
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
+import de.moyapro.nushppinglist.sync.messages.ShoppingMessage
 import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
@@ -94,7 +96,9 @@ class MqttServiceAdapter private constructor(
         mqttClient.unsubscribe(topic)
     }
 
-    override fun publish(topic: String, messageObject: Any) {
+    override fun publish(messageObject: ShoppingMessage) {
+        val topic = CONSTANTS.messagesWithTopic[messageObject::class]
+        require(topic != null) { "Could not find topic for $messageObject" }
         mqttClient.publish(topic,
             ConfiguredObjectMapper().writeValueAsString(messageObject)
                 .toByteArray(StandardCharsets.UTF_8),
