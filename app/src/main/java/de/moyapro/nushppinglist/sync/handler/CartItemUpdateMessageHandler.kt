@@ -9,7 +9,7 @@ class CartItemUpdateMessageHandler(
     val publisher: Publisher,
 ) : (CartItemUpdateMessage) -> Unit {
 
-    override fun invoke(requestItemMessage: CartItemUpdateMessage) {
-
+    override fun invoke(cartItemUpdateMessage: CartItemUpdateMessage) {
+        viewModel.update(cartItemUpdateMessage.cartItemProperties)
     }
 }

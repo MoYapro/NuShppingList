@@ -9,7 +9,7 @@ class ItemMessageHandler(
     val publisher: Publisher,
 ) : (ItemMessage) -> Unit {
 
-    override fun invoke(requestItemMessage: ItemMessage) {
-
+    override fun invoke(itemMessage: ItemMessage) {
+        viewModel.add(itemMessage.item)
     }
 }
