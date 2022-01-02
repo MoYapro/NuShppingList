@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.sync
 
+import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.moyapro.nushppinglist.MockPublisher
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.mock.CartDaoMock
@@ -26,7 +27,7 @@ import kotlin.reflect.KClass
 @RunWith(Parameterized::class)
 class MessageHandlerTest(
     val topic: String,
-    val message: MqttMessage,
+    val message: String,
     val expectedMessageType: KClass<*>,
 ) {
 
@@ -111,7 +112,8 @@ class MessageHandlerTest(
 
     @Test
     fun handleMessage() {
-        messageHandler(topic, message)
+        messageHandler(Mqtt5Publish.builder().topic(topic).payload(message.encodeToByteArray())
+            .build())
         messageHandler.lastItem should { actual ->
             actual shouldNotBe null
             actual!!::class.qualifiedName shouldBe expectedMessageType.qualifiedName

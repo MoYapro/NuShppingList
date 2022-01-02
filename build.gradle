@@ -2,10 +2,13 @@
 buildscript {
     ext {
         kotlin_version = '1.5.31'
+        work_version = '2.7.1'
         jackson_verion = '2.13.1'
         compose_version = '1.0.5'
         coroutine_version = '1.6.0-native-mt'
         room_version = "2.4.0"
+        GROUP_ID = "de.moyapro"
+        ARTIFACT_ID = "de.moyapro.nuShoppingList"
     }
     repositories {
         google()

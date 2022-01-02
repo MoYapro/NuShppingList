@@ -55,7 +55,7 @@ class MqttCommunicationTest {
         val serviceAdapterBob =
             MqttServiceAdapter.Builder
                 .createMqttServiceAdapter(context, mqttConnectOptions, "bob")
-                { usedTopic, message -> messageReceived = true }
+                { _ -> messageReceived = true }
                 .connect()
 
 
