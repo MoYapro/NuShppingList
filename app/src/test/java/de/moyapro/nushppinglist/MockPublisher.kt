@@ -8,7 +8,7 @@ class MockPublisher(private val topic: String) : Publisher {
     val messages: MutableMap<String, String> = mutableMapOf()
 
     override fun publish(ignored: String, messageObject: Any) {
-        messages[topic] = ConfiguredObjectMapper.writeValueAsString(messageObject)
+        messages[topic] = ConfiguredObjectMapper().writeValueAsString(messageObject)
     }
 
     fun reset() = messages.clear()

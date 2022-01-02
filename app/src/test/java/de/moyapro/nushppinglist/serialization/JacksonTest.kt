@@ -8,6 +8,7 @@ import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.util.*
 
 @RunWith(Parameterized::class)
 class JacksonTest(
@@ -19,6 +20,7 @@ class JacksonTest(
         @Parameterized.Parameters
         fun data(): Collection<Array<Any>> {
             return listOf(
+                arrayOf(UUID.randomUUID()),
                 arrayOf(RequestItemMessage(ItemId())),
                 arrayOf(RequestCartMessage("This is a cart request")),
                 arrayOf(ItemMessage(createSampleItem())),
@@ -35,10 +37,9 @@ class JacksonTest(
 
     @Test
     fun serialize_deserialize() {
-        val messageAsString = ConfiguredObjectMapper.writeValueAsString(objectToSerialize)
+        val messageAsString = ConfiguredObjectMapper().writeValueAsString(objectToSerialize)
         val result =
-            ConfiguredObjectMapper.readValue(messageAsString, objectToSerialize.javaClass)
+            ConfiguredObjectMapper().readValue(messageAsString, objectToSerialize.javaClass)
         result shouldBeEqualToComparingFields objectToSerialize
     }
-
 }

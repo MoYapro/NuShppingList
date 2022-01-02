@@ -96,7 +96,7 @@ class MqttServiceAdapter private constructor(
 
     override fun publish(topic: String, messageObject: Any) {
         mqttClient.publish(topic,
-            ConfiguredObjectMapper.writeValueAsString(messageObject)
+            ConfiguredObjectMapper().writeValueAsString(messageObject)
                 .toByteArray(StandardCharsets.UTF_8),
             0,
             false)

@@ -1,11 +1,22 @@
 package de.moyapro.nushppinglist.sync
 
+import de.moyapro.nushppinglist.MockPublisher
 import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.mock.CartDaoMock
+import de.moyapro.nushppinglist.sync.handler.*
 import de.moyapro.nushppinglist.sync.messages.*
+import de.moyapro.nushppinglist.ui.model.CartViewModel
+import de.moyapro.nushppinglist.util.MainCoroutineRule
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -19,6 +30,34 @@ class MessageHandlerTest(
     val expectedMessageType: KClass<*>,
 ) {
 
+    @get:Rule
+    val coroutineRule = MainCoroutineRule()
+
+    private lateinit var messageHandler: MessageHandler
+    private lateinit var viewModel: CartViewModel
+    private lateinit var publisher: MockPublisher
+    private val cartDao: CartDaoMock =
+        CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
+
+    @Before
+    fun setup() {
+        viewModel = CartViewModel(cartDao)
+        publisher = MockPublisher(CONSTANTS.MQTT_TOPIC_CART)
+        messageHandler = MessageHandler(
+            requestItemMessageHandler = RequestItemMessageHandler(viewModel, publisher),
+            requestCartMessageHandler = RequestCartMessageHandler(viewModel, publisher),
+            itemMessageHandler = ItemMessageHandler(viewModel, publisher),
+            cartMessageHandler = CartMessageHandler(viewModel, publisher),
+            cartItemUpdateMessageHandler = CartItemUpdateMessageHandler(viewModel, publisher),
+        )
+    }
+
+    @After
+    fun tearDown() {
+        cartDao.reset()
+        publisher.reset()
+    }
+
 
     companion object {
 
@@ -27,7 +66,7 @@ class MessageHandlerTest(
         val cartRequest =
             """"This is a cart request"""".toByteArray(StandardCharsets.UTF_8)
         val itemMessage =
-            """{"item":{"itemId":"a52fbe65-1808-4870-b56c-9505a31a2f41","name":"Ding","description":"An item named Ding","defaultItemAmount":12,"defaultItemUnit":"LITER","price":12.99,"kategory":"GEMUESE"}}"""
+            """{"item":{"itemId":"6565fd09-41fe-4c66-b1bb-9fac9e6ef794","name":"Ding","description":"An item named Ding","defaultItemAmount":12,"defaultItemUnit":"LITER","price":12.99,"kategory":"GEMUESE"}}"""
                 .toByteArray(StandardCharsets.UTF_8)
         val cartMessage =
             """{"cartItemPropertiesList":[{"cartItemPropertiesId":"e896dfda-a20b-4796-ae73-63138b2ea84f","cartItemId":"142bf6cd-e164-40fb-b734-987946057d5c","itemId":"142bf6cd-e164-40fb-b734-987946057d5c","recipeId":"d84acfef-8a25-4e97-b7a9-73a2ea418076","amount":1000,"checked":false},{"cartItemPropertiesId":"f7a340aa-862f-4712-bcae-9398835828d2","cartItemId":"6fc527a1-0aa8-4af7-a21a-43e4a4b8b53d","itemId":"6fc527a1-0aa8-4af7-a21a-43e4a4b8b53d","recipeId":"ef2db8dd-af68-4360-967b-c37e05d6b2b1","amount":1000,"checked":false}]}"""
@@ -42,7 +81,6 @@ class MessageHandlerTest(
         fun data(): Collection<Array<Any>> {
             return listOf(
                 arrayOf(
-
                     CONSTANTS.MQTT_TOPIC_ITEM_REQUEST,
                     MqttMessage(itemRequest),
                     RequestItemMessage::class
@@ -73,7 +111,6 @@ class MessageHandlerTest(
 
     @Test
     fun handleMessage() {
-        val messageHandler = MessageHandler()
         messageHandler(topic, message)
         messageHandler.lastItem should { actual ->
             actual shouldNotBe null

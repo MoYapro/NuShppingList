@@ -31,11 +31,6 @@ import java.util.*
 import kotlin.random.Random
 
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 @Suppress("EXPERIMENTAL_API_USAGE")
 @ExperimentalCoroutinesApi
 class ViewModelTest {

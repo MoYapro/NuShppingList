@@ -1,5 +1,6 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.sync
 
+import de.moyapro.nushppinglist.MockPublisher
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.mock.CartDaoMock
@@ -20,11 +21,6 @@ import org.junit.Rule
 import org.junit.Test
 
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 @Suppress("EXPERIMENTAL_API_USAGE")
 @ExperimentalCoroutinesApi
 class RequestItemMessageHandlerTest {
@@ -49,7 +45,7 @@ class RequestItemMessageHandlerTest {
         publisher.reset()
     }
 
-    @Test
+    @Test(timeout = 10_000)
     fun handleItemRequest__success() {
         val item = createSampleItem()
         viewModel.add(item)
@@ -64,7 +60,7 @@ class RequestItemMessageHandlerTest {
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.kategory.toString()
     }
 
-    @Test
+    @Test(timeout = 10_000)
     fun handleItemRequest__itemNotFound() {
         val request = RequestItemMessage(ItemId())
         val requestHandler = RequestItemMessageHandler(viewModel, publisher)
