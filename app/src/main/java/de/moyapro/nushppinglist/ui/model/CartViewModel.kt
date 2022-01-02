@@ -179,6 +179,8 @@ class CartViewModel(
             cartDao.remove(cartItemProperties)
         }
     }
+
+    suspend fun getAllCartItemProperties(): List<CartItem> = cartDao.getAllCartItems()
 }
 
 fun matched(name: String, searchString: String): Boolean {

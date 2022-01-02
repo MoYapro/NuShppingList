@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.mock
 
 import de.moyapro.nushppinglist.db.dao.CartDao
+import de.moyapro.nushppinglist.db.dao.getItemByItemId
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
@@ -78,6 +79,15 @@ class CartDaoMock(
 
     override fun findAllCartItems(): Flow<List<CartItem>> {
         return cartItemFlow
+    }
+
+    override suspend fun getAllCartItems(): List<CartItem> {
+        return cartItemPropertiesTable.map {
+            CartItem(
+                cartItemProperties = it,
+                item = getItemByItemId(it.itemId)!!
+            )
+        }
     }
 
     override fun findNotAddedItems(): List<Item> {

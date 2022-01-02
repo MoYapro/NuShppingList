@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.sync
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.sync.handler.*
+import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.waitFor
@@ -28,7 +29,10 @@ class SyncService(
 
 
     fun requestItem(itemId: ItemId) {
-        val requestItemMessage = RequestItemMessage(itemId)
-        serviceAdapter.publish(requestItemMessage)
+        serviceAdapter.publish(RequestItemMessage(itemId))
+    }
+
+    fun requestCart() {
+        serviceAdapter.publish(RequestCartMessage())
     }
 }

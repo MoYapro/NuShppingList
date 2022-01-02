@@ -41,6 +41,10 @@ interface CartDao {
     fun findAllCartItems(): Flow<List<CartItem>>
 
     @Transaction
+    @Query("select * from CartItemProperties join Item on Item.itemId = CartItemProperties.itemId")
+    suspend fun getAllCartItems(): List<CartItem>
+
+    @Transaction
     @Query("select * from Item")
     fun findNotAddedItems(): List<Item>
 

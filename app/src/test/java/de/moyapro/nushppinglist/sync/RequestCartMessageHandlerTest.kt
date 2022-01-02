@@ -9,7 +9,7 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
 import de.moyapro.nushppinglist.ui.util.waitFor
 import de.moyapro.nushppinglist.util.MainCoroutineRule
-import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -49,11 +49,12 @@ class RequestCartMessageHandlerTest {
         val cartItem2 = createSampleCartItem()
         viewModel.add(cartItem1)
         viewModel.add(cartItem2)
-        val request = RequestCartMessage("Can I get your cart, please?")
+        val request = RequestCartMessage()
         val requestHandler = RequestCartMessageHandler(viewModel, publisher)
         requestHandler(request)
         waitFor { publisher.messages.isNotEmpty() }
-        publisher.messages[CONSTANTS.MQTT_TOPIC_CART] shouldNotBe null
+        publisher.messages[CONSTANTS.MQTT_TOPIC_CART] shouldContain cartItem1.item.itemId.id.toString()
+        publisher.messages[CONSTANTS.MQTT_TOPIC_CART] shouldContain cartItem2.item.itemId.id.toString()
     }
 
 }

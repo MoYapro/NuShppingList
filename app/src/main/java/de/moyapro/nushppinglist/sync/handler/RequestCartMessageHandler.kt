@@ -5,7 +5,6 @@ import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class RequestCartMessageHandler(
@@ -15,12 +14,9 @@ class RequestCartMessageHandler(
 
     override fun invoke(requestCartMessage: RequestCartMessage) {
         viewModel.viewModelScope.launch {
-            viewModel.allCartItems.collectLatest { cartItemList ->
-                publisher.publish(
-                    CartMessage(cartItemList.map { it.cartItemProperties })
-                )
-            }
-
+            publisher.publish(
+                CartMessage(viewModel.getAllCartItemProperties().map { it.cartItemProperties })
+            )
         }
     }
 }

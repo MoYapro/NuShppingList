@@ -2,7 +2,9 @@ package de.moyapro.nushppinglist.sync.messages
 
 import com.fasterxml.jackson.annotation.JsonCreator
 
-data class RequestCartMessage(val message: String): ShoppingMessage {
+data class RequestCartMessage(
+    val message: String = "Can I get your cart, please?",
+) : ShoppingMessage {
     companion object {
         @JsonCreator
         @JvmStatic

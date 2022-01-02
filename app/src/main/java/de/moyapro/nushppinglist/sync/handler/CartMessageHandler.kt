@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.sync.handler
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.CartMessage
+import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 class CartMessageHandler(
@@ -16,7 +17,7 @@ class CartMessageHandler(
             if (null != item) {
                 viewModel.add(CartItem(cartItemProperties, item))
             } else {
-                throw IllegalStateException("Could not find item with id: ${cartItemProperties.itemId}")
+                publisher.publish(RequestItemMessage(cartItemProperties.itemId))
             }
         }
     }
