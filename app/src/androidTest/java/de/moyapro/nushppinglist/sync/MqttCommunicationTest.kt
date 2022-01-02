@@ -3,7 +3,9 @@ package de.moyapro.nushppinglist.sync
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.moyapro.nushppinglist.util.waitFor
+import de.moyapro.nushppinglist.db.ids.ItemId
+import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
+import de.moyapro.nushppinglist.ui.util.waitFor
 import io.kotest.matchers.shouldBe
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.junit.After
@@ -53,14 +55,14 @@ class MqttCommunicationTest {
         val serviceAdapterBob =
             MqttServiceAdapter.Builder
                 .createMqttServiceAdapter(context, mqttConnectOptions, "bob")
-                {usedTopic, message -> messageReceived = true}
+                { usedTopic, message -> messageReceived = true }
                 .connect()
 
 
         waitFor { serviceAdapterBob.isConnected() }
 
         serviceAdapterBob.subscribe(topic)
-        serviceAdapterAlice.publish(topic, "Hello Bob")
+        serviceAdapterAlice.publish(RequestItemMessage(ItemId()))
 
         waitFor { messageReceived }
         messageReceived shouldBe true

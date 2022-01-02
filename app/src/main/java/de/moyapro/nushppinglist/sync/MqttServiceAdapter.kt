@@ -51,31 +51,6 @@ class MqttServiceAdapter private constructor(
     fun isConnected() = isConnected
 
 
-    init {
-        mqttClient.setCallback(object : MqttCallbackExtended {
-            override fun connectComplete(reconnect: Boolean, serverURI: String) {
-                isConnected = true
-                Log.i(tag, "connectComplete with serverURI: $serverURI")
-            }
-
-            override fun connectionLost(cause: Throwable?) {
-                isConnected = false
-                Log.w(tag,
-                    cause?.message ?: "Connection Lost without error message")
-                cause?.printStackTrace()
-            }
-
-            override fun messageArrived(topic: String, message: MqttMessage) {
-                Log.i(tag, "messageArraived: $message")
-                messageHandler(topic, message)
-            }
-
-            override fun deliveryComplete(token: IMqttDeliveryToken) {
-                Log.i(tag, "deliveryComplete: $token")
-            }
-        })
-    }
-
     fun connect(): MqttServiceAdapter {
         mqttClient.connect(MqttConnectOptions(), null, MqttActionListener { isConnected = true })
         return this
@@ -104,5 +79,31 @@ class MqttServiceAdapter private constructor(
                 .toByteArray(StandardCharsets.UTF_8),
             0,
             false)
+    }
+
+    fun setHandler(messageHandler: MessageHandler) {
+        mqttClient.setCallback(object : MqttCallbackExtended {
+            override fun connectComplete(reconnect: Boolean, serverURI: String) {
+                isConnected = true
+                Log.i(tag, "connectComplete with serverURI: $serverURI")
+            }
+
+            override fun connectionLost(cause: Throwable?) {
+                isConnected = false
+                Log.w(tag,
+                    cause?.message ?: "Connection Lost without error message")
+                cause?.printStackTrace()
+            }
+
+            override fun messageArrived(topic: String, message: MqttMessage) {
+                Log.i(tag, "messageArraived: $message")
+                messageHandler(topic, message)
+            }
+
+            override fun deliveryComplete(token: IMqttDeliveryToken) {
+                Log.i(tag, "deliveryComplete: $token")
+            }
+        })
+
     }
 }

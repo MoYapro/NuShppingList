@@ -7,6 +7,7 @@ import de.moyapro.nushppinglist.sync.handler.RequestCartMessageHandler
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
+import de.moyapro.nushppinglist.ui.util.waitFor
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.CoroutineScope
