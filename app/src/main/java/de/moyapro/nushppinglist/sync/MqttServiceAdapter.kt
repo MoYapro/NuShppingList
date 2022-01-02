@@ -56,7 +56,9 @@ class MqttServiceAdapter(
     fun subscribe(topic: String) {
         mqttClient.subscribeWith()
             .topicFilter(topic)
+            .qos(MqttQos.AT_LEAST_ONCE)
             .callback(messageHandler)
+            .send()
     }
 
     fun unsubscribe(topic: String) {
