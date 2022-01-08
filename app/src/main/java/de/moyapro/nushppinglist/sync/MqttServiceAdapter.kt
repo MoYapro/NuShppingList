@@ -57,6 +57,7 @@ class MqttServiceAdapter(
         mqttClient.subscribeWith()
             .topicFilter(topic)
             .qos(MqttQos.AT_LEAST_ONCE)
+            .noLocal(true)
             .callback(messageHandler)
             .send()
     }
