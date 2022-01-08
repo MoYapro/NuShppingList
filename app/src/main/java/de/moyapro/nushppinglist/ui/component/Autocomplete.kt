@@ -68,8 +68,8 @@ fun Autocomplete(
             EditTextField(
                 initialValue = currentSearchText,
                 onValueChange = { newText: String ->
-                    currentSearchText = newText.trim()
-                    autocompleteList = if (currentSearchText.isBlank()) {
+                    currentSearchText = newText
+                    autocompleteList = if (currentSearchText.trim().isBlank()) {
                         emptyList()
                     } else {
                         autocompleteAction(currentSearchText)
