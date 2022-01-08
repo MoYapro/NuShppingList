@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.constants.KATEGORY
@@ -80,18 +82,26 @@ fun EditView(
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+        val saveActionClosure = {
+            endEditMode()
+            saveAction(editItem)
+        }
         KategoryIndicator(editItem, 280.dp)
         Column(Modifier.fillMaxWidth()) {
             EditTextField(
                 label = "Name",
                 initialValue = editItem.name,
                 onValueChange = { editItem = editItem.copy(name = it) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                doneAction = saveActionClosure
             )
             Spacer(modifier = Modifier.height(4.dp))
             EditTextField(
                 label = "Beschreibung",
                 initialValue = editItem.description,
                 onValueChange = { editItem = editItem.copy(description = it) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                doneAction = saveActionClosure
             )
             Spacer(modifier = Modifier.height(4.dp))
             Row(horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -99,14 +109,18 @@ fun EditView(
                     "Preis",
                     initialValue = editItem.price,
                     onValueChange = { editItem = editItem.copy(price = it) },
-                    modifier = Modifier.fillMaxWidth(.5F)
+                    modifier = Modifier.fillMaxWidth(.5F),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    doneAction = saveActionClosure
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 NumberTextField(
                     label = "Menge",
                     initialValue = editItem.defaultItemAmount,
                     onValueChange = { editItem = editItem.copy(defaultItemAmount = it) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    doneAction = saveActionClosure
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -149,10 +163,8 @@ fun EditView(
                 Spacer(modifier = Modifier.width(Dp(4F)))
                 Button(
                     shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp),
-                    onClick = {
-                        endEditMode()
-                        saveAction(editItem)
-                    }) {
+                    onClick = saveActionClosure
+                ) {
                     Icon(Icons.Filled.Done, contentDescription = "Hinzufügen")
                 }
             }

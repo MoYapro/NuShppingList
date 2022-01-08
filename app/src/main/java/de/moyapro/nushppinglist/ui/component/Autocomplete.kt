@@ -2,16 +2,10 @@ package de.moyapro.nushppinglist.ui.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun Autocomplete(
@@ -22,6 +16,11 @@ fun Autocomplete(
     var currentSearchText by remember { mutableStateOf("") }
     var autocompleteList by remember { mutableStateOf(emptyList<String>()) }
     val showAddActionButton = autocompleteList.isEmpty() && currentSearchText.trim().isNotBlank()
+
+    val clearSearch = {
+        currentSearchText = ""
+        autocompleteList = emptyList()
+    }
 
     Column {
         Card(
@@ -38,7 +37,7 @@ fun Autocomplete(
                             .clickable(
                                 onClick = {
                                     chooseAction(it)
-                                    currentSearchText = ""
+                                    clearSearch()
                                     autocompleteList = emptyList()
                                 }
                             )
@@ -54,8 +53,7 @@ fun Autocomplete(
             ) {
                 FloatingActionButton(onClick = {
                     chooseAction(currentSearchText)
-                    currentSearchText = ""
-                    autocompleteList = emptyList()
+                    clearSearch()
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Neu")
                 }
@@ -68,15 +66,17 @@ fun Autocomplete(
             EditTextField(
                 initialValue = currentSearchText,
                 onValueChange = { newText: String ->
-                    currentSearchText = newText.trim()
-                    autocompleteList = if (currentSearchText.isBlank()) {
+                    currentSearchText = newText
+                    autocompleteList = if (currentSearchText.trim().isBlank()) {
                         emptyList()
                     } else {
                         autocompleteAction(currentSearchText)
                     }
 
                 },
-                widthPercentage = .8F
+                widthPercentage = .8F,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                doneAction = clearSearch
             )
             Button(
                 modifier = Modifier
@@ -84,7 +84,7 @@ fun Autocomplete(
                     .fillMaxWidth()
                     .height(57.dp),
                 shape = RoundedCornerShape(topStart = 4.dp),
-                onClick = { currentSearchText = "" }
+                onClick = clearSearch
             ) {
                 Icon(Icons.Filled.Clear, contentDescription = "Leeren")
             }

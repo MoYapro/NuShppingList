@@ -50,20 +50,20 @@ class CartViewModel(
         }
     }
 
-    fun add(newItem: Item) = runBlocking {
+    fun add(newItem: Item) = viewModelScope.launch(Dispatchers.IO) {
         cartDao.save(newItem)
     }
 
-    fun update(updatedItem: Item) = runBlocking {
+    fun update(updatedItem: Item) = viewModelScope.launch(Dispatchers.IO) {
         cartDao.updateAll(updatedItem)
     }
 
-    fun update(updatedCartItemProperties: CartItemProperties) = runBlocking {
+    fun update(updatedCartItemProperties: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
         cartDao.updateAll(updatedCartItemProperties)
     }
 
     @Transaction
-    fun add(newItem: CartItem) = runBlocking {
+    fun add(newItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
         if (allItems.value.map { it.itemId }.contains(newItem.item.itemId)) {
             cartDao.updateAll(newItem.item)
         } else {
@@ -77,7 +77,7 @@ class CartViewModel(
         }
     }
 
-    fun toggleChecked(itemToToggle: CartItemProperties) = runBlocking {
+    fun toggleChecked(itemToToggle: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
         _cartItems.value = _cartItems.value.map { oldValue ->
             if (oldValue.itemId == itemToToggle.itemId) {
                 val updated = oldValue.copy(
@@ -101,7 +101,7 @@ class CartViewModel(
             .map { it.name }
     }
 
-    fun addToCart(item: Item) = runBlocking {
+    fun addToCart(item: Item) = viewModelScope.launch(Dispatchers.IO) {
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(item.itemId)
         if (null == existingCartItem) {
@@ -117,7 +117,7 @@ class CartViewModel(
         recipeItems.forEach(this::addToCart)
     }
 
-    fun addToCart(recipeItem: RecipeItem) = runBlocking {
+    fun addToCart(recipeItem: RecipeItem) = viewModelScope.launch(Dispatchers.IO) {
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(recipeItem.item.itemId)
         if (null == existingCartItem) {
@@ -132,7 +132,7 @@ class CartViewModel(
     }
 
 
-    fun addToCart(itemName: String) = runBlocking {
+    fun addToCart(itemName: String) = viewModelScope.launch(Dispatchers.IO) {
         val existingItem: Item? = cartDao.getItemByItemName(itemName)
         if (null == existingItem) {
             add(CartItem(itemName))
@@ -146,7 +146,7 @@ class CartViewModel(
         }
     }
 
-    fun removeCheckedFromCart() = runBlocking {
+    fun removeCheckedFromCart() = viewModelScope.launch(Dispatchers.IO) {
         cartItems.value
             .filter { it.checked }
             .forEach { cartItemProperties ->
@@ -162,7 +162,7 @@ class CartViewModel(
         recipe.recipeItems.forEach(::addToCart)
     }
 
-    fun subtractFromCart(itemId: ItemId) = runBlocking {
+    fun subtractFromCart(itemId: ItemId) = viewModelScope.launch(Dispatchers.IO) {
         val cartItem = cartDao.getCartItemByItemId(itemId)
         when {
             cartItem == null -> {}
@@ -172,7 +172,7 @@ class CartViewModel(
         }
     }
 
-    fun removeItem(itemToRemove: Item) = runBlocking {
+    fun removeItem(itemToRemove: Item) = viewModelScope.launch(Dispatchers.IO) {
         cartDao.remove(itemToRemove)
         val cartItemProperties = cartDao.getCartItemByItemId(itemToRemove.itemId)
         if (null != cartItemProperties) {

@@ -21,7 +21,7 @@ class RecipeViewModel(
 
     }
 
-    fun save(vararg recipes: Recipe) = runBlocking {
+    fun save(vararg recipes: Recipe) = viewModelScope.launch(Dispatchers.IO) {
         recipes.forEach { recipe ->
             recipeDao.save(recipe.recipeProperties)
             recipeDao.save(*recipe.recipeItems.toTypedArray())

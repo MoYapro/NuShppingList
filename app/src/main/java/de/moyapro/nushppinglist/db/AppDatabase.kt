@@ -19,7 +19,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
     private class AppDatabaseCallback(private val scope: CoroutineScope) :
         RoomDatabase.Callback() {
-
     }
 
     companion object {
@@ -36,7 +35,6 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "nuShoppingListDatabase"
                 )
-                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
