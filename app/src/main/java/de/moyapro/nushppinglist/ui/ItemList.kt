@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -14,7 +15,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -29,6 +34,7 @@ import de.moyapro.nushppinglist.ui.util.ItemListProvider
 import de.moyapro.nushppinglist.util.CartItemByName
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Preview
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel) {
@@ -58,7 +64,10 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     Log.i("ItemList", listState.firstVisibleItemIndex.toString())
 
     val coroutineScope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
+    val clearFilter = { filter = "" }
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
         floatingActionButton = if (displayNewItemFab) {
@@ -113,16 +122,20 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom,
             ) {
-                EditTextField(initialValue = filter,
+                EditTextField(
+                    initialValue = filter,
                     onValueChange = { filter = it },
-                    widthPercentage = .8F)
+                    widthPercentage = .8F,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    doneAction = clearFilter
+                )
                 Button(
                     modifier = Modifier
                         .absolutePadding(top = 7.dp, left = 4.dp)
                         .fillMaxWidth()
                         .height(57.dp),
                     shape = RoundedCornerShape(topStart = 4.dp),
-                    onClick = { filter = "" }
+                    onClick = clearFilter
                 ) {
                     Icon(Icons.Filled.Clear, contentDescription = "Leeren")
                 }
