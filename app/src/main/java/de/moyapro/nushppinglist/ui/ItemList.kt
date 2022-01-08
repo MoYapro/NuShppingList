@@ -32,7 +32,10 @@ import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.ItemListProvider
 import de.moyapro.nushppinglist.util.CartItemByName
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -45,19 +48,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
 
     var filter: String by remember { mutableStateOf("") }
 // is filtering on cartItemList executed every frame?
-    val cartItemList: List<CartItem> = allItemList
-        .filter { it.name.lowercase().contains(filter.lowercase()) }
-        .map { item ->
-            val cartItem = cartItems.firstOrNull { it.item.itemId == item.itemId }
-            cartItem
-                ?: CartItem(
-                    CartItemProperties(
-                        newItemId = item.itemId,
-                        amount = 0
-                    ),
-                    item,
-                )
-        }.sortedWith(CartItemByName)
+    val cartItemList: List<CartItem> = runBlocking { prepareForView(allItemList, filter, cartItems) }
     val listState = rememberLazyListState()
     val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
 
@@ -142,4 +133,24 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
             }
         }
     )
+}
+
+private suspend fun prepareForView(
+    allItemList: List<Item>,
+    filter: String,
+    cartItems: List<CartItem>,
+) = withContext(Dispatchers.Default) {
+    allItemList
+        .filter { it.name.lowercase().contains(filter.lowercase()) }
+        .map { item ->
+            val cartItem = cartItems.firstOrNull { it.item.itemId == item.itemId }
+            cartItem
+                ?: CartItem(
+                    CartItemProperties(
+                        newItemId = item.itemId,
+                        amount = 0
+                    ),
+                    item,
+                )
+        }.sortedWith(CartItemByName)
 }

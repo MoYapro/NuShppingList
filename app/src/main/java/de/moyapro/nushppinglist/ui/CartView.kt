@@ -15,26 +15,21 @@ import de.moyapro.nushppinglist.ui.component.Autocomplete
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.util.SortCartItemPairByCheckedAndName
 import de.moyapro.nushppinglist.util.sumByBigDecimal
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CartView(viewModel: CartViewModel) {
-    val collectAsState: State<Map<RecipeId?, List<CartItem>>> =
+    val cartItemsMappedByRecipe: State<Map<RecipeId?, List<CartItem>>> =
         viewModel.allCartItemsGrouped.collectAsState(
             mapOf()
         )
-    val cartItemPropertiesMap: Map<RecipeId?, List<CartItem>> by collectAsState
-
     val cartItemProperties: List<Pair<RecipeId?, CartItem>> =
-        cartItemPropertiesMap.map { (recipeId, itemList) ->
-            itemList.map { cartItem ->
-                recipeId to cartItem
-            }
-        }
-            .flatten()
-            .sortedWith(SortCartItemPairByCheckedAndName)
+        runBlocking { prepareForView(cartItemsMappedByRecipe) }
 
     val total: BigDecimal =
         cartItemProperties.map { it.second.item.price * BigDecimal(it.second.cartItemProperties.amount) }
@@ -68,8 +63,22 @@ fun CartView(viewModel: CartViewModel) {
             }
         }
     )
+}
 
+private suspend fun prepareForView(
+    cartItemsMappedByRecipe: State<Map<RecipeId?, List<CartItem>>>,
+): List<Pair<RecipeId?, CartItem>> = withContext(Dispatchers.Default) {
+    val cartItemPropertiesMap: Map<RecipeId?, List<CartItem>> by cartItemsMappedByRecipe
 
+    val cartItemProperties: List<Pair<RecipeId?, CartItem>> =
+        cartItemPropertiesMap.map { (recipeId, itemList) ->
+            itemList.map { cartItem ->
+                recipeId to cartItem
+            }
+        }
+            .flatten()
+            .sortedWith(SortCartItemPairByCheckedAndName)
+    cartItemProperties
 }
 
 @Composable
