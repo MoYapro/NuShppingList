@@ -5,7 +5,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 
@@ -13,6 +16,7 @@ object EditTextField {
     const val DESCRIPTION = "EditTextField"
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EditTextField(
     modifier: Modifier = Modifier,
@@ -21,14 +25,23 @@ fun EditTextField(
     onValueChange: (String) -> Unit,
     widthPercentage: Float = 1.0F,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
-    keyboardActions: KeyboardActions = KeyboardActions(),
+    doneAction: () -> Unit = {},
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     OutlinedTextField(
         label = { Label(labelText = label ?: "") },
         value = initialValue,
         onValueChange = onValueChange,
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
+        keyboardActions = KeyboardActions(
+            onDone = {
+                keyboardController?.hide()
+                focusManager.clearFocus()
+                doneAction()
+            },
+        ),
         modifier = modifier
             .semantics { contentDescription = EditTextField.DESCRIPTION }
             .fillMaxWidth(widthPercentage)
