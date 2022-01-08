@@ -25,6 +25,11 @@ fun Autocomplete(
     var autocompleteList by remember { mutableStateOf(emptyList<String>()) }
     val showAddActionButton = autocompleteList.isEmpty() && currentSearchText.trim().isNotBlank()
 
+    val clearSearch = {
+        currentSearchText = ""
+        autocompleteList = emptyList()
+    }
+
     Column {
         Card(
             modifier = Modifier
@@ -40,7 +45,7 @@ fun Autocomplete(
                             .clickable(
                                 onClick = {
                                     chooseAction(it)
-                                    currentSearchText = ""
+                                    clearSearch()
                                     autocompleteList = emptyList()
                                 }
                             )
@@ -56,8 +61,7 @@ fun Autocomplete(
             ) {
                 FloatingActionButton(onClick = {
                     chooseAction(currentSearchText)
-                    currentSearchText = ""
-                    autocompleteList = emptyList()
+                    clearSearch()
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Neu")
                 }
@@ -80,6 +84,7 @@ fun Autocomplete(
                 },
                 widthPercentage = .8F,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                doneAction = clearSearch
             )
             Button(
                 modifier = Modifier
@@ -87,7 +92,7 @@ fun Autocomplete(
                     .fillMaxWidth()
                     .height(57.dp),
                 shape = RoundedCornerShape(topStart = 4.dp),
-                onClick = { currentSearchText = "" }
+                onClick = clearSearch
             ) {
                 Icon(Icons.Filled.Clear, contentDescription = "Leeren")
             }
