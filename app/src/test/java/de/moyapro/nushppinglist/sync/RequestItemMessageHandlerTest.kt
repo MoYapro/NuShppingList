@@ -52,6 +52,7 @@ class RequestItemMessageHandlerTest {
         val request = RequestItemMessage(item.itemId)
         val requestHandler = RequestItemMessageHandler(viewModel, publisher)
         requestHandler(request)
+        Thread.sleep(100) // wait for DB to save
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.itemId.id.toString()
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.name
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.description

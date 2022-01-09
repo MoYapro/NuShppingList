@@ -52,6 +52,7 @@ class CartMessageHandlerTest {
         cartItemList.map { it.item }.forEach { viewModel.add(it) }
         val request = CartMessage(cartItemList.map { it.cartItemProperties })
         CartMessageHandler(viewModel, publisher)(request)
+        Thread.sleep(100) // wait for DB to save
         cartItemList.map { it.item.itemId }.forEach { itemId ->
             val resultItem = viewModel.getCartItemPropertiesByItemId(itemId)
             resultItem?.itemId shouldBe itemId

@@ -18,7 +18,7 @@ class CartMessageHandler(
                 viewModel.add(CartItem(cartItemProperties, item))
             } else {
                 publisher.publish(RequestItemMessage(cartItemProperties.itemId))
-                Thread.sleep(500)
+                Thread.sleep(500) // wait for requested items to arrive
                 invoke(cartMessage)
             }
         }

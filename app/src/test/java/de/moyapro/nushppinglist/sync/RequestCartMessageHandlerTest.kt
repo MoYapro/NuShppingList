@@ -52,6 +52,7 @@ class RequestCartMessageHandlerTest {
         val request = RequestCartMessage()
         val requestHandler = RequestCartMessageHandler(viewModel, publisher)
         requestHandler(request)
+        Thread.sleep(100) // wait for DB to save
         waitFor { publisher.messages.isNotEmpty() }
         publisher.messages[CONSTANTS.MQTT_TOPIC_CART] shouldContain cartItem1.item.itemId.id.toString()
         publisher.messages[CONSTANTS.MQTT_TOPIC_CART] shouldContain cartItem2.item.itemId.id.toString()

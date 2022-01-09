@@ -48,6 +48,7 @@ class ItemMessageHandlerTest {
         val item = createSampleItem()
         val request = ItemMessage(item)
         ItemMessageHandler(viewModel, publisher)(request)
+        Thread.sleep(100) // wait for DB to save
         val resultItem = viewModel.getItemByItemId(item.itemId)
         resultItem?.itemId.shouldBe(item.itemId)
         resultItem?.name shouldBe item.name

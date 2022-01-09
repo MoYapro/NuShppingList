@@ -43,8 +43,8 @@ class CartItemUpdateMessageHandlerTest {
         publisher.reset()
     }
 
-    @Test(timeout = 10_000)
-    fun handleItemRequest__success() {
+    @Test(timeout = 100_000)
+    fun handleRequest__success() {
         val cartItem = createSampleCartItem()
         viewModel.add(cartItem)
         val updatedCartItemProperties = cartItem.cartItemProperties.copy(
@@ -53,7 +53,7 @@ class CartItemUpdateMessageHandlerTest {
         )
         val request = CartItemUpdateMessage(updatedCartItemProperties)
         CartItemUpdateMessageHandler(viewModel, publisher)(request)
-
+        Thread.sleep(1000) // wait for DB to save
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
         result?.amount shouldBe updatedCartItemProperties.amount
         result?.checked shouldBe updatedCartItemProperties.checked
