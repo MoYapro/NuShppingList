@@ -13,6 +13,7 @@ import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.After
 import org.junit.Before
@@ -44,18 +45,19 @@ class RequestCartMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun handleCartRequest__success() {
+    fun handleCartRequest__success() = runBlocking {
         val cartItem1 = createSampleCartItem()
         val cartItem2 = createSampleCartItem()
         viewModel.add(cartItem1)
         viewModel.add(cartItem2)
         val request = RequestCartMessage()
-        val requestHandler = RequestCartMessageHandler(viewModel, publisher)
+        val requestHandler = RequestCartMessageHandler(cartDao, publisher)
         requestHandler(request)
         Thread.sleep(100) // wait for DB to save
         waitFor { publisher.messages.isNotEmpty() }
         publisher.messages[CONSTANTS.MQTT_TOPIC_CART] shouldContain cartItem1.item.itemId.id.toString()
         publisher.messages[CONSTANTS.MQTT_TOPIC_CART] shouldContain cartItem2.item.itemId.id.toString()
+        Unit
     }
 
 }

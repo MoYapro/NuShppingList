@@ -1,15 +1,22 @@
 package de.moyapro.nushppinglist.sync.handler
 
+import de.moyapro.nushppinglist.db.dao.CartDao
+import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.CartItemUpdateMessage
-import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 class CartItemUpdateMessageHandler(
-    val viewModel: CartViewModel,
+    val cartDao: CartDao,
     val publisher: Publisher,
-) : (CartItemUpdateMessage) -> Unit {
+) : suspend (CartItemUpdateMessage) -> Unit {
 
-    override fun invoke(cartItemUpdateMessage: CartItemUpdateMessage) {
-        viewModel.update(cartItemUpdateMessage.cartItemProperties)
+    override suspend fun invoke(cartItemUpdateMessage: CartItemUpdateMessage) {
+        val existingCartItemProperties =
+            cartDao.getCartItemByItemId(cartItemUpdateMessage.cartItemProperties.itemId)
+        if (null == existingCartItemProperties) {
+            cartDao.save(cartItemUpdateMessage.cartItemProperties)
+        } else {
+            cartDao.updateAll(cartItemUpdateMessage.cartItemProperties)
+        }
     }
 }

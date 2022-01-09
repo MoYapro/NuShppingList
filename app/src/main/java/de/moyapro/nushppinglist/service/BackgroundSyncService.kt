@@ -11,7 +11,6 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.MqttServiceAdapter
 import de.moyapro.nushppinglist.sync.SyncService
-import de.moyapro.nushppinglist.ui.model.CartViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,26 +29,25 @@ class BackgroundSyncService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.i(tag,"onCreate")
+        Log.i(tag, "onCreate")
         Toast.makeText(this, "Invoke background service onCreate method.", Toast.LENGTH_LONG).show()
         val x = runBlocking {
             database.cartDao().getCartItemByItemId(ItemId())
         }
         println("$x")
         val cartDao = CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob()))
-        SyncService(MqttServiceAdapter("").connect(),
-            CartViewModel(cartDao), cartDao)
+        SyncService(MqttServiceAdapter("").connect(), cartDao)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i(tag,"onStartCommand")
+        Log.i(tag, "onStartCommand")
         return super.onStartCommand(intent, flags, startId)
         Toast.makeText(this, "Invoke background service onStartCommand method.", Toast.LENGTH_LONG)
             .show()
     }
 
     override fun onDestroy() {
-        Log.i(tag,"onDestroy")
+        Log.i(tag, "onDestroy")
         super.onDestroy()
         Toast.makeText(this, "Invoke background service onDestroy method.", Toast.LENGTH_LONG)
             .show()

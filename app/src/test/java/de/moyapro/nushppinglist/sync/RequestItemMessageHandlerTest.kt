@@ -14,6 +14,7 @@ import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.After
 import org.junit.Before
@@ -46,11 +47,11 @@ class RequestItemMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest__success() {
+    fun handleItemRequest__success() = runBlocking {
         val item = createSampleItem()
         viewModel.add(item)
         val request = RequestItemMessage(item.itemId)
-        val requestHandler = RequestItemMessageHandler(viewModel, publisher)
+        val requestHandler = RequestItemMessageHandler(cartDao, publisher)
         requestHandler(request)
         Thread.sleep(100) // wait for DB to save
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.itemId.id.toString()
@@ -59,12 +60,13 @@ class RequestItemMessageHandlerTest {
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.defaultItemAmount.toString()
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.defaultItemUnit.toString()
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.kategory.toString()
+        Unit
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest__itemNotFound() {
+    fun handleItemRequest__itemNotFound() = runBlocking {
         val request = RequestItemMessage(ItemId())
-        val requestHandler = RequestItemMessageHandler(viewModel, publisher)
+        val requestHandler = RequestItemMessageHandler(cartDao, publisher)
         requestHandler(request)
         publisher.messages shouldBe emptyMap()
     }

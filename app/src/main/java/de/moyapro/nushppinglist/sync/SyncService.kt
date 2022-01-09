@@ -7,28 +7,26 @@ import de.moyapro.nushppinglist.sync.handler.*
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.sync.messages.ShoppingMessage
-import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.waitFor
 
 class SyncService(
     private val serviceAdapter: MqttServiceAdapter,
-    viewModel: CartViewModel,
     cartDao: CartDao,
 ) {
 
     init {
         waitFor { serviceAdapter.isConnected() }
-        serviceAdapter.setHandler(buildHandler(viewModel, serviceAdapter, cartDao))
+        serviceAdapter.setHandler(buildHandler(serviceAdapter, cartDao))
         serviceAdapter.subscribe("${CONSTANTS.MQTT_TOPIC_BASE}/#")
     }
 
-    private fun buildHandler(viewModel: CartViewModel, publisher: Publisher, cartDao: CartDao) =
+    private fun buildHandler(publisher: Publisher, cartDao: CartDao) =
         MessageHandler(
-            requestItemMessageHandler = RequestItemMessageHandler(viewModel, publisher),
-            requestCartMessageHandler = RequestCartMessageHandler(viewModel, publisher),
+            requestItemMessageHandler = RequestItemMessageHandler(cartDao, publisher),
+            requestCartMessageHandler = RequestCartMessageHandler(cartDao, publisher),
             itemMessageHandler = ItemMessageHandler(cartDao, publisher),
-            cartMessageHandler = CartMessageHandler(viewModel, publisher),
-            cartItemUpdateMessageHandler = CartItemUpdateMessageHandler(viewModel, publisher),
+            cartMessageHandler = CartMessageHandler(cartDao, publisher),
+            cartItemUpdateMessageHandler = CartItemUpdateMessageHandler(cartDao, publisher),
         )
 
 

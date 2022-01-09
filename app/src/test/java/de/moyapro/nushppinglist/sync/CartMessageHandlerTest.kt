@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.After
 import org.junit.Before
@@ -44,14 +45,14 @@ class CartMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest__success() {
+    fun handleItemRequest__success() = runBlocking {
         val cartItemList = listOf(
             createSampleCartItem(),
             createSampleCartItem()
         )
         cartItemList.map { it.item }.forEach { viewModel.add(it) }
         val request = CartMessage(cartItemList.map { it.cartItemProperties })
-        CartMessageHandler(viewModel, publisher)(request)
+        CartMessageHandler(cartDao, publisher)(request)
         Thread.sleep(100) // wait for DB to save
         cartItemList.map { it.item.itemId }.forEach { itemId ->
             val resultItem = viewModel.getCartItemPropertiesByItemId(itemId)

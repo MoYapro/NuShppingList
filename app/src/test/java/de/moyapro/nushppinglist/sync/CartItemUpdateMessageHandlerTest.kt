@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.After
 import org.junit.Before
@@ -44,7 +45,7 @@ class CartItemUpdateMessageHandlerTest {
     }
 
     @Test(timeout = 100_000)
-    fun handleRequest__success() {
+    fun handleRequest__success() = runBlocking {
         val cartItem = createSampleCartItem()
         viewModel.add(cartItem)
         val updatedCartItemProperties = cartItem.cartItemProperties.copy(
@@ -52,7 +53,7 @@ class CartItemUpdateMessageHandlerTest {
             checked = !cartItem.cartItemProperties.checked
         )
         val request = CartItemUpdateMessage(updatedCartItemProperties)
-        CartItemUpdateMessageHandler(viewModel, publisher)(request)
+        CartItemUpdateMessageHandler(cartDao, publisher)(request)
         Thread.sleep(1000) // wait for DB to save
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
         result?.amount shouldBe updatedCartItemProperties.amount

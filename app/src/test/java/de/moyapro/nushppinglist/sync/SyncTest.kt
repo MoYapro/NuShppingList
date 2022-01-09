@@ -45,14 +45,11 @@ class SyncTest {
 
     private fun setupSyncService(clientName: String): Pair<CartViewModel, SyncService> {
         val cartDao = CartDaoMock(CoroutineScope(StandardTestDispatcher() + SupervisorJob()))
-        val viewModel =
-            CartViewModel(
-                cartDao
-            )
+        val viewModel = CartViewModel(cartDao)
         val serviceAdapter =
             MqttServiceAdapter(clientName).connect()
 
-        return Pair(viewModel, SyncService(serviceAdapter, viewModel, cartDao))
+        return Pair(viewModel, SyncService(serviceAdapter, cartDao))
     }
 
     @Test(timeout = 10_000)
