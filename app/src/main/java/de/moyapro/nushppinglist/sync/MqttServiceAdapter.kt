@@ -39,7 +39,6 @@ class MqttServiceAdapter(
             .username("homeassistant")
             .password("password".encodeToByteArray())
             .applySimpleAuth()
-
             .send()
             .whenComplete { _: Mqtt5ConnAck, _: Throwable -> isConnected = true }
         return this

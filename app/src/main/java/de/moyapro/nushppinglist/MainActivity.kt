@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.WindowManager
@@ -15,6 +16,7 @@ import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.AppDatabase
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.service.BackgroundSyncService
 import de.moyapro.nushppinglist.ui.AppView
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
@@ -59,6 +61,10 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+
+        applicationContext.startService(Intent(applicationContext,
+            BackgroundSyncService::class.java))
+
     }
 
     private fun initTestData() {

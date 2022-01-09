@@ -55,8 +55,8 @@ android {
         exclude "META-INF/licenses/**"
         exclude "META-INF/AL2.0"
         exclude "META-INF/LGPL2.1"
-        pickFirst "META-INF/INDEX.LIST"
-        pickFirst "META-INF/io.netty.versions.properties"
+        exclude "META-INF/io.netty.versions.properties"
+        exclude "META-INF/INDEX.LIST"
     }
     testOptions {
         unitTests.returnDefaultValues = true
@@ -77,9 +77,7 @@ dependencies {
     implementation "androidx.test:core-ktx:1.4.0"
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.github.hannesa2:paho.mqtt.android:3.3.3'
     implementation 'com.hivemq:hivemq-mqtt-client:1.2.2'
     implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_verion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_verion"
