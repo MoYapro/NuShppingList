@@ -1,15 +1,15 @@
 package de.moyapro.nushppinglist.sync.handler
 
+import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
-import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 class ItemMessageHandler(
-    val viewModel: CartViewModel,
+    val cartDao: CartDao,
     val publisher: Publisher,
-) : (ItemMessage) -> Unit {
+) : suspend (ItemMessage) -> Unit {
 
-    override fun invoke(itemMessage: ItemMessage) {
-        viewModel.add(itemMessage.item)
+    override suspend fun invoke(itemMessage: ItemMessage) {
+        cartDao.save(itemMessage.item)
     }
 }

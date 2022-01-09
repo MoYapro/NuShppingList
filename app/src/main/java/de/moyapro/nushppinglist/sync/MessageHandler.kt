@@ -5,8 +5,11 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import de.moyapro.nushppinglist.sync.handler.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.nio.charset.StandardCharsets
-import kotlin.concurrent.thread
 
 class MessageHandler(
     private val requestItemMessageHandler: RequestItemMessageHandler,
@@ -19,8 +22,8 @@ class MessageHandler(
     private val objectMapper = ConfiguredObjectMapper()
 
     override fun invoke(message: Mqtt5Publish) {
-        thread(start = true) {
-            println("<==\t${message.topic}:\t ${String(message.payloadAsBytes)}")
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+        println("<==\t${message.topic}:\t ${String(message.payloadAsBytes)}")
             when (message.topic.toString()) {
                 CONSTANTS.MQTT_TOPIC_ITEM_REQUEST -> requestItemMessageHandler(readMessage(message.payloadAsBytes))
                 CONSTANTS.MQTT_TOPIC_ITEM -> itemMessageHandler(readMessage(message.payloadAsBytes))

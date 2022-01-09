@@ -36,8 +36,9 @@ class BackgroundSyncService : Service() {
             database.cartDao().getCartItemByItemId(ItemId())
         }
         println("$x")
+        val cartDao = CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob()))
         SyncService(MqttServiceAdapter("").connect(),
-            CartViewModel(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob()))))
+            CartViewModel(cartDao), cartDao)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
