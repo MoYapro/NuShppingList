@@ -1,16 +1,16 @@
 package de.moyapro.nushppinglist.sync
 
 import de.moyapro.nushppinglist.mock.CartDaoMock
+import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
 import de.moyapro.nushppinglist.ui.util.waitFor
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,6 +35,9 @@ class SyncTest {
         this.syncServiceBob = syncServiceBob
         this.viewModelBob = viewModelBob
     }
+    @After
+    fun teardown() {
+    }
 
     private fun setupSyncService(clientName: String): Pair<CartViewModel, SyncService> {
         val viewModel =
@@ -47,24 +50,11 @@ class SyncTest {
         return Pair(viewModel, SyncService(serviceAdapter, viewModel))
     }
 
-
-    companion object {
-
-        fun buildMqttOptions(): MqttConnectOptions {
-            val options = MqttConnectOptions()
-            options.serverURIs = arrayOf("tcp://192.168.1.101:31883")
-            options.userName = "homeassistant"
-            options.password = "password".toCharArray()
-            options.isCleanSession = false
-            return options
-        }
-    }
-
     @Test(timeout = 10_000)
     fun syncItem() {
         val cartItem = createSampleCartItem()
         val item = cartItem.item
-        viewModelBob.add(cartItem)
+        viewModelBob.add(item)
         syncServiceAlice.requestItem(item.itemId)
         waitFor { viewModelAlice.getItemByItemId(item.itemId) != null }
         val resultItem = viewModelAlice.getItemByItemId(item.itemId)
@@ -72,14 +62,28 @@ class SyncTest {
         resultItem?.name shouldBe item.name
     }
 
-    @Test(timeout = 100_000)
-    fun syncCart() {
+    @Test(timeout = 10_000)
+    fun syncCartWithExistingItems() {
         val cartItem = createSampleCartItem()
-        viewModelBob.add(cartItem)
-        Thread.sleep(500)
-        syncServiceAlice.requestCart()
-        Thread.sleep(500000)
-        viewModelBob.getItemByItemId(cartItem.item.itemId) shouldNotBe null
-        viewModelAlice.getCartItemPropertiesByItemId(cartItem.item.itemId) shouldBe cartItem.cartItemProperties
+        val item = cartItem.item
+        viewModelBob.add(item)
+        viewModelAlice.add(cartItem)
+        viewModelBob.getCartItemPropertiesByItemId(item.itemId) shouldBe null
+        syncServiceBob.publish(RequestCartMessage("RequestCartMessage"))
+        waitFor { null != viewModelBob.getCartItemPropertiesByItemId(item.itemId)}
+        val resultItem = viewModelBob.getCartItemPropertiesByItemId(item.itemId)
+        resultItem?.itemId shouldBe item.itemId
+    }
+
+    @Test(timeout = 3_000)
+    fun syncCartWithoutExistingItems() {
+        val cartItem = createSampleCartItem()
+        val item = cartItem.item
+        viewModelAlice.add(cartItem)
+        viewModelBob.getCartItemPropertiesByItemId(item.itemId) shouldBe null
+        syncServiceBob.publish(RequestCartMessage("RequestCartMessage"))
+        waitFor { null != viewModelBob.getCartItemPropertiesByItemId(item.itemId)}
+        val resultItem = viewModelBob.getCartItemPropertiesByItemId(item.itemId)
+        resultItem?.itemId shouldBe item.itemId
     }
 }

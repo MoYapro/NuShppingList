@@ -51,6 +51,7 @@ class CartViewModel(
     }
 
     fun add(newItem: Item) = viewModelScope.launch(Dispatchers.IO) {
+        println("vvv\tSave item\t $newItem")
         cartDao.save(newItem)
     }
 
@@ -64,6 +65,7 @@ class CartViewModel(
 
     @Transaction
     fun add(newItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
+        println("vvv\tsave cartItem\t $newItem")
         if (allItems.value.map { it.itemId }.contains(newItem.item.itemId)) {
             cartDao.updateAll(newItem.item)
         } else {

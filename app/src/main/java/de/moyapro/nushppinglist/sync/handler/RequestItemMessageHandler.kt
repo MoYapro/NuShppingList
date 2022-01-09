@@ -14,6 +14,8 @@ class RequestItemMessageHandler(
         val item = viewModel.getItemByItemId(requestItemMessage.itemId)
         if (null != item) {
             publisher.publish(ItemMessage(item))
+        } else {
+            println("^^^\t item not found for itemId ${requestItemMessage.itemId}")
         }
     }
 }

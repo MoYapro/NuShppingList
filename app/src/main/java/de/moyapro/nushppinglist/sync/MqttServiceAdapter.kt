@@ -54,6 +54,7 @@ class MqttServiceAdapter(
     }
 
     fun subscribe(topic: String) {
+        println("subscribe to topic $topic")
         mqttClient.subscribeWith()
             .topicFilter(topic)
             .qos(MqttQos.AT_LEAST_ONCE)
@@ -71,6 +72,7 @@ class MqttServiceAdapter(
     override fun publish(messageObject: ShoppingMessage) {
         val topic = CONSTANTS.messagesWithTopic[messageObject::class]
         require(topic != null) { "Could not find topic for $messageObject" }
+        println("==>\t$topic:\t $messageObject")
         mqttClient.publishWith()
             .topic(topic)
             .payload(ConfiguredObjectMapper().writeValueAsBytes(messageObject))

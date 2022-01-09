@@ -7,7 +7,6 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.util.waitFor
 import io.kotest.matchers.shouldBe
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -19,26 +18,16 @@ class MqttCommunicationTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     companion object {
-        val mqttConnectOptions = MqttConnectOptions()
         const val topic = "nuShoppingList/testtopic"
-
-        init {
-            mqttConnectOptions.serverURIs = arrayOf("tcp://192.168.1.101:31883")
-            mqttConnectOptions.userName = "homeassistant"
-            mqttConnectOptions.password = "password".toCharArray()
-            mqttConnectOptions.isCleanSession = false
-
-        }
     }
 
     private lateinit var serviceAdapterAlice: MqttServiceAdapter
+    var messageArrived = false
 
     @Before
     fun setup() {
         serviceAdapterAlice =
-            MqttServiceAdapter.Builder
-                .createMqttAdapter(mqttConnectOptions, "alice")
-                .connect()
+            MqttServiceAdapter("MqttAdapterTest_Alice") { messageArrived = true }.connect()
         while (!serviceAdapterAlice.isConnected()) {
             Thread.sleep(100)
         }
@@ -46,18 +35,15 @@ class MqttCommunicationTest {
 
     @After
     fun tearDown() {
+        messageArrived = false
         serviceAdapterAlice.disconnect()
     }
 
     @Test(timeout = 10_000)
     fun communication() {
         var messageReceived = false
-        val serviceAdapterBob =
-            MqttServiceAdapter.Builder
-                .createMqttServiceAdapter(context, mqttConnectOptions, "bob")
-                { _ -> messageReceived = true }
-                .connect()
-
+        val serviceAdapterBob = MqttServiceAdapter("MqttAdapterTest_Bob") { messageArrived = true }
+            .connect()
 
         waitFor { serviceAdapterBob.isConnected() }
 

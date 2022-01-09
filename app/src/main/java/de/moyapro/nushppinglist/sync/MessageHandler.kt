@@ -6,6 +6,7 @@ import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import de.moyapro.nushppinglist.sync.handler.*
 import java.nio.charset.StandardCharsets
+import kotlin.concurrent.thread
 
 class MessageHandler(
     private val requestItemMessageHandler: RequestItemMessageHandler,
@@ -17,14 +18,17 @@ class MessageHandler(
     var lastItem: Any? = null
     private val objectMapper = ConfiguredObjectMapper()
 
-    override fun invoke(publish: Mqtt5Publish) {
-        when (publish.topic.toString()) {
-            CONSTANTS.MQTT_TOPIC_ITEM_REQUEST -> requestItemMessageHandler(readMessage(publish.payloadAsBytes))
-            CONSTANTS.MQTT_TOPIC_ITEM -> itemMessageHandler(readMessage(publish.payloadAsBytes))
-            CONSTANTS.MQTT_TOPIC_CART_REQUEST -> requestCartMessageHandler(readMessage(publish.payloadAsBytes))
-            CONSTANTS.MQTT_TOPIC_CART -> cartMessageHandler(readMessage(publish.payloadAsBytes))
-            CONSTANTS.MQTT_TOPIC_CART_UPDATE -> cartItemUpdateMessageHandler(readMessage(publish.payloadAsBytes))
-            else -> throw IllegalArgumentException("Don't know how to handle topic ${publish.topic}")
+    override fun invoke(message: Mqtt5Publish) {
+        thread(start = true) {
+            println("<==\t${message.topic}:\t ${String(message.payloadAsBytes)}")
+            when (message.topic.toString()) {
+                CONSTANTS.MQTT_TOPIC_ITEM_REQUEST -> requestItemMessageHandler(readMessage(message.payloadAsBytes))
+                CONSTANTS.MQTT_TOPIC_ITEM -> itemMessageHandler(readMessage(message.payloadAsBytes))
+                CONSTANTS.MQTT_TOPIC_CART_REQUEST -> requestCartMessageHandler(readMessage(message.payloadAsBytes))
+                CONSTANTS.MQTT_TOPIC_CART -> cartMessageHandler(readMessage(message.payloadAsBytes))
+                CONSTANTS.MQTT_TOPIC_CART_UPDATE -> cartItemUpdateMessageHandler(readMessage(message.payloadAsBytes))
+                else -> throw IllegalArgumentException("Don't know how to handle topic ${message.topic}")
+            }
         }
     }
 

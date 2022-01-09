@@ -5,6 +5,7 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.sync.handler.*
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
+import de.moyapro.nushppinglist.sync.messages.ShoppingMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.waitFor
 
@@ -34,5 +35,9 @@ class SyncService(
 
     fun requestCart() {
         serviceAdapter.publish(RequestCartMessage())
+    }
+
+    fun publish(messageObject: ShoppingMessage) {
+    serviceAdapter.publish(messageObject)
     }
 }
