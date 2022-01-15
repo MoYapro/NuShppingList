@@ -10,7 +10,7 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.Publisher
-import de.moyapro.nushppinglist.sync.messages.CartItemUpdateMessage
+import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,14 +66,14 @@ class CartViewModel(
     }
 
     fun update(updatedCartItemProperties: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
-        publisher?.publish(CartItemUpdateMessage(updatedCartItemProperties))
+        publisher?.publish(CartMessage(updatedCartItemProperties))
         cartDao.updateAll(updatedCartItemProperties)
     }
 
     @Transaction
     fun add(newCartItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
         publisher?.publish(ItemMessage(newCartItem.item))
-        publisher?.publish(CartItemUpdateMessage(newCartItem.cartItemProperties))
+        publisher?.publish(CartMessage(newCartItem.cartItemProperties))
         println("vvv\tCartItem\t $newCartItem")
         if (allItems.value.map { it.itemId }.contains(newCartItem.item.itemId)) {
             cartDao.updateAll(newCartItem.item)
@@ -95,7 +95,7 @@ class CartViewModel(
                     checked = !oldValue.checked
                 )
                 cartDao.updateAll(updated)
-                publisher?.publish(CartItemUpdateMessage(updated))
+                publisher?.publish(CartMessage(updated))
                 updated
             } else {
                 oldValue

@@ -11,14 +11,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @FlowPreview
 class CartDaoMock(
     private val externalScope: CoroutineScope,
 ) : CartDao {
 
-    private val itemTable: MutableSet<Item> = mutableSetOf()
-    private val cartItemPropertiesTable: MutableSet<CartItemProperties> = mutableSetOf()
+    private val itemTable: MutableSet<Item> = ConcurrentHashMap.newKeySet()
+    private val cartItemPropertiesTable: MutableSet<CartItemProperties> = ConcurrentHashMap.newKeySet()
 
     private val cartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
     private val cartItemPropertiesChannel: MutableStateFlow<List<CartItemProperties>> =

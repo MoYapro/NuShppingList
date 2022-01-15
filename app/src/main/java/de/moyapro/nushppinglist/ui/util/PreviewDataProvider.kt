@@ -44,9 +44,9 @@ class RecipePropertiesProvider : PreviewParameterProvider<RecipeProperties> {
 }
 
 
-fun createSampleItem() = Item(
+fun createSampleItem(name: String = "Sugar") = Item(
     itemId = ItemId(),
-    name = "Sugar",
+    name = name,
     description = "weiss",
     defaultItemAmount = 1000,
     defaultItemUnit = GRAMM,

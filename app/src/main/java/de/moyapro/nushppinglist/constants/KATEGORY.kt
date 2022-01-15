@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 enum class KATEGORY(val displayName: String, val color: Color) {
 
-    Obst("Obst", Color.Yellow),
+    OBST("Obst", Color.Yellow),
     GEMUESE("Gemüse", Color.Green),
     FLEISCH("Fleisch", Color.Red),
     GETRAENKE("Getränke", Color.DarkGray),

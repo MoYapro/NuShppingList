@@ -1,7 +1,10 @@
 package de.moyapro.nushppinglist.serialization
 
 import de.moyapro.nushppinglist.db.ids.ItemId
-import de.moyapro.nushppinglist.sync.messages.*
+import de.moyapro.nushppinglist.sync.messages.CartMessage
+import de.moyapro.nushppinglist.sync.messages.ItemMessage
+import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
+import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
 import de.moyapro.nushppinglist.ui.util.createSampleItem
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
@@ -30,7 +33,7 @@ class JacksonTest(
                         createSampleCartItem().cartItemProperties
                     ))
                 ),
-                arrayOf(CartItemUpdateMessage(createSampleCartItem().cartItemProperties))
+                arrayOf(CartMessage(createSampleCartItem().cartItemProperties))
             )
         }
     }

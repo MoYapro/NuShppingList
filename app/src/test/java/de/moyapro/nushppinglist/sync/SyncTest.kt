@@ -1,7 +1,7 @@
 package de.moyapro.nushppinglist.sync
 
 import de.moyapro.nushppinglist.mock.CartDaoMock
-import de.moyapro.nushppinglist.sync.messages.CartItemUpdateMessage
+import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -96,7 +96,7 @@ class SyncTest {
         val updatedCartItemProperties =
             originalCartItem.cartItemProperties.copy(checked = true)
         viewModelBob.add(originalCartItem)
-        syncServiceAlice.publish(CartItemUpdateMessage(updatedCartItemProperties))
+        syncServiceAlice.publish(CartMessage(updatedCartItemProperties))
         waitFor { viewModelBob.getCartItemPropertiesByItemId(itemId)?.checked ?: false }
         val resultItem = viewModelBob.getCartItemPropertiesByItemId(itemId)
         resultItem?.itemId shouldBe itemId

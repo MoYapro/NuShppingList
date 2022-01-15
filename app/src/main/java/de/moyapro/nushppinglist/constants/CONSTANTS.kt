@@ -1,6 +1,9 @@
 package de.moyapro.nushppinglist.constants
 
-import de.moyapro.nushppinglist.sync.messages.*
+import de.moyapro.nushppinglist.sync.messages.CartMessage
+import de.moyapro.nushppinglist.sync.messages.ItemMessage
+import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
+import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import kotlin.reflect.KClass
 
 object CONSTANTS {
@@ -15,7 +18,6 @@ object CONSTANTS {
     const val MQTT_TOPIC_CART = "$MQTT_TOPIC_BASE/cart"
 
     val messagesWithTopic: Map<KClass<*>, String> = mapOf(
-        CartItemUpdateMessage::class to MQTT_TOPIC_CART_UPDATE,
         CartMessage::class to MQTT_TOPIC_CART,
         ItemMessage::class to MQTT_TOPIC_ITEM,
         RequestCartMessage::class to MQTT_TOPIC_CART_REQUEST,

@@ -44,6 +44,7 @@ fun AppView(
             MainView.EINKAUFSLISTE -> CartView(cartViewModel)
             MainView.DINGE -> ItemList(cartViewModel)
             MainView.REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
+            MainView.MQTT_Test -> MqttTestView()
             MainView.COLOR_TEST -> ColorTest()
             MainView.ANIMATION_TEST -> AnimationTest()
             MainView.SETTINGS -> SettingsView()

@@ -10,6 +10,7 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import de.moyapro.nushppinglist.sync.messages.ShoppingMessage
+import java.util.*
 
 
 class MqttServiceAdapter(
@@ -26,7 +27,7 @@ class MqttServiceAdapter(
         mqttClient =
             MqttClient.builder()
                 .useMqttVersion5()
-                .identifier("NuShoppingListClient_$clientIdSuffix")
+                .identifier("NuShoppingListClient_${clientIdSuffix}_${UUID.randomUUID()}")
                 .serverHost("192.168.1.101")
                 .serverPort(31883)
                 .addConnectedListener { isConnected = true }

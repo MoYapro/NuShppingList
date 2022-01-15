@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import de.moyapro.nushppinglist.constants.KATEGORY
 import de.moyapro.nushppinglist.constants.UNIT
@@ -9,12 +10,12 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import java.math.BigDecimal
 import java.math.RoundingMode.HALF_UP
 
-@Entity
+@Entity(indices = [Index(value = ["name"], unique = true)])
 data class Item(
     @PrimaryKey
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
-    var itemId: ItemId,
+    var itemId: ItemId = ItemId(),
     var name: String,
     var description: String,
     var defaultItemAmount: Int,

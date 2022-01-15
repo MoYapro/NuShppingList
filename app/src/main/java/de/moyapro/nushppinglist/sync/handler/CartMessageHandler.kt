@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.sync.handler
 
+import android.util.Log
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
@@ -13,17 +14,28 @@ class CartMessageHandler(
     val publisher: Publisher,
 ) : suspend (CartMessage) -> Unit {
 
+    private val tag = CartMessageHandler::class.simpleName
+
     override suspend fun invoke(cartMessage: CartMessage) {
-        cartMessage.cartItemPropertiesList.forEach { cartItemProperties ->
+        Log.i(tag, "start handle $cartMessage")
+        val didSaveAll = cartMessage.cartItemPropertiesList.map { cartItemProperties ->
             val item = cartDao.getItemByItemId(cartItemProperties.itemId)
             if (null != item) {
+                Log.i(tag, "save new cartItem for existing $item")
                 this.add(CartItem(cartItemProperties, item))
+                true
             } else {
+                Log.i(tag, "request non existing item with itemId ${cartItemProperties.itemId}")
                 publisher.publish(RequestItemMessage(cartItemProperties.itemId))
-                Thread.sleep(500) // wait for requested items to arrive
-                invoke(cartMessage)
+                false
             }
+        }.all { didSave -> didSave }
+        if (!didSaveAll) {
+            Log.i(tag, "wait and retry creating cart")
+            Thread.sleep(500) // wait for requested items to arrive
+            invoke(cartMessage)
         }
+        Log.i(tag, "done handle $cartMessage")
     }
 
     private suspend fun add(newItem: CartItem) {

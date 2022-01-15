@@ -4,7 +4,10 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
-import de.moyapro.nushppinglist.sync.handler.*
+import de.moyapro.nushppinglist.sync.handler.CartMessageHandler
+import de.moyapro.nushppinglist.sync.handler.ItemMessageHandler
+import de.moyapro.nushppinglist.sync.handler.RequestCartMessageHandler
+import de.moyapro.nushppinglist.sync.handler.RequestItemMessageHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,7 +19,6 @@ class MessageHandler(
     private val requestCartMessageHandler: RequestCartMessageHandler,
     private val itemMessageHandler: ItemMessageHandler,
     private val cartMessageHandler: CartMessageHandler,
-    private val cartItemUpdateMessageHandler: CartItemUpdateMessageHandler,
 ) : (Mqtt5Publish) -> Unit {
     var lastItem: Any? = null
     private val objectMapper = ConfiguredObjectMapper()
@@ -29,7 +31,6 @@ class MessageHandler(
                 CONSTANTS.MQTT_TOPIC_ITEM -> itemMessageHandler(readMessage(message.payloadAsBytes))
                 CONSTANTS.MQTT_TOPIC_CART_REQUEST -> requestCartMessageHandler(readMessage(message.payloadAsBytes))
                 CONSTANTS.MQTT_TOPIC_CART -> cartMessageHandler(readMessage(message.payloadAsBytes))
-                CONSTANTS.MQTT_TOPIC_CART_UPDATE -> cartItemUpdateMessageHandler(readMessage(message.payloadAsBytes))
                 else -> throw IllegalArgumentException("Don't know how to handle topic ${message.topic}")
             }
         }
