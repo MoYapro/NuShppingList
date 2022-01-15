@@ -67,8 +67,8 @@ class RecipeListViewTest {
     }
 
     private fun createComposable(rezeptList: List<Recipe>) {
-        val recipeViewModel = ViewModelFactory(database).create(RecipeViewModel::class.java)
-        val cartViewModel = ViewModelFactory(database).create(CartViewModel::class.java)
+        val recipeViewModel = ViewModelFactory(database, publisher).create(RecipeViewModel::class.java)
+        val cartViewModel = ViewModelFactory(database, publisher).create(CartViewModel::class.java)
         recipeViewModel.save(*rezeptList.toTypedArray())
         composeTestRule.setContent {
             NuShppingListTheme {

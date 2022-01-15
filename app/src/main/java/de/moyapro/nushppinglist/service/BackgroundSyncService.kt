@@ -6,15 +6,10 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import de.moyapro.nushppinglist.db.AppDatabase
-import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
-import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.mock.CartDaoMock
-import de.moyapro.nushppinglist.sync.MqttServiceAdapter
-import de.moyapro.nushppinglist.sync.SyncService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.runBlocking
 
 
 class BackgroundSyncService : Service() {
@@ -31,12 +26,13 @@ class BackgroundSyncService : Service() {
         super.onCreate()
         Log.i(tag, "onCreate")
         Toast.makeText(this, "Invoke background service onCreate method.", Toast.LENGTH_LONG).show()
-        val x = runBlocking {
-            database.cartDao().getCartItemByItemId(ItemId())
-        }
-        println("$x")
         val cartDao = CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob()))
-        SyncService(MqttServiceAdapter("").connect(), cartDao)
+//        SyncService(
+//            MqttServiceAdapter("")
+////                .connect()
+//            ,
+//            cartDao
+//        )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

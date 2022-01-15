@@ -12,5 +12,9 @@ class MockPublisher(private val topic: String) : Publisher {
         messages[topic] = ConfiguredObjectMapper().writeValueAsString(messageObject)
     }
 
+    override fun connect(): Publisher {
+        return this
+    }
+
     fun reset() = messages.clear()
 }

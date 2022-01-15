@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.ui.component.EditTextField
@@ -20,7 +19,6 @@ import java.util.*
 @Composable
 fun CartIdentSettings(setting: SETTING, preferences: SharedPreferences) {
 
-    val clipboardManager = MainActivity.clipboardManager
     val context = LocalContext.current
     var currentIdentValue by remember {
         mutableStateOf(preferences.getString(setting.name, "") ?: "")

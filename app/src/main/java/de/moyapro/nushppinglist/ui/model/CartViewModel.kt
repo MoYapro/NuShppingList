@@ -9,6 +9,9 @@ import de.moyapro.nushppinglist.db.dao.getItemByItemId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
+import de.moyapro.nushppinglist.sync.Publisher
+import de.moyapro.nushppinglist.sync.messages.CartItemUpdateMessage
+import de.moyapro.nushppinglist.sync.messages.ItemMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.collect
 @FlowPreview
 class CartViewModel(
     private val cartDao: CartDao,
+    private val publisher: Publisher? = null
 ) : ViewModel() {
 
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
@@ -51,31 +55,36 @@ class CartViewModel(
     }
 
     fun add(newItem: Item) = viewModelScope.launch(Dispatchers.IO) {
+        publisher?.publish(ItemMessage(newItem))
         println("vvv\tItem\t $newItem")
         cartDao.save(newItem)
     }
 
     fun update(updatedItem: Item) = viewModelScope.launch(Dispatchers.IO) {
+        publisher?.publish(ItemMessage(updatedItem))
         cartDao.updateAll(updatedItem)
     }
 
     fun update(updatedCartItemProperties: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
+        publisher?.publish(CartItemUpdateMessage(updatedCartItemProperties))
         cartDao.updateAll(updatedCartItemProperties)
     }
 
     @Transaction
-    fun add(newItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
-        println("vvv\tCartItem\t $newItem")
-        if (allItems.value.map { it.itemId }.contains(newItem.item.itemId)) {
-            cartDao.updateAll(newItem.item)
+    fun add(newCartItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
+        publisher?.publish(ItemMessage(newCartItem.item))
+        publisher?.publish(CartItemUpdateMessage(newCartItem.cartItemProperties))
+        println("vvv\tCartItem\t $newCartItem")
+        if (allItems.value.map { it.itemId }.contains(newCartItem.item.itemId)) {
+            cartDao.updateAll(newCartItem.item)
         } else {
-            cartDao.save(newItem.item)
+            cartDao.save(newCartItem.item)
         }
         if (allCartItems.value.map { it.cartItemProperties.cartItemPropertiesId }
-                .contains(newItem.cartItemProperties.cartItemPropertiesId)) {
-            cartDao.updateAll(newItem.cartItemProperties)
+                .contains(newCartItem.cartItemProperties.cartItemPropertiesId)) {
+            cartDao.updateAll(newCartItem.cartItemProperties)
         } else {
-            cartDao.save(newItem.cartItemProperties)
+            cartDao.save(newCartItem.cartItemProperties)
         }
     }
 
@@ -86,6 +95,7 @@ class CartViewModel(
                     checked = !oldValue.checked
                 )
                 cartDao.updateAll(updated)
+                publisher?.publish(CartItemUpdateMessage(updated))
                 updated
             } else {
                 oldValue

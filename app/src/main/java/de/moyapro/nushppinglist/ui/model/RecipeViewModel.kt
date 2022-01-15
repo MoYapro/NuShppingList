@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import de.moyapro.nushppinglist.db.dao.RecipeDao
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.mock.RecipeDaoMock
+import de.moyapro.nushppinglist.sync.Publisher
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @FlowPreview
 class RecipeViewModel(
     private val recipeDao: RecipeDao,
+    private val publisher: Publisher? = null,
 ) : ViewModel() {
 
     private val _allRecipes = MutableStateFlow<List<Recipe>>(emptyList())

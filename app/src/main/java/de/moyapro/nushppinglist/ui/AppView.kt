@@ -7,9 +7,9 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.constants.MainView
+import de.moyapro.nushppinglist.constants.MainView.values
 import de.moyapro.nushppinglist.constants.SWITCHES
-import de.moyapro.nushppinglist.ui.MainView.*
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 import de.moyapro.nushppinglist.ui.test.AnimationTest
@@ -41,26 +41,14 @@ fun AppView(
                 }
         }
         when (displayedView) {
-            EINKAUFSLISTE -> CartView(cartViewModel)
-            DINGE -> ItemList(cartViewModel)
-            REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
-            COLOR_TEST -> ColorTest()
-            ANIMATION_TEST -> AnimationTest()
-            SETTINGS -> SettingsView()
+            MainView.EINKAUFSLISTE -> CartView(cartViewModel)
+            MainView.DINGE -> ItemList(cartViewModel)
+            MainView.REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
+            MainView.COLOR_TEST -> ColorTest()
+            MainView.ANIMATION_TEST -> AnimationTest()
+            MainView.SETTINGS -> SettingsView()
         }
     }
-}
-
-enum class MainView(val text: String, val enabled: Boolean = true) {
-    EINKAUFSLISTE("Einkaufsliste"),
-    DINGE("Dinge"),
-    SETTINGS("⚙"),
-    REZEPTE("Rezepte", CONSTANTS.DISABLED),
-    COLOR_TEST("Color", CONSTANTS.DISABLED),
-    ANIMATION_TEST("Animation", CONSTANTS.DISABLED),
-    ;
-
-
 }
 
 
