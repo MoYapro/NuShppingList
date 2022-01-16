@@ -21,7 +21,7 @@ class MqttServiceAdapter(
     private var messageHandler: (Mqtt5Publish) -> Unit = {},
 ) : Publisher {
     private val tag = MqttServiceAdapter::class.simpleName
-    private val mqttClient: Mqtt5AsyncClient
+    private val mqttClient: Mqtt5AsyncClient?
     private val connectionSettings: ConnectionSettings
     private var isConnected = false
     fun isConnected() = isConnected
@@ -29,30 +29,35 @@ class MqttServiceAdapter(
     init {
         Log.i(tag, "init")
         connectionSettings = SettingsConverter.toConnectionSettings(MainActivity.preferences)
-        mqttClient =
-            MqttClient.builder()
+        mqttClient = if (connectionSettings != SettingsConverter.INVALID_CONNECTION_SETTINGS) {
+            val builder = MqttClient.builder()
                 .useMqttVersion5()
-                .identifier("NuShoppingListClient_${clientIdSuffix}_${UUID.randomUUID()}")
+                .identifier("NuShoppingList_App_${clientIdSuffix}_${UUID.randomUUID()}")
                 .serverHost(connectionSettings.hostname)
                 .serverPort(connectionSettings.port)
-                .sslWithDefaultConfig()
                 .addConnectedListener { isConnected = true }
                 .addDisconnectedListener { isConnected = false }
-                .buildAsync()
+            if (connectionSettings.useTls) {
+                builder.sslWithDefaultConfig()
+            }
+            builder.buildAsync()
+        } else {
+            null
+        }
+
         Log.i(tag, "created mqttClient")
     }
 
 
-
     override fun connect(): MqttServiceAdapter {
         Log.i(tag, "start connect")
-        mqttClient.connectWith()
-            .simpleAuth()
-            .username(connectionSettings.username)
-            .password(connectionSettings.password.encodeToByteArray())
-            .applySimpleAuth()
-            .send()
-            .whenComplete { ack: Mqtt5ConnAck, error: Throwable ->
+        mqttClient?.connectWith()
+            ?.simpleAuth()
+            ?.username(connectionSettings.username)
+            ?.password(connectionSettings.password.encodeToByteArray())
+            ?.applySimpleAuth()
+            ?.send()
+            ?.whenComplete { _: Mqtt5ConnAck, error: Throwable ->
                 isConnected = true
                 Log.i(tag, "connected with error: $error")
 
@@ -65,24 +70,24 @@ class MqttServiceAdapter(
         if (!isConnected) {
             return
         }
-        mqttClient.disconnect()
-            .whenComplete { _: Void, _: Throwable -> isConnected = false }
+        mqttClient?.disconnect()
+            ?.whenComplete { _: Void, _: Throwable -> isConnected = false }
     }
 
     fun subscribe(topic: String) {
         println("subscribe to topic $topic")
-        mqttClient.subscribeWith()
-            .topicFilter(topic)
-            .qos(MqttQos.AT_LEAST_ONCE)
-            .noLocal(true)
-            .callback(messageHandler)
-            .send()
+        mqttClient?.subscribeWith()
+            ?.topicFilter(topic)
+            ?.qos(MqttQos.AT_LEAST_ONCE)
+            ?.noLocal(true)
+            ?.callback(messageHandler)
+            ?.send()
     }
 
     fun unsubscribe(topic: String) {
-        mqttClient.unsubscribeWith()
-            .topicFilter(topic)
-            .send()
+        mqttClient?.unsubscribeWith()
+            ?.topicFilter(topic)
+            ?.send()
     }
 
     override fun publish(messageObject: ShoppingMessage) {
@@ -92,11 +97,11 @@ class MqttServiceAdapter(
             println("xxx\tCannot send $messageObject to $topic. Client is not connected")
         }
         println("==>\t$topic:\t $messageObject")
-        mqttClient.publishWith()
-            .topic(topic)
-            .payload(ConfiguredObjectMapper().writeValueAsBytes(messageObject))
-            .qos(MqttQos.EXACTLY_ONCE)
-            .send()
+        mqttClient?.publishWith()
+            ?.topic(topic)
+            ?.payload(ConfiguredObjectMapper().writeValueAsBytes(messageObject))
+            ?.qos(MqttQos.EXACTLY_ONCE)
+            ?.send()
     }
 
     fun setHandler(messageHandler: MessageHandler) {

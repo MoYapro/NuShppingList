@@ -1,7 +1,6 @@
 package de.moyapro.nushppinglist
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -17,7 +16,6 @@ import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.AppDatabase
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
-import de.moyapro.nushppinglist.service.BackgroundSyncService
 import de.moyapro.nushppinglist.sync.MqttSingleton
 import de.moyapro.nushppinglist.ui.AppView
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -70,8 +68,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        applicationContext.startService(Intent(applicationContext,
-            BackgroundSyncService::class.java))
+//        applicationContext.startService(Intent(applicationContext,
+//            BackgroundSyncService::class.java))
 
     }
 
