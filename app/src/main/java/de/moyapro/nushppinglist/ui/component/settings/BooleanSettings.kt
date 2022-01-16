@@ -13,7 +13,7 @@ import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.SETTING
 
 @Composable
-fun BooleanSettings(setting: SETTING, preferences: SharedPreferences) {
+fun BooleanSettings(setting: SETTING, preferences: SharedPreferences, immediateApplyAction: (Boolean) -> Unit = {}) {
     Surface() {
         Row(
             modifier = Modifier
@@ -31,9 +31,10 @@ fun BooleanSettings(setting: SETTING, preferences: SharedPreferences) {
             var checkedState by remember { mutableStateOf(preferences.getBoolean(setting.name, false)) }
             Switch(
                 checked = checkedState,
-                onCheckedChange = {
-                    checkedState = it
-                    preferences.edit().putBoolean(setting.name, it).apply()
+                onCheckedChange = { newValue ->
+                    checkedState = newValue
+                    immediateApplyAction(newValue)
+                    preferences.edit().putBoolean(setting.name, newValue).apply()
                 }
             )
         }

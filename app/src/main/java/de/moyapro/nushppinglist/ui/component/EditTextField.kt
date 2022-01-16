@@ -7,6 +7,8 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
@@ -22,7 +24,8 @@ fun EditTextField(
     modifier: Modifier = Modifier,
     label: String? = null,
     initialValue: String,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String) -> Unit = {},
+    onFocusChanged: (FocusState) -> Unit = {},
     widthPercentage: Float = 1.0F,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
     doneAction: () -> Unit = {},
@@ -45,5 +48,6 @@ fun EditTextField(
         modifier = modifier
             .semantics { contentDescription = EditTextField.DESCRIPTION }
             .fillMaxWidth(widthPercentage)
+            .onFocusChanged(onFocusChanged)
     )
 }

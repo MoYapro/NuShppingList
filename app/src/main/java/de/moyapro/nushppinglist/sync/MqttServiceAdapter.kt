@@ -7,8 +7,11 @@ import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
+import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
+import de.moyapro.nushppinglist.settings.ConnectionSettings
+import de.moyapro.nushppinglist.settings.SettingsConverter
 import de.moyapro.nushppinglist.sync.messages.ShoppingMessage
 import java.util.*
 
@@ -19,17 +22,20 @@ class MqttServiceAdapter(
 ) : Publisher {
     private val tag = MqttServiceAdapter::class.simpleName
     private val mqttClient: Mqtt5AsyncClient
+    private val connectionSettings: ConnectionSettings
     private var isConnected = false
     fun isConnected() = isConnected
 
     init {
         Log.i(tag, "init")
+        connectionSettings = SettingsConverter.toConnectionSettings(MainActivity.preferences)
         mqttClient =
             MqttClient.builder()
                 .useMqttVersion5()
                 .identifier("NuShoppingListClient_${clientIdSuffix}_${UUID.randomUUID()}")
-                .serverHost("192.168.1.101")
-                .serverPort(31883)
+                .serverHost(connectionSettings.hostname)
+                .serverPort(connectionSettings.port)
+                .sslWithDefaultConfig()
                 .addConnectedListener { isConnected = true }
                 .addDisconnectedListener { isConnected = false }
                 .buildAsync()
@@ -37,12 +43,13 @@ class MqttServiceAdapter(
     }
 
 
+
     override fun connect(): MqttServiceAdapter {
         Log.i(tag, "start connect")
         mqttClient.connectWith()
             .simpleAuth()
-            .username("homeassistant")
-            .password("password".encodeToByteArray())
+            .username(connectionSettings.username)
+            .password(connectionSettings.password.encodeToByteArray())
             .applySimpleAuth()
             .send()
             .whenComplete { ack: Mqtt5ConnAck, error: Throwable ->
