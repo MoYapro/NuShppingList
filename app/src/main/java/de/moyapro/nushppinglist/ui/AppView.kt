@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Tab
@@ -19,6 +20,7 @@ import de.moyapro.nushppinglist.ui.test.ColorTest
 fun AppView(
     cartViewModel: CartViewModel,
     recipeViewModel: RecipeViewModel,
+    context: Context,
     selectedView: MainView = SWITCHES.INITIAL_SCREEN,
 ) {
 
@@ -44,7 +46,7 @@ fun AppView(
             MainView.EINKAUFSLISTE -> CartView(cartViewModel)
             MainView.DINGE -> ItemList(cartViewModel)
             MainView.REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
-            MainView.MQTT_Test -> MqttTestView()
+            MainView.MQTT_Test -> MqttTestView(context)
             MainView.COLOR_TEST -> ColorTest()
             MainView.ANIMATION_TEST -> AnimationTest()
             MainView.SETTINGS -> SettingsView()

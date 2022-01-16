@@ -12,8 +12,13 @@ import de.moyapro.nushppinglist.sync.SyncService
 
 class BackgroundSyncService : Service() {
 
-    val database by lazy { AppDatabase.getDatabase(this) }
+    companion object {
+        var isRunning = false
+        fun isConnected() = syncService?.isConnected() ?: false
+        private var syncService: SyncService? = null
+    }
 
+    val database by lazy { AppDatabase.getDatabase(this) }
     val tag = BackgroundSyncService::class.simpleName
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -24,7 +29,10 @@ class BackgroundSyncService : Service() {
         super.onCreate()
         Log.i(tag, "onCreate")
         Toast.makeText(this, "Invoke background service onCreate method.", Toast.LENGTH_LONG).show()
-        SyncService(MqttSingleton.adapter, database.cartDao())
+        if (!isConnected()) {
+            syncService = SyncService(MqttSingleton.adapter, database.cartDao())
+        }
+        isRunning = true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -37,6 +45,9 @@ class BackgroundSyncService : Service() {
     override fun onDestroy() {
         Log.i(tag, "onDestroy")
         super.onDestroy()
+        syncService?.shutdown()
+        syncService = null
+        isRunning = false
         Toast.makeText(this, "Invoke background service onDestroy method.", Toast.LENGTH_LONG)
             .show()
     }

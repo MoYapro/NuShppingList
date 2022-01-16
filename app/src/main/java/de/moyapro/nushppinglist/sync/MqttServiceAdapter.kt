@@ -95,6 +95,7 @@ class MqttServiceAdapter(
         require(topic != null) { "Could not find topic for $messageObject" }
         if (!isConnected) {
             println("xxx\tCannot send $messageObject to $topic. Client is not connected")
+            return
         }
         println("==>\t$topic:\t $messageObject")
         mqttClient?.publishWith()
