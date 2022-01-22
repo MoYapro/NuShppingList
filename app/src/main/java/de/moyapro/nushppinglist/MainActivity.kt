@@ -11,12 +11,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import de.moyapro.nushppinglist.constants.CONSTANTS.PREFERENCES_FILE_NAME
-import de.moyapro.nushppinglist.constants.MainView
 import de.moyapro.nushppinglist.constants.SWITCHES
-import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.AppDatabase
-import de.moyapro.nushppinglist.db.model.CartItem
-import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.service.BackgroundSyncService
 import de.moyapro.nushppinglist.sync.MqttSingleton
 import de.moyapro.nushppinglist.ui.AppView
@@ -24,8 +20,6 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 import de.moyapro.nushppinglist.ui.model.ViewModelFactory
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
-import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
-import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import kotlinx.coroutines.*
 
 @FlowPreview
@@ -120,13 +114,13 @@ class MainActivity : ComponentActivity() {
 
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             database.clearAllTables()
-            cartItems.map { CartItem(it) }.forEach(cartViewModel::add)
-            items.map { Item(name = it, itemUnit = UNIT.values().random()) }
-                .forEach(cartViewModel::add)
-            if (MainView.REZEPTE.enabled) {
-                recipeViewModel.save(createSampleRecipeCake())
-                recipeViewModel.save(createSampleRecipeNoodels())
-            }
+//            cartItems.map { CartItem(it) }.forEach(cartViewModel::add)
+//            items.map { Item(name = it, itemUnit = UNIT.values().random()) }
+//                .forEach(cartViewModel::add)
+//            if (MainView.REZEPTE.enabled) {
+//                recipeViewModel.save(createSampleRecipeCake())
+//                recipeViewModel.save(createSampleRecipeNoodels())
+//            }
         }
         Log.i(tag, "done initTestData")
     }

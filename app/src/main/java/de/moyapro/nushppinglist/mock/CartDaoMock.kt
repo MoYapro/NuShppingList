@@ -19,7 +19,8 @@ class CartDaoMock(
 ) : CartDao {
 
     private val itemTable: MutableSet<Item> = ConcurrentHashMap.newKeySet()
-    private val cartItemPropertiesTable: MutableSet<CartItemProperties> = ConcurrentHashMap.newKeySet()
+    private val cartItemPropertiesTable: MutableSet<CartItemProperties> =
+        ConcurrentHashMap.newKeySet()
 
     private val cartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
     private val cartItemPropertiesChannel: MutableStateFlow<List<CartItemProperties>> =
@@ -97,6 +98,10 @@ class CartDaoMock(
 
     override suspend fun getItemByItemId_internal(itemId: UUID): Item? {
         return itemTable.firstOrNull { itemInDb -> itemInDb.itemId.id == itemId }
+    }
+
+    override suspend fun getAllItemByItemId_internal(itemId: List<UUID>): List<Item> {
+        return itemId.mapNotNull { getItemByItemId_internal(it) }
     }
 
     override suspend fun getCartItemByItemId_internal(itemId: UUID): CartItemProperties? {

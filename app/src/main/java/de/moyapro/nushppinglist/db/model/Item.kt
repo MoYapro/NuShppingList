@@ -39,4 +39,3 @@ data class Item(
 
     constructor() : this("")
 }
-

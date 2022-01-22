@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import de.moyapro.nushppinglist.db.ids.ItemId
 import java.util.*
 
-data class RequestItemMessage(val itemId: ItemId) : ShoppingMessage {
+data class RequestItemMessage(val itemIds: List<ItemId>) : ShoppingMessage {
+
+    constructor(itemId: ItemId) : this(listOf(itemId))
+
     companion object {
         @JsonCreator
         @JvmStatic

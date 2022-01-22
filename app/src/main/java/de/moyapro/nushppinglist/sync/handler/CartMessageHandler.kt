@@ -18,39 +18,47 @@ class CartMessageHandler(
 
     override suspend fun invoke(cartMessage: CartMessage) {
         Log.i(tag, "start handle $cartMessage")
-        val didSaveAll = cartMessage.cartItemPropertiesList.map { cartItemProperties ->
-            val item = cartDao.getItemByItemId(cartItemProperties.itemId)
-            if (null != item) {
-                Log.i(tag, "save new cartItem for existing $item")
-                this.add(CartItem(cartItemProperties, item))
-                true
-            } else {
-                Log.i(tag, "request non existing item with itemId ${cartItemProperties.itemId}")
-                publisher.publish(RequestItemMessage(cartItemProperties.itemId))
-                false
-            }
-        }.all { didSave -> didSave }
-        if (!didSaveAll) {
-            Log.i(tag, "wait and retry creating cart")
-            Thread.sleep(500) // wait for requested items to arrive
-            invoke(cartMessage)
-        }
+        handleCartMessage(cartMessage)
         Log.i(tag, "done handle $cartMessage")
     }
 
-    private suspend fun add(newItem: CartItem) {
-        println("vvv\tCartItem\t $newItem")
-        val existingItem = cartDao.getItemByItemId(newItem.item.itemId)
-        if (null == existingItem) {
-            cartDao.save(newItem.item)
-        } else {
-            cartDao.updateAll(newItem.item)
+    private suspend fun handleCartMessage(
+        cartMessage: CartMessage,
+        endTime: Long = System.currentTimeMillis() + 1000,
+    ) {
+        val missingItemIds = cartMessage.cartItemPropertiesList
+            .mapNotNull { cartItemProperties ->
+                val item = cartDao.getItemByItemId(cartItemProperties.itemId)
+                if (null != item) {
+                    Log.i(tag, "save new cartItem for existing $item")
+                    this.add(CartItem(cartItemProperties, item))
+                    null
+                } else {
+                    cartItemProperties.itemId
+                }
+            }
+        if (missingItemIds.isNotEmpty()) {
+            Log.i(tag, "request non existing item with itemId $missingItemIds")
+            publisher.publish(RequestItemMessage(missingItemIds))
+            Log.i(tag, "wait and retry creating cart")
+            Thread.sleep(500) // wait for requested items to arrive
+            if (System.currentTimeMillis() < endTime) handleCartMessage(cartMessage, endTime)
         }
-        val existingCartItemProperties = cartDao.getCartItemByItemId(newItem.item.itemId)
-        if (null == existingCartItemProperties) {
-            cartDao.save(newItem.cartItemProperties)
+    }
+
+    private suspend fun add(newCartItem: CartItem) {
+        println("vvv\tCartItem\t $newCartItem")
+        val existingItem = cartDao.getItemByItemId(newCartItem.item.itemId)
+        if (null == existingItem) {
+            cartDao.save(newCartItem.item)
         } else {
-            cartDao.updateAll(newItem.cartItemProperties)
+            cartDao.updateAll(newCartItem.item)
+        }
+        val existingCartItemProperties = cartDao.getCartItemByItemId(newCartItem.item.itemId)
+        if (null == existingCartItemProperties) {
+            cartDao.save(newCartItem.cartItemProperties)
+        } else {
+            cartDao.updateAll(newCartItem.cartItemProperties)
         }
     }
 }

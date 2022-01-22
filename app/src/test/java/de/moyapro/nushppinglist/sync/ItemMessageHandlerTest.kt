@@ -131,7 +131,7 @@ class ItemMessageHandlerTest {
 
         handler(ItemMessage(itemFromMessage))
 
-        Thread.sleep(100) // wait for DB to save
+        Thread.sleep(200) // wait for DB to save
         val resultItem = cartDao.getItemByItemId(itemInDb.itemId)
         resultItem?.itemId shouldNotBe itemFromMessage.itemId
         resultItem?.name shouldBe itemFromMessage.name
@@ -142,9 +142,39 @@ class ItemMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
+    fun mergeItems() = runBlocking {
+        val handler = ItemMessageHandler(cartDao, publisher)
+        val itemInDb = Item(
+            name = "name",
+            description = "",
+            defaultItemAmount = 1,
+            defaultItemUnit = UNIT.UNSPECIFIED,
+            price = BigDecimal.ZERO.setScale(2),
+            kategory = KATEGORY.SONSTIGES
+        )
+        val itemFromMessage = Item(
+            name = "name",
+            description = "description2",
+            defaultItemAmount = 3,
+            defaultItemUnit = UNIT.LITER,
+            price = BigDecimal(3),
+            kategory = KATEGORY.GEMUESE
+        )
+        cartDao.save(itemInDb)
+
+       val resultItem = handler.merge(itemFromMessage, itemInDb)
+        resultItem.itemId shouldNotBe itemFromMessage.itemId
+        resultItem.name shouldBe itemFromMessage.name
+        resultItem.description shouldBe itemFromMessage.description
+        resultItem.defaultItemAmount shouldBe itemFromMessage.defaultItemAmount
+        resultItem.defaultItemUnit shouldBe itemFromMessage.defaultItemUnit
+        resultItem.kategory shouldBe itemFromMessage.kategory
+    }
+
+    @Test(timeout = 10_000)
     fun handleItemRequest__receiveMany() = runBlocking {
         val handler = ItemMessageHandler(cartDao, publisher)
-        val uniqueItems = (1..1000).map { createSampleItem(name = it.toString()) }
+        val uniqueItems = (1..20).map { createSampleItem(name = "itemname") }
         val items = (uniqueItems.shuffled() + uniqueItems.shuffled()).shuffled()
         items.parallelStream()
             .map { ItemMessage(it) }
@@ -153,7 +183,7 @@ class ItemMessageHandlerTest {
                     handler(itemMessage)
                 }
             }
-        Thread.sleep(1000)
+        Thread.sleep(5000)
         items.forEach { cartDao.getItemByItemId(it.itemId) shouldBe it }
     }
 

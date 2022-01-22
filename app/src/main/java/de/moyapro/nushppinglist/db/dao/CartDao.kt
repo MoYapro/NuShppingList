@@ -60,6 +60,15 @@ interface CartDao {
     @Deprecated(
         "This is just for the generated Dao_Impl",
         level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("getAllItemByItemId(itemId)")
+    )
+    @Transaction
+    @Query("select * from Item i where i.itemId in (:itemId)")
+    suspend fun getAllItemByItemId_internal(itemId: List<UUID>): List<Item>
+
+    @Deprecated(
+        "This is just for the generated Dao_Impl",
+        level = DeprecationLevel.WARNING,
         replaceWith = ReplaceWith("getCartItemByItemId(itemId)")
     )
     @Transaction
@@ -82,4 +91,5 @@ interface CartDao {
 
 suspend fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId_internal(itemId.id)
 suspend fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId_internal(itemId.id)
+suspend fun CartDao.getAllItemByItemId(itemIds: List<ItemId>): List<Item> = getAllItemByItemId_internal(itemIds.map{it.id})
 

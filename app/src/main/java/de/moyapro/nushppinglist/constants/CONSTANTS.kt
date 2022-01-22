@@ -14,7 +14,6 @@ object CONSTANTS {
     const val MQTT_TOPIC_ITEM = "$MQTT_TOPIC_BASE/item"
     const val MQTT_TOPIC_CART_REQUEST =
         "$MQTT_TOPIC_BASE/cart/request" // we have only one cart at the moment
-    const val MQTT_TOPIC_CART_UPDATE = "$MQTT_TOPIC_BASE/cart/update"
     const val MQTT_TOPIC_CART = "$MQTT_TOPIC_BASE/cart"
 
     val messagesWithTopic: Map<KClass<*>, String> = mapOf(
@@ -31,6 +30,7 @@ object CONSTANTS {
     const val CART_CHAR = "🛒"
 
 
+    const val ENABLED: Boolean = true
     const val DISABLED: Boolean = false
 
 }
