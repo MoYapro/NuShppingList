@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.sync.handler
 
 import android.util.Log
+import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
@@ -24,7 +25,7 @@ class CartMessageHandler(
 
     private suspend fun handleCartMessage(
         cartMessage: CartMessage,
-        endTime: Long = System.currentTimeMillis() + 1000,
+        endTime: Long = System.currentTimeMillis() + SWITCHES.WAIT_FOR_MISSING_ITEMS_TIMEOUT,
     ) {
         val missingItemIds = cartMessage.cartItemPropertiesList
             .mapNotNull { cartItemProperties ->
@@ -41,7 +42,7 @@ class CartMessageHandler(
             Log.i(tag, "request non existing item with itemId $missingItemIds")
             publisher.publish(RequestItemMessage(missingItemIds))
             Log.i(tag, "wait and retry creating cart")
-            Thread.sleep(500) // wait for requested items to arrive
+            Thread.sleep(1000) // wait for requested items to arrive
             if (System.currentTimeMillis() < endTime) handleCartMessage(cartMessage, endTime)
         }
     }

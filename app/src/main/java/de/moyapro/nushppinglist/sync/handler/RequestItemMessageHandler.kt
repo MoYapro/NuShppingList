@@ -9,10 +9,9 @@ import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 class RequestItemMessageHandler(
     val cartDao: CartDao,
     val publisher: Publisher,
-) :suspend (String) -> Unit {
+) :suspend (RequestItemMessage) -> Unit {
 
-    override suspend fun invoke(messageString: String) {
-        val requestItemMessage: RequestItemMessage = RequestItemMessage(emptyList())
+    override suspend fun invoke(requestItemMessage: RequestItemMessage) {
         val item = cartDao.getAllItemByItemId(requestItemMessage.itemIds)
         if (item.isEmpty()) {
             println("^^^\t item not found for itemId ${requestItemMessage.itemIds}")

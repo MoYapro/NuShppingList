@@ -33,7 +33,7 @@ class MessageHandler(
 
     suspend fun handleMessage(topic: String, messageBytes: ByteArray) {
         when (topic) {
-            CONSTANTS.MQTT_TOPIC_ITEM_REQUEST -> requestItemMessageHandler(String(messageBytes))
+            CONSTANTS.MQTT_TOPIC_ITEM_REQUEST -> requestItemMessageHandler(readMessage(messageBytes))
             CONSTANTS.MQTT_TOPIC_ITEM -> itemMessageHandler(readMessage(messageBytes))
             CONSTANTS.MQTT_TOPIC_CART_REQUEST -> requestCartMessageHandler(readMessage(messageBytes))
             CONSTANTS.MQTT_TOPIC_CART -> cartMessageHandler(readMessage(messageBytes))

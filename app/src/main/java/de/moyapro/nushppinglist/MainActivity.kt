@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import de.moyapro.nushppinglist.constants.CONSTANTS.PREFERENCES_FILE_NAME
 import de.moyapro.nushppinglist.constants.MainView
+import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.AppDatabase
@@ -70,9 +71,10 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-
-        applicationContext.startService(Intent(applicationContext,
-            BackgroundSyncService::class.java))
+        if (preferences.getBoolean(SETTING.SYNC_ENABLED.name, false)) {
+            applicationContext.startService(Intent(applicationContext,
+                BackgroundSyncService::class.java))
+        }
 
     }
 

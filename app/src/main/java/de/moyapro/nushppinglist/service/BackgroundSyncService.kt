@@ -36,10 +36,12 @@ class BackgroundSyncService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i(tag, "onStartCommand")
-        return super.onStartCommand(intent, flags, startId)
+        Log.i(tag, "onStartCommand: connected: ${syncService?.isConnected()}")
+        val superReturnStatus = super.onStartCommand(intent, flags, startId)
         Toast.makeText(this, "Invoke background service onStartCommand method.", Toast.LENGTH_LONG)
             .show()
+        syncService?.reconnect()
+        return superReturnStatus
     }
 
     override fun onDestroy() {

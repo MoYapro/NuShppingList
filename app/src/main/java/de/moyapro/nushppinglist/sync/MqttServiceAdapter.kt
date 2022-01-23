@@ -20,6 +20,7 @@ class MqttServiceAdapter(
     clientIdSuffix: String = "",
     private var messageHandler: (Mqtt5Publish) -> Unit = {},
 ) : Publisher {
+    val clientIdentifier = "NuShoppingList_App_${clientIdSuffix}_${UUID.randomUUID()}"
     private val tag = MqttServiceAdapter::class.simpleName
     private val mqttClient: Mqtt5AsyncClient?
     private val connectionSettings: ConnectionSettings
@@ -32,11 +33,14 @@ class MqttServiceAdapter(
         mqttClient = if (connectionSettings != SettingsConverter.INVALID_CONNECTION_SETTINGS) {
             val builder = MqttClient.builder()
                 .useMqttVersion5()
-                .identifier("NuShoppingList_App_${clientIdSuffix}_${UUID.randomUUID()}")
+                .identifier(clientIdentifier)
                 .serverHost(connectionSettings.hostname)
                 .serverPort(connectionSettings.port)
                 .addConnectedListener { isConnected = true }
-                .addDisconnectedListener { isConnected = false }
+                .addDisconnectedListener {
+                    Log.w(tag, "client $clientIdentifier disconnected from server: $it")
+                    isConnected = false
+                }
             if (connectionSettings.useTls) {
                 builder.sslWithDefaultConfig()
             }
