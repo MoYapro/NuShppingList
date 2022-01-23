@@ -1,18 +1,26 @@
 package de.moyapro.nushppinglist.db
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room.*
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.RecipeDao
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.ui.model.converter.Converters
 import kotlinx.coroutines.CoroutineScope
 
-@Database(entities = [Item::class, CartItemProperties::class, RecipeItem::class, RecipeProperties::class, RecipeStep::class],
-    version = 7)
+@Database(
+    entities = [
+        Item::class,
+        CartItemProperties::class,
+        Cart::class,
+        RecipeItem::class,
+        RecipeProperties::class,
+        RecipeStep::class
+    ],
+    autoMigrations = [
+        AutoMigration(from = 7, to = 8)
+    ],
+    version = 8)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartDao(): CartDao
