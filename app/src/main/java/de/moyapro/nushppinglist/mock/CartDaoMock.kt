@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.mock
 
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
@@ -21,7 +22,9 @@ class CartDaoMock(
     private val itemTable: MutableSet<Item> = ConcurrentHashMap.newKeySet()
     private val cartItemPropertiesTable: MutableSet<CartItemProperties> =
         ConcurrentHashMap.newKeySet()
+    private val cartTable: MutableSet<Cart> = ConcurrentHashMap.newKeySet()
 
+    private val cartChannel: MutableStateFlow<List<Cart>> = MutableStateFlow(listOf())
     private val cartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
     private val cartItemPropertiesChannel: MutableStateFlow<List<CartItemProperties>> =
         MutableStateFlow(listOf())
@@ -29,6 +32,7 @@ class CartDaoMock(
     private val allItemFlow: Flow<List<Item>> = allItemChannel
     private val cartItemPropertiesFlow: Flow<List<CartItemProperties>> = cartItemPropertiesChannel
     private val cartItemFlow: Flow<List<CartItem>> = cartItemChannel
+    private val cartFlow: Flow<List<Cart>> = cartChannel
 
     override suspend fun save(vararg cartItemProperties: CartItemProperties) {
         cartItemPropertiesTable += cartItemProperties
@@ -40,6 +44,11 @@ class CartDaoMock(
         itemTable += items
         pushItems()
         pushCartItems()
+    }
+
+    override suspend fun save(vararg carts: Cart) {
+        cartTable.addAll(carts)
+        pushCart()
     }
 
     override suspend fun updateAll(vararg items: Item) {
@@ -58,7 +67,7 @@ class CartDaoMock(
 
     override suspend fun updateAll(vararg items: CartItemProperties) {
         val toUpdate = items.associateBy({ it.itemId }, { it })
-        val updatedItemTable: List<CartItemProperties> =
+        val updatedCartItemPropertiesTable: List<CartItemProperties> =
             cartItemPropertiesTable.map { itemFromTable ->
                 if (toUpdate.containsKey(itemFromTable.itemId)) {
                     toUpdate[itemFromTable.itemId]!!
@@ -67,8 +76,23 @@ class CartDaoMock(
                 }
             }
         cartItemPropertiesTable.clear()
-        cartItemPropertiesTable.addAll(updatedItemTable.toSet())
+        cartItemPropertiesTable.addAll(updatedCartItemPropertiesTable.toSet())
         pushCartItemProperties()
+    }
+
+    override suspend fun updateAll(vararg carts: Cart) {
+        val toUpdate = carts.associateBy({ it.cartId }, { it })
+        val updatedCartTable: List<Cart> =
+            cartTable.map { cartFromTable ->
+                if (toUpdate.containsKey(cartFromTable.cartId)) {
+                    toUpdate[cartFromTable.cartId]!!
+                } else {
+                    cartFromTable
+                }
+            }
+        cartTable.clear()
+        cartTable.addAll(updatedCartTable.toSet())
+        pushCart()
     }
 
     override fun findAllInCart(): Flow<List<CartItemProperties>> {
@@ -81,6 +105,10 @@ class CartDaoMock(
 
     override fun findAllCartItems(): Flow<List<CartItem>> {
         return cartItemFlow
+    }
+
+    override fun findAllCart(): Flow<List<Cart>> {
+        return cartFlow
     }
 
     override suspend fun getAllCartItems(): List<CartItem> {
@@ -123,10 +151,21 @@ class CartDaoMock(
         pushItems()
     }
 
+    override suspend fun remove(cart: Cart) {
+        cartTable.remove(cart)
+        pushCart()
+    }
+
     private fun pushCartItems() {
         val cartItemJoinTable = getJoin(itemTable, cartItemPropertiesTable)
         externalScope.launch {
             cartItemChannel.value = cartItemJoinTable
+        }
+    }
+
+    private fun pushCart() {
+        externalScope.launch {
+            cartChannel.value = cartTable.toList()
         }
     }
 

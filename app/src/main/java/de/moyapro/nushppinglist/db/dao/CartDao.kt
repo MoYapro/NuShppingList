@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.db.dao
 
 import androidx.room.*
 import de.moyapro.nushppinglist.db.ids.ItemId
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
@@ -21,12 +22,20 @@ interface CartDao {
     suspend fun save(vararg items: Item)
 
     @Transaction
+    @Insert
+    suspend fun save(vararg cart: Cart)
+
+    @Transaction
     @Update
     suspend fun updateAll(vararg items: Item)
 
     @Transaction
     @Update
     suspend fun updateAll(vararg items: CartItemProperties)
+
+    @Transaction
+    @Update
+    suspend fun updateAll(vararg items: Cart)
 
     @Transaction
     @Query("select * from CartItemProperties")
@@ -39,6 +48,10 @@ interface CartDao {
     @Transaction
     @Query("select * from CartItemProperties join Item on Item.itemId = CartItemProperties.itemId")
     fun findAllCartItems(): Flow<List<CartItem>>
+
+    @Transaction
+    @Query("select * from Cart")
+    fun findAllCart(): Flow<List<Cart>>
 
     @Transaction
     @Query("select * from CartItemProperties join Item on Item.itemId = CartItemProperties.itemId")
@@ -86,6 +99,10 @@ interface CartDao {
     @Transaction
     @Delete
     suspend fun remove(item: Item)
+
+    @Transaction
+    @Delete
+    suspend fun remove(item: Cart)
 
 }
 

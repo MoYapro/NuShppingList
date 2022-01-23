@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist
 
 import de.moyapro.nushppinglist.db.ids.ItemId
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
@@ -10,12 +11,10 @@ import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeItem
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import de.moyapro.nushppinglist.util.MainCoroutineRule
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -145,16 +144,6 @@ class ViewModelTest {
         viewModel.getItemByItemId(itemToRemove.itemId) shouldBe itemToRemove
         viewModel.getCartItemPropertiesByItemId(itemToRemove.itemId) shouldBe null
         viewModel.cartItems.take(1).first() shouldBe emptyList()
-    }
-
-    @Test
-    fun nameIsUnique() = runBlocking {
-        val error = shouldThrow<Exception> {
-            viewModel.add(Item("name"))
-            viewModel.add(Item("name"))
-        }
-        error.message shouldContain "unique"
-        Unit
     }
 
     @Test
@@ -387,11 +376,43 @@ class ViewModelTest {
         viewModel.addToCart(itemToRemove)
 
         viewModel.removeItem(itemToRemove)
-
-
+        Thread.sleep(100)
         viewModel.getItemByItemId(itemToRemove.itemId) shouldBe null
         viewModel.getCartItemPropertiesByItemId(itemToRemove.itemId) shouldBe null
     }
 
+    @Test
+    fun createNewCart() = runBlocking {
+        val cart = Cart()
+        viewModel.add(cart)
+        Thread.sleep(100)
+        val carts = viewModel.allCart.take(1).toList().flatten()
+        carts.single() shouldBe cart
+    }
+
+    @Test
+    fun updateCart() = runBlocking {
+        val cart = Cart()
+        viewModel.add(cart)
+        Thread.sleep(100)
+        val carts = viewModel.allCart.take(1).toList().flatten()
+        carts.single() shouldBe cart
+
+        val updatedCart = cart.copy(cartName = "newName", synced = !cart.synced)
+        viewModel.update(updatedCart)
+        Unit
+    }
+
+    @Test
+    fun deleteCart() = runBlocking {
+        val cart = Cart()
+        viewModel.add(cart)
+        Thread.sleep(100)
+        val carts = viewModel.allCart.take(1).toList().flatten()
+        carts.single() shouldBe cart
+
+        viewModel.removeCart(cart)
+        Unit
+    }
 
 }

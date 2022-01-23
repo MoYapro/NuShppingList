@@ -35,11 +35,14 @@ class CartViewModel(
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
     private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
     val allCartItemsGrouped: StateFlow<Map<RecipeId?, List<CartItem>>> = _allCartItemsGrouped
+    private val _allCart = MutableStateFlow<List<Cart>>(emptyList())
+    val allCart: StateFlow<List<Cart>> = _allCart
 
     init {
         _cartItems.listenTo(cartDao.findAllInCart(), viewModelScope)
         _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
         _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
+        _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
         _allCartItemsGrouped.listenTo(cartDao.findAllCartItems(),
             viewModelScope,
             ModelTransformation::groupCartItemsByRecipe)
@@ -60,6 +63,12 @@ class CartViewModel(
         cartDao.save(newItem)
     }
 
+    fun add(newCart: Cart)= viewModelScope.launch(Dispatchers.IO) {
+        println("vvv\tCart\t $newCart")
+        cartDao.save(newCart)
+    }
+
+
     fun update(updatedItem: Item) = viewModelScope.launch(Dispatchers.IO) {
         publisher?.publish(ItemMessage(updatedItem))
         cartDao.updateAll(updatedItem)
@@ -74,6 +83,11 @@ class CartViewModel(
                 cartDao.remove(updatedCartItemProperties)
             }
 
+        }
+
+    fun update(updatedCart: Cart) =
+        viewModelScope.launch(Dispatchers.IO) {
+            cartDao.updateAll(updatedCart)
         }
 
     @Transaction
@@ -195,6 +209,10 @@ class CartViewModel(
         if (null != cartItemProperties) {
             cartDao.remove(cartItemProperties)
         }
+    }
+
+    fun removeCart(cartToRemove: Cart) = viewModelScope.launch(Dispatchers.IO) {
+        cartDao.remove(cartToRemove)
     }
 
     suspend fun getAllCartItemProperties(): List<CartItem> = cartDao.getAllCartItems()
