@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.collect
 @FlowPreview
 class CartViewModel(
     private val cartDao: CartDao,
-    private val publisher: Publisher? = null
+    private val publisher: Publisher? = null,
 ) : ViewModel() {
 
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
@@ -65,10 +65,16 @@ class CartViewModel(
         cartDao.updateAll(updatedItem)
     }
 
-    fun update(updatedCartItemProperties: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
-        publisher?.publish(CartMessage(updatedCartItemProperties))
-        cartDao.updateAll(updatedCartItemProperties)
-    }
+    fun update(updatedCartItemProperties: CartItemProperties) =
+        viewModelScope.launch(Dispatchers.IO) {
+            publisher?.publish(CartMessage(updatedCartItemProperties))
+            if (0 < updatedCartItemProperties.amount) {
+                cartDao.updateAll(updatedCartItemProperties)
+            } else {
+                cartDao.remove(updatedCartItemProperties)
+            }
+
+        }
 
     @Transaction
     fun add(newCartItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
@@ -175,12 +181,11 @@ class CartViewModel(
     }
 
     fun subtractFromCart(itemId: ItemId) = viewModelScope.launch(Dispatchers.IO) {
-        val cartItem = cartDao.getCartItemByItemId(itemId)
-        when {
-            cartItem == null -> {}
-            cartItem.amount <= 1 -> cartDao.remove(cartItem)
-            cartItem.amount > 1 -> cartDao.updateAll(cartItem.copy(amount = cartItem.amount - 1))
-            else -> {}
+        val updatedCartItemProperties = cartDao.getCartItemByItemId(itemId)?.apply {
+            amount -= 1
+        }
+        if (null != updatedCartItemProperties) {
+            update(updatedCartItemProperties)
         }
     }
 

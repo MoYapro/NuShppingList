@@ -6,9 +6,14 @@ import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
 import de.moyapro.nushppinglist.db.model.CartItem
+import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class CartMessageHandler(
     val cartDao: CartDao,
@@ -32,7 +37,11 @@ class CartMessageHandler(
                 val item = cartDao.getItemByItemId(cartItemProperties.itemId)
                 if (null != item) {
                     Log.i(tag, "save new cartItem for existing $item")
-                    this.add(CartItem(cartItemProperties, item))
+                    if (0 >= cartItemProperties.amount) {
+                        this.remove(cartItemProperties)
+                    } else {
+                        this.add(CartItem(cartItemProperties, item))
+                    }
                     null
                 } else {
                     cartItemProperties.itemId
@@ -44,6 +53,15 @@ class CartMessageHandler(
             Log.i(tag, "wait and retry creating cart")
             Thread.sleep(1000) // wait for requested items to arrive
             if (System.currentTimeMillis() < endTime) handleCartMessage(cartMessage, endTime)
+        }
+    }
+
+    private fun remove(cartItemProperties: CartItemProperties) {
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            val existingCartItemProperties = cartDao.getCartItemByItemId(cartItemProperties.itemId)
+            if (null != existingCartItemProperties) {
+                cartDao.remove(existingCartItemProperties)
+            }
         }
     }
 

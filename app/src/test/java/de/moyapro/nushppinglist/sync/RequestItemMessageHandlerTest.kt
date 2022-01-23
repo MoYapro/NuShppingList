@@ -23,7 +23,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.util.*
 
 
 @Suppress("EXPERIMENTAL_API_USAGE")
@@ -56,8 +55,8 @@ class RequestItemMessageHandlerTest {
         viewModel.add(item)
         val request = RequestItemMessage(item.itemId)
         val requestHandler = RequestItemMessageHandler(cartDao, publisher)
-        requestHandler(request.toString())
-        Thread.sleep(100) // wait for DB to save
+        requestHandler(request)
+        Thread.sleep(1000) // wait for DB to save
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.itemId.id.toString()
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.name
         publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.description
@@ -71,7 +70,7 @@ class RequestItemMessageHandlerTest {
     fun handleItemRequest__itemNotFound() = runBlocking {
         val request = RequestItemMessage(ItemId())
         val requestHandler = RequestItemMessageHandler(cartDao, publisher)
-        requestHandler(request.toString())
+        requestHandler(request)
         publisher.messages shouldBe emptyMap()
     }
 
@@ -85,36 +84,5 @@ class RequestItemMessageHandlerTest {
         result shouldNotBe null
     }
 
-    @Test
-    fun stringIsUUID() {
-        val uuidString = "07329ba4-a378-495e-8233-ab7ed340842a"
-        UUID.fromString(uuidString) shouldNotBe null
-
-    }
-
-    @Test
-    fun uuidFromString() {
-        val uuidString = "7a041f81-1214-41e5-bb58-9a46b2ca08d4"
-        val uuid: UUID = ConfiguredObjectMapper().readValue(uuidString, UUID::class.java)
-
-        uuid shouldNotBe null
-
-    }
-    @Test
-    fun deserializeFromWrappedUUIDString() {
-        val uuidString = """{"uuid":7a041f81-1214-41e5-bb58-9a46b2ca08d4}"""
-        val uuid: UUID = ConfiguredObjectMapper().readValue(uuidString)
-        uuid shouldNotBe null
-
-    }
-
-    @Test
-    fun uuid_self_deserialize() {
-        val uuidString = UUID.randomUUID().toString()
-        val uuid: UUID = ConfiguredObjectMapper().readValue(uuidString)
-
-        uuid shouldNotBe null
-
-    }
 }
 

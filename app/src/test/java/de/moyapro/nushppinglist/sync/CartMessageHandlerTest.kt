@@ -106,7 +106,7 @@ class CartMessageHandlerTest {
     }
 
     @Test(timeout = 100_000)
-    fun handleCartUpdateRequest__success() = runBlocking {
+    fun handleCartRequest__success() = runBlocking {
         val cartItem = createSampleCartItem()
         viewModel.add(cartItem)
         val updatedCartItemProperties = cartItem.cartItemProperties.copy(
@@ -119,6 +119,21 @@ class CartMessageHandlerTest {
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
         result?.amount shouldBe updatedCartItemProperties.amount
         result?.checked shouldBe updatedCartItemProperties.checked
+    }
+
+    @Test(timeout = 100_000)
+    fun handleCartRequest__success_removeLast() = runBlocking {
+        val cartItem = createSampleCartItem()
+        viewModel.add(cartItem)
+        val zeroCartItemProperties = cartItem.cartItemProperties.copy(
+            amount = 0,
+            checked = cartItem.cartItemProperties.checked
+        )
+        val request = CartMessage(zeroCartItemProperties)
+        CartMessageHandler(cartDao, publisher)(request)
+        Thread.sleep(1000) // wait for DB to save
+        val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
+        result shouldBe null
     }
 }
 
