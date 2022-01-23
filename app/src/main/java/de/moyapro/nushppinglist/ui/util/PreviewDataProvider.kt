@@ -45,7 +45,7 @@ class RecipePropertiesProvider : PreviewParameterProvider<RecipeProperties> {
 
 
 fun createSampleItem(name: String = "Sugar") = Item(
-    itemId = ItemId(),
+    itemId = ItemId(UUID.fromString("c871a987-54ac-4f88-8e57-054a3507db5a")),
     name = name,
     description = "weiss",
     defaultItemAmount = 1000,
@@ -54,7 +54,11 @@ fun createSampleItem(name: String = "Sugar") = Item(
 )
 
 fun createSampleCartItem(recipeId: RecipeId? = RecipeId()) =
-    CartItem(createSampleItem()).apply { cartItemProperties.recipeId = recipeId }
+    CartItem(createSampleItem()).apply {
+        cartItemProperties.cartItemPropertiesId =
+            UUID.fromString("5cf9d5fd-f181-4620-86ec-7a597219cb12")
+        cartItemProperties.recipeId = recipeId
+    }
 
 
 fun createSampleRecipeItem(recipeId: UUID = UUID.randomUUID()) = RecipeItem(

@@ -11,6 +11,6 @@ data class RequestItemMessage(val itemIds: List<ItemId>) : ShoppingMessage {
     companion object {
         @JsonCreator
         @JvmStatic
-        fun create(itemId: UUID) = RequestItemMessage(ItemId(itemId))
+        fun create(itemIds: List<UUID>) = RequestItemMessage(itemIds.map(::ItemId))
     }
 }
