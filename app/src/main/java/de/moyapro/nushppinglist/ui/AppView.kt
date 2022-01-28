@@ -45,6 +45,7 @@ fun AppView(
         when (displayedView) {
             MainView.EINKAUFSLISTE -> CartView(cartViewModel)
             MainView.DINGE -> ItemList(cartViewModel)
+            MainView.CART -> CartList(cartViewModel)
             MainView.REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
             MainView.MQTT_Test -> MqttTestView(context)
             MainView.COLOR_TEST -> ColorTest()
