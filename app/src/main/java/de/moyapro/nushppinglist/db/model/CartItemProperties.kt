@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import java.util.*
 
@@ -10,6 +11,9 @@ data class CartItemProperties(
     @PrimaryKey
     var cartItemPropertiesId: UUID = UUID.randomUUID(),
     var cartItemId: UUID,
+    @get:JvmName("getInCart")
+    @set:JvmName("setInCart")
+    var inCart: CartId? = CartId(),
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
     var itemId: ItemId,

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.*
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.RecipeDao
+import de.moyapro.nushppinglist.db.migration.Migration_8_9
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.ui.model.converter.Converters
 import kotlinx.coroutines.CoroutineScope
@@ -18,9 +19,9 @@ import kotlinx.coroutines.CoroutineScope
         RecipeStep::class
     ],
     autoMigrations = [
-        AutoMigration(from = 7, to = 8)
+        AutoMigration(from = 7, to = 8),
     ],
-    version = 8)
+    version = 9)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartDao(): CartDao
@@ -43,6 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "nuShoppingListDatabase"
                 )
+                    .addMigrations(Migration_8_9)
                     .build()
                 INSTANCE = instance
                 instance
