@@ -32,15 +32,14 @@ fun <T> Dropdown(
             modifier = modifier
                 .clickable(onClick = { expanded = true })
         ) {
-            val selectedText = itemLabel(values[selectedIndex])
-            if (selectedText.isBlank() || selectedText == " ()") {
+            if (values.isEmpty() || -1 == selectedIndex) {
                 Text(label,
                     modifier = Modifier
                         .padding(12.dp),
                     color = Color.LightGray
                 )
             } else {
-                Text(selectedText,
+                Text(itemLabel(values[selectedIndex]),
                     modifier = Modifier
                         .padding(12.dp)
                 )

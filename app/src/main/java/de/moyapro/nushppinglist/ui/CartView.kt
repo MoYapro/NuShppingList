@@ -9,9 +9,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
 import de.moyapro.nushppinglist.ui.component.Autocomplete
+import de.moyapro.nushppinglist.ui.component.Dropdown
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.util.SortCartItemPairByCheckedAndName
 import de.moyapro.nushppinglist.util.sumByBigDecimal
@@ -43,8 +45,11 @@ fun CartView(viewModel: CartViewModel) {
     Scaffold(
         Modifier.fillMaxHeight(),
         topBar = {
+            Row() {
             Button(onClick = { viewModel.removeCheckedFromCart() }) {
                 Text("⎚")
+            }
+                CartSelector(viewModel)
             }
         },
         bottomBar = {
@@ -88,6 +93,21 @@ private fun SumDisplay(total: BigDecimal) {
                 text = "$total €")
         }
     }
+}
+
+@Composable
+private fun CartSelector(viewModel: CartViewModel) {
+    val carts: List<Cart> by viewModel.allCart.collectAsState(listOf())
+    var selectedCart = carts.firstOrNull()
+
+    Dropdown(
+        label = "Carts",
+        initialValue = selectedCart,
+        values = carts,
+        onValueChange = { selectedCart = it },
+        itemLabel = { it?.cartName ?: ""},
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 
