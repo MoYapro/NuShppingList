@@ -38,6 +38,7 @@ fun CartList(viewModel: CartViewModel) {
         )
             "" else newCartName.trim()
     }
+
     val saveAction: () -> Unit = {
         viewModel.add(Cart(cartName = newCartName.trim()))
         clearFilter()

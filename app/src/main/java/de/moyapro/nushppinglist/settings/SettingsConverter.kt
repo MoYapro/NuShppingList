@@ -5,7 +5,7 @@ import de.moyapro.nushppinglist.constants.SETTING
 
 object SettingsConverter {
     val INVALID_CONNECTION_SETTINGS: ConnectionSettings =
-        ConnectionSettings("", -1, "", "", "", false)
+        ConnectionSettings(false,"", -1, "", "", "", false)
 
     fun toConnectionSettings(preferences: SharedPreferences): ConnectionSettings {
         val connectionSettings = buildConnectionSettingsFromPreferences(preferences)
@@ -23,6 +23,7 @@ object SettingsConverter {
         val (hostname, port) = splitHostnamePort(preferences.getString(SETTING.SYNC_MQTT_SERVER_HOSTNAME.name,
             "") ?: "")
         return ConnectionSettings(
+            syncEnabled = preferences.getBoolean(SETTING.SYNC_ENABLED.name, false) ,
             hostname = hostname,
             port = port,
             username = preferences.getString(SETTING.SYNC_MQTT_SERVER_USER.name, "") ?: "",

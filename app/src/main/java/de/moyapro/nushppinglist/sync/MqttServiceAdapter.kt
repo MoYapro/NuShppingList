@@ -30,7 +30,10 @@ class MqttServiceAdapter(
     init {
         Log.i(tag, "init")
         connectionSettings = SettingsConverter.toConnectionSettings(MainActivity.preferences)
-        mqttClient = if (connectionSettings != SettingsConverter.INVALID_CONNECTION_SETTINGS) {
+        mqttClient = if (
+            connectionSettings.syncEnabled
+            && connectionSettings != SettingsConverter.INVALID_CONNECTION_SETTINGS
+        ) {
             val builder = MqttClient.builder()
                 .useMqttVersion5()
                 .identifier(clientIdentifier)
@@ -48,13 +51,10 @@ class MqttServiceAdapter(
         } else {
             null
         }
-
-        Log.i(tag, "created mqttClient")
     }
 
 
     override fun connect(): MqttServiceAdapter {
-        Log.i(tag, "start connect")
         mqttClient?.connectWith()
             ?.simpleAuth()
             ?.username(connectionSettings.username)
@@ -66,7 +66,6 @@ class MqttServiceAdapter(
                 Log.i(tag, "connected with error: $error")
 
             }
-        Log.i(tag, "done connect")
         return this
     }
 
@@ -97,16 +96,17 @@ class MqttServiceAdapter(
     override fun publish(messageObject: ShoppingMessage) {
         val topic = CONSTANTS.messagesWithTopic[messageObject::class]
         require(topic != null) { "Could not find topic for $messageObject" }
+        if (null == mqttClient) return
         if (!isConnected) {
             println("xxx\tCannot send $messageObject to $topic. Client is not connected")
             return
         }
         println("==>\t$topic:\t $messageObject")
-        mqttClient?.publishWith()
-            ?.topic(topic)
-            ?.payload(ConfiguredObjectMapper().writeValueAsBytes(messageObject))
-            ?.qos(MqttQos.EXACTLY_ONCE)
-            ?.send()
+        mqttClient.publishWith()
+            .topic(topic)
+            .payload(ConfiguredObjectMapper().writeValueAsBytes(messageObject))
+            .qos(MqttQos.EXACTLY_ONCE)
+            .send()
     }
 
     fun setHandler(messageHandler: MessageHandler) {
