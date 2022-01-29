@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.db.dao
 
 import androidx.room.*
+import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
@@ -50,6 +51,10 @@ interface CartDao {
     fun findAllCartItems(): Flow<List<CartItem>>
 
     @Transaction
+    @Query("select * from CartItemProperties cip join Item on Item.itemId = cip.itemId where cip.inCart = :cartId")
+    fun findAllSelectedCartItems_internal(cartId: UUID?): Flow<List<CartItem>>
+
+    @Transaction
     @Query("select * from Cart")
     fun findAllCart(): Flow<List<Cart>>
 
@@ -93,6 +98,10 @@ interface CartDao {
     suspend fun getItemByItemName(itemName: String): Item?
 
     @Transaction
+    @Query("select * from Cart c where c.selected")
+    fun getSelectedCart(): Cart?
+
+    @Transaction
     @Delete
     suspend fun remove(cartItem: CartItemProperties)
 
@@ -109,4 +118,5 @@ interface CartDao {
 suspend fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId_internal(itemId.id)
 suspend fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId_internal(itemId.id)
 suspend fun CartDao.getAllItemByItemId(itemIds: List<ItemId>): List<Item> = getAllItemByItemId_internal(itemIds.map{it.id})
+fun CartDao.findAllSelectedCartItems(cartId: CartId?): Flow<List<CartItem>> = findAllSelectedCartItems_internal(cartId?.id)
 

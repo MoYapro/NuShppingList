@@ -14,6 +14,7 @@ import de.moyapro.nushppinglist.ui.model.ViewModelFactory
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
 import de.moyapro.nushppinglist.util.DbTestHelper
+import de.moyapro.nushppinglist.util.test.MockPublisher
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -26,6 +27,8 @@ class RecipeListViewTest {
     val composeTestRule = createComposeRule()
 
     val database = DbTestHelper.createTestDatabase()
+
+    val publisher = MockPublisher("testtopic")
 
     @Before
     fun setup() {

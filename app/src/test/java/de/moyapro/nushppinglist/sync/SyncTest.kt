@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.sync
 
+import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
@@ -10,6 +11,7 @@ import de.moyapro.nushppinglist.ui.util.createSampleItem
 import de.moyapro.nushppinglist.ui.util.waitFor
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -19,6 +21,10 @@ import org.junit.Rule
 import org.junit.Test
 
 class SyncTest {
+    init {
+        // init preferences before init connection
+        MainActivity.preferences = mockk(relaxed = true)
+    }
 
     @get:Rule
     val coroutineRule = MainCoroutineRule()
@@ -28,6 +34,7 @@ class SyncTest {
 
     private lateinit var syncServiceBob: SyncService
     private lateinit var viewModelBob: CartViewModel
+
 
     @Before
     fun setup() {

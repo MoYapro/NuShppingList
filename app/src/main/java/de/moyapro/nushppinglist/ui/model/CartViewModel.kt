@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
 import de.moyapro.nushppinglist.db.dao.CartDao
+import de.moyapro.nushppinglist.db.dao.findAllSelectedCartItems
 import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
+import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
@@ -25,6 +27,9 @@ class CartViewModel(
 
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
+    private var _selectedCart: CartId? = null
+    val selectedCart = _selectedCart
+
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
     val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
     private val _nonCartItems = MutableStateFlow<List<Item>>(emptyList())
@@ -43,7 +48,7 @@ class CartViewModel(
         _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
         _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
         _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
-        _allCartItemsGrouped.listenTo(cartDao.findAllCartItems(),
+        _allCartItemsGrouped.listenTo(cartDao.findAllSelectedCartItems(selectedCart),
             viewModelScope,
             ModelTransformation::groupCartItemsByRecipe)
 
@@ -63,7 +68,7 @@ class CartViewModel(
         cartDao.save(newItem)
     }
 
-    fun add(newCart: Cart)= viewModelScope.launch(Dispatchers.IO) {
+    fun add(newCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
         println("vvv\tCart\t $newCart")
         cartDao.save(newCart)
     }
@@ -125,6 +130,10 @@ class CartViewModel(
 
     fun getItemByItemId(itemId: ItemId): Item? = runBlocking {
         cartDao.getItemByItemId(itemId)
+    }
+
+    fun getSelectedCart(): Cart? = runBlocking {
+        cartDao.getSelectedCart()
     }
 
     fun getAutocompleteItems(searchString: String): List<String> {
@@ -215,7 +224,15 @@ class CartViewModel(
         cartDao.remove(cartToRemove)
     }
 
-    suspend fun getAllCartItemProperties(): List<CartItem> = cartDao.getAllCartItems()
+    fun selectCart(toBeSelected: Cart) {
+        val newlySelectedCart = toBeSelected.copy(selected = true)
+        val previousSelectedCart = getSelectedCart()?.copy(selected = false)
+        if (null != previousSelectedCart) {
+            update(previousSelectedCart)
+        }
+        update(newlySelectedCart)
+
+    }
 }
 
 fun matched(name: String, searchString: String): Boolean {

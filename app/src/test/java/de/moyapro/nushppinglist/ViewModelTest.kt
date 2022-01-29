@@ -15,13 +15,10 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.After
 import org.junit.Assert.*
@@ -30,6 +27,8 @@ import org.junit.Rule
 import org.junit.Test
 import java.util.*
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 
 @Suppress("EXPERIMENTAL_API_USAGE")
@@ -412,6 +411,70 @@ class ViewModelTest {
         carts.single() shouldBe cart
 
         viewModel.removeCart(cart)
+        Unit
+    }
+
+
+    @Test
+    fun getSelectedCart() = runBlocking {
+        val selectedCart = Cart(cartName = "Selected").apply { selected = true }
+        val notSelectedCart = Cart(cartName = "Not selected").apply { selected = false }
+        viewModel.add(selectedCart)
+        viewModel.add(notSelectedCart)
+        delay(1.seconds)
+        val result = viewModel.getSelectedCart()
+
+        result shouldBe selectedCart
+
+    }
+
+    @Test
+    fun setSelectedCart() = runBlocking {
+        val initialySelected = Cart().apply { selected = true }
+        val eventuallySelected = Cart().apply { selected = false }
+        viewModel.add(initialySelected)
+        viewModel.add(eventuallySelected)
+        delay(1.seconds)
+
+        viewModel.selectCart(eventuallySelected)
+        delay(1.seconds)
+
+        val carts: List<Cart> = viewModel.allCart.take(1).first()
+
+        viewModel.getSelectedCart() shouldBe eventuallySelected
+        carts.single { it == eventuallySelected }.selected shouldBe true
+        carts.single { it == initialySelected }.selected shouldBe false
+    }
+
+    @Test
+    fun getItemsInSpecificCart() = runBlocking {
+        val cart1 = Cart().apply { selected = false }
+        val cart2 = Cart().apply { selected = false }
+        val cart1Item1 = CartItem(Item()).apply { cartItemProperties.inCart = cart1.cartId }
+        val cart1Item2 = CartItem(Item()).apply { cartItemProperties.inCart = cart1.cartId }
+        val cart2Item1 = CartItem(Item()).apply { cartItemProperties.inCart = cart2.cartId }
+        val cart2Item2 = CartItem(Item()).apply { cartItemProperties.inCart = cart2.cartId }
+        viewModel.add(cart1)
+        viewModel.add(cart2)
+        viewModel.add(cart1Item1)
+        viewModel.add(cart1Item2)
+        viewModel.add(cart2Item1)
+        viewModel.add(cart2Item2)
+        delay(100.milliseconds)
+        // no cart selected
+        val emptyCart = viewModel.allCartItemsGrouped.take(1).first()
+        emptyCart shouldBe emptyMap()
+
+        viewModel.selectCart(cart1)
+        delay(100.milliseconds)
+        val cart1Items = viewModel.allCartItemsGrouped.take(1).first().values.flatten()
+        cart1Items shouldContainExactlyInAnyOrder listOf(cart1Item1, cart1Item2)
+
+        viewModel.selectCart(cart2)
+        delay(100.milliseconds)
+        val cart2Items = viewModel.allCartItemsGrouped.take(1).first().values.flatten()
+        cart2Items shouldContainExactlyInAnyOrder listOf (cart2Item1, cart2Item2)
+
         Unit
     }
 

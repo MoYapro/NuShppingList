@@ -26,12 +26,14 @@ class CartDaoMock(
 
     private val cartChannel: MutableStateFlow<List<Cart>> = MutableStateFlow(listOf())
     private val cartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
+    private val selectedCartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
     private val cartItemPropertiesChannel: MutableStateFlow<List<CartItemProperties>> =
         MutableStateFlow(listOf())
     private val allItemChannel: MutableStateFlow<List<Item>> = MutableStateFlow(listOf())
     private val allItemFlow: Flow<List<Item>> = allItemChannel
     private val cartItemPropertiesFlow: Flow<List<CartItemProperties>> = cartItemPropertiesChannel
     private val cartItemFlow: Flow<List<CartItem>> = cartItemChannel
+    private val selectedCartItemFlow: Flow<List<CartItem>> = selectedCartItemChannel
     private val cartFlow: Flow<List<Cart>> = cartChannel
 
     override suspend fun save(vararg cartItemProperties: CartItemProperties) {
@@ -107,6 +109,10 @@ class CartDaoMock(
         return cartItemFlow
     }
 
+    override fun findAllSelectedCartItems_internal(cartId: UUID?): Flow<List<CartItem>> {
+       return selectedCartItemFlow
+    }
+
     override fun findAllCart(): Flow<List<Cart>> {
         return cartFlow
     }
@@ -140,6 +146,8 @@ class CartDaoMock(
         return this.itemTable.firstOrNull { it.name == itemName }
     }
 
+    override fun getSelectedCart(): Cart? = this.cartTable.firstOrNull { it.selected }
+
     override suspend fun remove(cartItem: CartItemProperties) {
         cartItemPropertiesTable.remove(cartItem)
         pushCartItemProperties()
@@ -160,6 +168,7 @@ class CartDaoMock(
         val cartItemJoinTable = getJoin(itemTable, cartItemPropertiesTable)
         externalScope.launch {
             cartItemChannel.value = cartItemJoinTable
+            selectedCartItemChannel.value = cartItemJoinTable.filter { it.cartItemProperties.inCart == getSelectedCart()?.cartId }
         }
     }
 
@@ -167,6 +176,7 @@ class CartDaoMock(
         externalScope.launch {
             cartChannel.value = cartTable.toList()
         }
+        pushCartItems()
     }
 
     private fun getJoin(

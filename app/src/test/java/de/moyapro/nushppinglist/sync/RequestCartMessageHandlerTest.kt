@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.sync
 
-import de.moyapro.nushppinglist.MockPublisher
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.handler.RequestCartMessageHandler
@@ -9,6 +8,7 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
 import de.moyapro.nushppinglist.ui.util.waitFor
 import de.moyapro.nushppinglist.util.MainCoroutineRule
+import de.moyapro.nushppinglist.util.test.MockPublisher
 import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

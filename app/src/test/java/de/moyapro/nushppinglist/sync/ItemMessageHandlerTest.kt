@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.sync
 
-import de.moyapro.nushppinglist.MockPublisher
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.KATEGORY
 import de.moyapro.nushppinglist.constants.UNIT
@@ -11,6 +10,7 @@ import de.moyapro.nushppinglist.sync.handler.ItemMessageHandler
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
 import de.moyapro.nushppinglist.ui.util.createSampleItem
 import de.moyapro.nushppinglist.util.MainCoroutineRule
+import de.moyapro.nushppinglist.util.test.MockPublisher
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.*

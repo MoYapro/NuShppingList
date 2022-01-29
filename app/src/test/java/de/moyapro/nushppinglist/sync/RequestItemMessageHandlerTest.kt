@@ -1,7 +1,6 @@
 package de.moyapro.nushppinglist.sync
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import de.moyapro.nushppinglist.MockPublisher
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.mock.CartDaoMock
@@ -11,6 +10,7 @@ import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleItem
 import de.moyapro.nushppinglist.util.MainCoroutineRule
+import de.moyapro.nushppinglist.util.test.MockPublisher
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain

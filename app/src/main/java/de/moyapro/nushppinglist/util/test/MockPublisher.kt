@@ -1,4 +1,4 @@
-package de.moyapro.nushppinglist
+package de.moyapro.nushppinglist.util.test
 
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import de.moyapro.nushppinglist.sync.Publisher
