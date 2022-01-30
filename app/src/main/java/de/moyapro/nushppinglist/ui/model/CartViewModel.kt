@@ -30,7 +30,7 @@ class CartViewModel(
 
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
-    private var _selectedCart: CartId? = getSelectedCart()?.cartId
+    private var _selectedCart: CartId? = null
 
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
     val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
@@ -140,7 +140,10 @@ class CartViewModel(
     }
 
     fun getSelectedCart(): Cart? = runBlocking {
-        cartDao.getSelectedCart()
+        val selectedCart = cartDao.getSelectedCart()
+        updateSelectedCart(selectedCart?.cartId)
+        Log.i(tag, "^^^\tselectedCart: $selectedCart")
+        selectedCart
     }
 
     fun getAutocompleteItems(searchString: String): List<String> {
