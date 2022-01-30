@@ -8,7 +8,6 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.moyapro.nushppinglist.MainActivity
-import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import de.moyapro.nushppinglist.settings.ConnectionSettings
 import de.moyapro.nushppinglist.settings.SettingsConverter
@@ -94,9 +93,8 @@ class MqttServiceAdapter(
     }
 
     override fun publish(messageObject: ShoppingMessage) {
-        val topic = CONSTANTS.messagesWithTopic[messageObject::class]
-        require(topic != null) { "Could not find topic for $messageObject" }
         if (null == mqttClient) return
+        val topic = connectionSettings.topic + "/" + messageObject.getTopic()
         if (!isConnected) {
             println("xxx\tCannot send $messageObject to $topic. Client is not connected")
             return

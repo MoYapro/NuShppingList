@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.sync
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
@@ -39,7 +40,8 @@ class SerializationTest {
             CartMessage(
                 listOf(
                     createSampleCartItem(RecipeId(UUID.fromString("86999915-5a24-46ca-8fc2-fb8b6efca219")))
-                ).map(CartItem::cartItemProperties)
+                ).map(CartItem::cartItemProperties),
+                CartId()
             )
 
         val actualJson = objectMapper.writeValueAsString(instance)
@@ -52,7 +54,7 @@ class SerializationTest {
     fun requestCartMessage() {
         val expectedJson =
             """{"message":"Can I get your cart, please?"}"""
-        val instance = RequestCartMessage()
+        val instance = RequestCartMessage(CartId())
 
         val actualJson = objectMapper.writeValueAsString(instance)
         actualJson shouldBe expectedJson

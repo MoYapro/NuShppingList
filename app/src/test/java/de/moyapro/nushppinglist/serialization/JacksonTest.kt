@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.serialization
 
+import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
@@ -22,18 +23,20 @@ class JacksonTest(
         @JvmStatic
         @Parameterized.Parameters
         fun data(): Collection<Array<Any>> {
+            val cartId = CartId()
             return listOf(
                 arrayOf(UUID.randomUUID()),
                 arrayOf(RequestItemMessage(ItemId())),
-                arrayOf(RequestCartMessage("This is a cart request")),
+                arrayOf(RequestCartMessage(cartId)),
                 arrayOf(ItemMessage(createSampleItem())),
                 arrayOf(
                     CartMessage(listOf(
                         createSampleCartItem().cartItemProperties,
                         createSampleCartItem().cartItemProperties
-                    ))
+                    ),
+                    cartId)
                 ),
-                arrayOf(CartMessage(createSampleCartItem().cartItemProperties))
+                arrayOf(CartMessage(listOf(createSampleCartItem().cartItemProperties), cartId))
             )
         }
     }

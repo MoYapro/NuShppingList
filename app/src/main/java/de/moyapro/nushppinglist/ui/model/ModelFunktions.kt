@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-const val tag = "StateListener"
+private const val tag = "StateListener"
 
 fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>, coroutineScope: CoroutineScope) {
     return this.listenTo(source, coroutineScope) { x ->

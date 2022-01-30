@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.sync
 
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.handler.CartMessageHandler
 import de.moyapro.nushppinglist.sync.handler.ItemMessageHandler
@@ -44,15 +45,21 @@ class CartMessageHandlerTest {
 
     @Test(timeout = 10_000)
     fun handleCartMessage__cartAndItemExists() = runBlocking {
+        val cart = Cart()
         val cartItemList = listOf(
             createSampleCartItem(),
             createSampleCartItem()
         )
-        cartItemList.forEach { viewModel.add(it) }
+        viewModel.add(cart)
+        cartItemList.forEach {
+            it.cartItemProperties.inCart = cart.cartId
+            viewModel.add(it)
+        }
         val requestWithUpdatedCartItems = CartMessage(
             cartItemList
                 .map { it.cartItemProperties }
-                .map { it.copy(checked = true) }
+                .map { it.copy(checked = true) },
+            cart.cartId,
         )
         CartMessageHandler(cartDao, publisher)(requestWithUpdatedCartItems)
         Thread.sleep(100) // wait for DB to save
@@ -65,12 +72,16 @@ class CartMessageHandlerTest {
 
     @Test(timeout = 10_000)
     fun handleCartMessage__ItemExists() = runBlocking {
+        val cart = Cart()
         val cartItemList = listOf(
             createSampleCartItem(),
             createSampleCartItem()
         )
-        cartItemList.map { it.item }.forEach { viewModel.add(it) }
-        val request = CartMessage(cartItemList.map { it.cartItemProperties })
+        viewModel.add(cart)
+        cartItemList.map { it.item }.forEach {
+            viewModel.add(it)
+        }
+        val request = CartMessage(cartItemList.map { it.cartItemProperties }, cart.cartId)
         CartMessageHandler(cartDao, publisher)(request)
         Thread.sleep(100) // wait for DB to save
         cartItemList.map { it.item.itemId }.forEach { itemId ->
@@ -81,11 +92,18 @@ class CartMessageHandlerTest {
 
     @Test(timeout = 10_000)
     fun handleCartMessage__NothingExists() {
+        val cart = Cart()
         val cartItemList = listOf(
             createSampleCartItem(),
             createSampleCartItem()
         )
-        val cartMessage = CartMessage(cartItemList.map { it.cartItemProperties })
+        val cartMessage = CartMessage(
+            cartItemList.map {
+                it.cartItemProperties.inCart = cart.cartId
+                it.cartItemProperties
+            },
+            cart.cartId,
+        )
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             CartMessageHandler(cartDao, publisher)(cartMessage)
         }
@@ -107,13 +125,15 @@ class CartMessageHandlerTest {
 
     @Test(timeout = 100_000)
     fun handleCartRequest__success() = runBlocking {
-        val cartItem = createSampleCartItem()
+        val cart = Cart()
+        val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
+        viewModel.add(cart)
         viewModel.add(cartItem)
         val updatedCartItemProperties = cartItem.cartItemProperties.copy(
             amount = cartItem.cartItemProperties.amount + 1,
             checked = !cartItem.cartItemProperties.checked
         )
-        val request = CartMessage(updatedCartItemProperties)
+        val request = CartMessage(listOf(updatedCartItemProperties), cart.cartId)
         CartMessageHandler(cartDao, publisher)(request)
         Thread.sleep(1000) // wait for DB to save
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
@@ -123,13 +143,15 @@ class CartMessageHandlerTest {
 
     @Test(timeout = 100_000)
     fun handleCartRequest__success_removeLast() = runBlocking {
+        val cart = Cart()
         val cartItem = createSampleCartItem()
+        viewModel.add(cart)
         viewModel.add(cartItem)
         val zeroCartItemProperties = cartItem.cartItemProperties.copy(
             amount = 0,
             checked = cartItem.cartItemProperties.checked
         )
-        val request = CartMessage(zeroCartItemProperties)
+        val request = CartMessage(listOf(zeroCartItemProperties), cart.cartId)
         CartMessageHandler(cartDao, publisher)(request)
         Thread.sleep(1000) // wait for DB to save
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)

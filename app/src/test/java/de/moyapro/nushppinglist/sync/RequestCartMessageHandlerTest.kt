@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.sync
 
 import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.handler.RequestCartMessageHandler
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
@@ -46,11 +47,13 @@ class RequestCartMessageHandlerTest {
 
     @Test(timeout = 10_000)
     fun handleCartRequest__success() = runBlocking {
-        val cartItem1 = createSampleCartItem()
-        val cartItem2 = createSampleCartItem()
+        val cart = Cart()
+        val cartItem1 = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
+        val cartItem2 = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
+        viewModel.add(cart)
         viewModel.add(cartItem1)
         viewModel.add(cartItem2)
-        val request = RequestCartMessage()
+        val request = RequestCartMessage(cart.cartId)
         val requestHandler = RequestCartMessageHandler(cartDao, publisher)
         requestHandler(request)
         Thread.sleep(100) // wait for DB to save

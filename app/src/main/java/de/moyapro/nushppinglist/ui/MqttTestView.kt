@@ -40,7 +40,7 @@ fun MqttTestView(context: Context) {
 
 
 fun requestCart() {
-    MqttSingleton.adapter.publish(RequestCartMessage())
+    MqttSingleton.adapter.publish(RequestCartMessage(null))
 }
 
 fun startBackgroundService(context: Context) {

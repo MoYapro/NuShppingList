@@ -36,7 +36,7 @@ class SyncService(
     }
 
     fun requestCart() {
-        serviceAdapter.publish(RequestCartMessage())
+        serviceAdapter.publish(RequestCartMessage.create(""))
     }
 
     fun publish(messageObject: ShoppingMessage) {

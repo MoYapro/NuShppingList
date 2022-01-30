@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.sync
 
 import de.moyapro.nushppinglist.MainActivity
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
@@ -73,12 +74,13 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun syncCartWithExistingItems() {
-        val cartItem = createSampleCartItem()
+        val cart = Cart()
+        val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         val item = cartItem.item
         viewModelBob.add(item)
         viewModelAlice.add(cartItem)
         viewModelBob.getCartItemPropertiesByItemId(item.itemId) shouldBe null
-        syncServiceBob.publish(RequestCartMessage("RequestCartMessage"))
+        syncServiceBob.publish(RequestCartMessage(cart.cartId))
         waitFor { null != viewModelBob.getCartItemPropertiesByItemId(item.itemId) }
         val resultItem = viewModelBob.getCartItemPropertiesByItemId(item.itemId)
         resultItem?.itemId shouldBe item.itemId
@@ -86,11 +88,13 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun syncCartWithoutExistingItems() {
-        val cartItem = createSampleCartItem()
+        val cart = Cart()
+        val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         val item = cartItem.item
+        viewModelAlice.add(cart)
         viewModelAlice.add(cartItem)
         viewModelBob.getCartItemPropertiesByItemId(item.itemId) shouldBe null
-        syncServiceBob.publish(RequestCartMessage("RequestCartMessage"))
+        syncServiceBob.publish(RequestCartMessage(cart.cartId))
         waitFor { null != viewModelBob.getCartItemPropertiesByItemId(item.itemId) }
         val resultItem = viewModelBob.getCartItemPropertiesByItemId(item.itemId)
         resultItem?.itemId shouldBe item.itemId
@@ -98,19 +102,20 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun updateCartItem() {
+        val cart = Cart()
         val originalCartItem = createSampleCartItem().apply { cartItemProperties.checked = false }
         val itemId = originalCartItem.item.itemId
         val updatedCartItemProperties =
             originalCartItem.cartItemProperties.copy(checked = true)
         viewModelBob.add(originalCartItem)
-        syncServiceAlice.publish(CartMessage(updatedCartItemProperties))
+        syncServiceAlice.publish(CartMessage(listOf(updatedCartItemProperties), cart.cartId))
         waitFor { viewModelBob.getCartItemPropertiesByItemId(itemId)?.checked ?: false }
         val resultItem = viewModelBob.getCartItemPropertiesByItemId(itemId)
         resultItem?.itemId shouldBe itemId
         resultItem?.checked shouldBe true
     }
 
-    @Test(timeout = 10000_000)
+    @Test(timeout = 10_000)
     fun receiveItemMultipleTimes() {
         val item = createSampleItem()
         repeat(12) {

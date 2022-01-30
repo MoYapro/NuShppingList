@@ -1,3 +1,6 @@
 package de.moyapro.nushppinglist.sync.messages
 
-sealed interface ShoppingMessage
+sealed interface ShoppingMessage {
+
+    fun getTopic() : String
+}

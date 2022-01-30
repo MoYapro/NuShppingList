@@ -9,6 +9,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.SyncDisabled
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,6 +84,17 @@ fun EditView(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 doneAction = saveActionClosure
             )
+            Spacer(modifier = Modifier.height(Dp(8F)))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Row {
+                    Icon(Icons.Filled.Sync, contentDescription = "Neu")
+                    Text(" / ")
+                    Icon(Icons.Filled.SyncDisabled, contentDescription = "Neu")
+                }
+                Switch(checked = editCart.synced,
+                    onCheckedChange = { editCart = editCart.copy(synced = it) })
+            }
+            Spacer(modifier = Modifier.height(Dp(8F)))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -125,10 +138,13 @@ fun JustView(
             .fillMaxWidth()
             .clickable(onClick = beginEditMode)
     ) {
-        Row(Modifier.fillMaxWidth(.63F)) {
-            Spacer(modifier = Modifier.width(2.dp))
-            Text(cart.cartName)
-        }
+        Text(cart.cartName)
+        Spacer(modifier = Modifier.width(2.dp))
+        if (cart.synced)
+            Icon(Icons.Filled.Sync, contentDescription = "private")
+        else
+            Icon(Icons.Filled.SyncDisabled, contentDescription = "private")
+
     }
     Spacer(Modifier.height(3.dp))
 }

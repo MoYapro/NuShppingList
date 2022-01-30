@@ -19,7 +19,7 @@ class BackgroundSyncService : Service() {
     }
 
     val database by lazy { AppDatabase.getDatabase(this) }
-    val tag = BackgroundSyncService::class.simpleName
+    private val tag = BackgroundSyncService::class.simpleName
 
     override fun onBind(intent: Intent?): IBinder? {
         TODO("Not yet implemented")
