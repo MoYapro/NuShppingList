@@ -236,7 +236,6 @@ class CartViewModel(
 
     fun selectCart(toBeSelected: Cart?) {
         Log.i(tag, "vvv\tselect Cart: $toBeSelected")
-        updateSelectedCart(toBeSelected?.cartId)
         val previousSelectedCart = getSelectedCart()?.copy(selected = false)
         if (null != previousSelectedCart) {
             update(previousSelectedCart)
@@ -245,6 +244,7 @@ class CartViewModel(
         if (null != newlySelectedCart) {
             update(newlySelectedCart)
         }
+        updateSelectedCart(toBeSelected?.cartId)
     }
 }
 
