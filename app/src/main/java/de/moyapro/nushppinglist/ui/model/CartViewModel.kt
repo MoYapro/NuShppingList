@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui.model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
@@ -25,10 +26,11 @@ class CartViewModel(
     private val publisher: Publisher? = null,
 ) : ViewModel() {
 
+    val tag = CartViewModel::class.simpleName
+
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
-    private var _selectedCart: CartId? = null
-    val selectedCart = _selectedCart
+    private var _selectedCart: CartId? = getSelectedCart()?.cartId
 
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
     val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
@@ -48,7 +50,7 @@ class CartViewModel(
         _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
         _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
         _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
-        _allCartItemsGrouped.listenTo(cartDao.findAllSelectedCartItems(selectedCart),
+        _allCartItemsGrouped.listenTo(cartDao.findAllSelectedCartItems(_selectedCart),
             viewModelScope,
             ModelTransformation::groupCartItemsByRecipe)
 
@@ -90,10 +92,10 @@ class CartViewModel(
 
         }
 
-    fun update(updatedCart: Cart) =
-        viewModelScope.launch(Dispatchers.IO) {
-            cartDao.updateAll(updatedCart)
-        }
+    fun update(updatedCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
+        Log.i(tag, "vvv\tCart: $updatedCart")
+        cartDao.updateAll(updatedCart)
+    }
 
     @Transaction
     fun add(newCartItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
@@ -146,7 +148,7 @@ class CartViewModel(
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(item.itemId)
         if (null == existingCartItem) {
-            add(CartItem(item))
+            add(CartItem(item).apply { cartItemProperties.inCart = _selectedCart })
         } else {
             val updatedCartItemProperties =
                 existingCartItem.copy(amount = existingCartItem.amount + 1)
@@ -224,14 +226,16 @@ class CartViewModel(
         cartDao.remove(cartToRemove)
     }
 
-    fun selectCart(toBeSelected: Cart) {
-        val newlySelectedCart = toBeSelected.copy(selected = true)
+    fun selectCart(toBeSelected: Cart?) {
+        _selectedCart = toBeSelected?.cartId
         val previousSelectedCart = getSelectedCart()?.copy(selected = false)
         if (null != previousSelectedCart) {
             update(previousSelectedCart)
         }
-        update(newlySelectedCart)
-
+        val newlySelectedCart = toBeSelected?.copy(selected = true)
+        if (null != newlySelectedCart) {
+            update(newlySelectedCart)
+        }
     }
 }
 

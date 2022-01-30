@@ -51,7 +51,7 @@ interface CartDao {
     fun findAllCartItems(): Flow<List<CartItem>>
 
     @Transaction
-    @Query("select * from CartItemProperties cip join Item on Item.itemId = cip.itemId where cip.inCart = :cartId")
+    @Query("select * from CartItemProperties cip join Item on Item.itemId = cip.itemId where cip.inCart = :cartId OR :cartId is null")
     fun findAllSelectedCartItems_internal(cartId: UUID?): Flow<List<CartItem>>
 
     @Transaction
@@ -99,7 +99,7 @@ interface CartDao {
 
     @Transaction
     @Query("select * from Cart c where c.selected")
-    fun getSelectedCart(): Cart?
+    suspend fun getSelectedCart(): Cart?
 
     @Transaction
     @Delete

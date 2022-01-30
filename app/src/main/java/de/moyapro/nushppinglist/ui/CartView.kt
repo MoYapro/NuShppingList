@@ -3,12 +3,10 @@ package de.moyapro.nushppinglist.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
@@ -46,9 +44,9 @@ fun CartView(viewModel: CartViewModel) {
         Modifier.fillMaxHeight(),
         topBar = {
             Row() {
-            Button(onClick = { viewModel.removeCheckedFromCart() }) {
-                Text("⎚")
-            }
+                Button(onClick = { viewModel.removeCheckedFromCart() }) {
+                    Text("⎚")
+                }
                 CartSelector(viewModel)
             }
         },
@@ -97,17 +95,29 @@ private fun SumDisplay(total: BigDecimal) {
 
 @Composable
 private fun CartSelector(viewModel: CartViewModel) {
-    val carts: List<Cart> by viewModel.allCart.collectAsState(listOf())
-    var selectedCart = carts.firstOrNull()
+    val carts: List<Cart?> by viewModel.allCart.collectAsState(listOf())
+    val cartsAndEmpty = listOf(null) + carts
+
+
+    var selectedCart by remember { mutableStateOf(viewModel.getSelectedCart()) }
+
+Column() {
 
     Dropdown(
-        label = "Carts",
+        label = "Alle Listen",
         initialValue = selectedCart,
-        values = carts,
-        onValueChange = { selectedCart = it },
-        itemLabel = { it?.cartName ?: ""},
+        values = cartsAndEmpty,
+        onValueChange = {
+            selectedCart = it
+            viewModel.selectCart(it)
+        },
+        itemLabel = { it?.cartName ?: "Alle Listen" },
         modifier = Modifier.fillMaxWidth()
     )
+    if(SWITCHES.DEBUG) {
+        Text(selectedCart.toString())
+    }
+}
 }
 
 

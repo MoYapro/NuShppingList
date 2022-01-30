@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.ui.component.KategoryIndicator
@@ -49,6 +50,10 @@ fun CartListElement(
             if (cartItem.cartItemProperties.checked) {
                 Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
                 Spacer(modifier = Modifier.width(Dp(4F)))
+            }
+            if(SWITCHES.DEBUG) {
+            Text(text = cartItem.cartItemProperties.inCart?.id?.toString()?.substring(0..6) ?: "noCart", color = textColor)
+            Spacer(modifier = Modifier.width(Dp(4F)))
             }
             Column {
                 Text(text = cartItem.item.name, color = textColor)

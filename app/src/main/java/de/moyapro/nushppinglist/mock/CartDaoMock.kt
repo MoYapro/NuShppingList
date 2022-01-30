@@ -146,7 +146,7 @@ class CartDaoMock(
         return this.itemTable.firstOrNull { it.name == itemName }
     }
 
-    override fun getSelectedCart(): Cart? = this.cartTable.firstOrNull { it.selected }
+    override suspend fun getSelectedCart(): Cart? = this.cartTable.firstOrNull { it.selected }
 
     override suspend fun remove(cartItem: CartItemProperties) {
         cartItemPropertiesTable.remove(cartItem)
@@ -167,8 +167,9 @@ class CartDaoMock(
     private fun pushCartItems() {
         val cartItemJoinTable = getJoin(itemTable, cartItemPropertiesTable)
         externalScope.launch {
+        val selectedCartId = getSelectedCart()?.cartId
             cartItemChannel.value = cartItemJoinTable
-            selectedCartItemChannel.value = cartItemJoinTable.filter { it.cartItemProperties.inCart == getSelectedCart()?.cartId }
+            selectedCartItemChannel.value = cartItemJoinTable.filter { null == selectedCartId || it.cartItemProperties.inCart == selectedCartId }
         }
     }
 
