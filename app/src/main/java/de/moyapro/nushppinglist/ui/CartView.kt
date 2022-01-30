@@ -100,24 +100,26 @@ private fun CartSelector(viewModel: CartViewModel) {
 
 
     var selectedCart by remember { mutableStateOf(viewModel.getSelectedCart()) }
-
-Column() {
-
-    Dropdown(
-        label = "Alle Listen",
-        initialValue = selectedCart,
-        values = cartsAndEmpty,
-        onValueChange = {
-            selectedCart = it
-            viewModel.selectCart(it)
-        },
-        itemLabel = { it?.cartName ?: "Alle Listen" },
-        modifier = Modifier.fillMaxWidth()
-    )
-    if(SWITCHES.DEBUG) {
-        Text(selectedCart.toString())
+    if (carts.isNullOrEmpty()) {
+        return
     }
-}
+    Column() {
+
+        Dropdown(
+            label = "Alle Listen",
+            initialValue = selectedCart,
+            values = cartsAndEmpty,
+            onValueChange = {
+                selectedCart = it
+                viewModel.selectCart(it)
+            },
+            itemLabel = { it?.cartName ?: "Alle Listen" },
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (SWITCHES.DEBUG) {
+            Text(selectedCart.toString())
+        }
+    }
 }
 
 
