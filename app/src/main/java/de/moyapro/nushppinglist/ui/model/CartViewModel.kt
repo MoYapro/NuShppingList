@@ -50,9 +50,7 @@ class CartViewModel(
         _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
         _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
         _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
-        _allCartItemsGrouped.listenTo(cartDao.findAllSelectedCartItems(_selectedCart),
-            viewModelScope,
-            ModelTransformation::groupCartItemsByRecipe)
+        updateSelectedCart(_selectedCart)
 
         viewModelScope.launch {
             cartDao.findAllItems()
@@ -62,6 +60,13 @@ class CartViewModel(
                         items.filter { item -> !cartItemIds.contains(item.itemId) }
                 }
         }
+    }
+
+    private fun updateSelectedCart(cartId: CartId?) {
+        _selectedCart = cartId
+        _allCartItemsGrouped.listenTo(cartDao.findAllSelectedCartItems(_selectedCart),
+            viewModelScope,
+            ModelTransformation::groupCartItemsByRecipe)
     }
 
     fun add(newItem: Item) = viewModelScope.launch(Dispatchers.IO) {
@@ -227,7 +232,8 @@ class CartViewModel(
     }
 
     fun selectCart(toBeSelected: Cart?) {
-        _selectedCart = toBeSelected?.cartId
+        Log.i(tag, "vvv\tselect Cart: $toBeSelected")
+        updateSelectedCart(toBeSelected?.cartId)
         val previousSelectedCart = getSelectedCart()?.copy(selected = false)
         if (null != previousSelectedCart) {
             update(previousSelectedCart)
