@@ -154,7 +154,7 @@ class CartViewModel(
 
     fun addToCart(item: Item) = viewModelScope.launch(Dispatchers.IO) {
         val existingCartItem: CartItemProperties? =
-            cartDao.getCartItemByItemId(item.itemId)
+            cartDao.getCartItemByItemId(item.itemId, _selectedCart)
         if (null == existingCartItem) {
             add(CartItem(item).apply { cartItemProperties.inCart = _selectedCart })
         } else {
@@ -170,7 +170,7 @@ class CartViewModel(
 
     fun addToCart(recipeItem: RecipeItem) = viewModelScope.launch(Dispatchers.IO) {
         val existingCartItem: CartItemProperties? =
-            cartDao.getCartItemByItemId(recipeItem.item.itemId)
+            cartDao.getCartItemByItemId(recipeItem.item.itemId, _selectedCart)
         if (null == existingCartItem) {
             val newItem = CartItem(recipeItem.item)
             newItem.cartItemProperties.recipeId = recipeItem.recipeId
@@ -188,7 +188,7 @@ class CartViewModel(
         if (null == existingItem) {
             add(CartItem(itemName))
         } else {
-            val existingCartItem = cartDao.getCartItemByItemId(existingItem.itemId)
+            val existingCartItem = cartDao.getCartItemByItemId(existingItem.itemId, _selectedCart)
             if (null == existingCartItem) {
                 cartDao.save(CartItem(existingItem).cartItemProperties)
             } else {
@@ -206,7 +206,7 @@ class CartViewModel(
     }
 
     fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? = runBlocking {
-        cartDao.getCartItemByItemId(itemId)
+        cartDao.getCartItemByItemId(itemId, _selectedCart)
     }
 
     fun addRecipeToCart(recipe: Recipe) {
@@ -214,7 +214,7 @@ class CartViewModel(
     }
 
     fun subtractFromCart(itemId: ItemId) = viewModelScope.launch(Dispatchers.IO) {
-        val updatedCartItemProperties = cartDao.getCartItemByItemId(itemId)?.apply {
+        val updatedCartItemProperties = cartDao.getCartItemByItemId(itemId, _selectedCart)?.apply {
             amount -= 1
         }
         if (null != updatedCartItemProperties) {
@@ -224,7 +224,7 @@ class CartViewModel(
 
     fun removeItem(itemToRemove: Item) = viewModelScope.launch(Dispatchers.IO) {
         cartDao.remove(itemToRemove)
-        val cartItemProperties = cartDao.getCartItemByItemId(itemToRemove.itemId)
+        val cartItemProperties = cartDao.getCartItemByItemId(itemToRemove.itemId, _selectedCart)
         if (null != cartItemProperties) {
             cartDao.remove(cartItemProperties)
         }

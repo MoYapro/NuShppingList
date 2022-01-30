@@ -90,8 +90,8 @@ interface CartDao {
         replaceWith = ReplaceWith("getCartItemByItemId(itemId)")
     )
     @Transaction
-    @Query("select * from CartItemProperties p where p.itemId = :itemId")
-    suspend fun getCartItemByItemId_internal(itemId: UUID): CartItemProperties?
+    @Query("select * from CartItemProperties p where p.itemId = :itemId and p.inCart = :cartId")
+    suspend fun getCartItemByItemId_internal(itemId: UUID, cartId: UUID?): CartItemProperties?
 
     @Transaction
     @Query("select * from Item i where i.name = :itemName")
@@ -115,7 +115,7 @@ interface CartDao {
 
 }
 
-suspend fun CartDao.getCartItemByItemId(itemId: ItemId) = getCartItemByItemId_internal(itemId.id)
+suspend fun CartDao.getCartItemByItemId(itemId: ItemId, selectedCartId: CartId?) = getCartItemByItemId_internal(itemId.id, selectedCartId?.id)
 suspend fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId_internal(itemId.id)
 suspend fun CartDao.getAllItemByItemId(itemIds: List<ItemId>): List<Item> = getAllItemByItemId_internal(itemIds.map{it.id})
 fun CartDao.findAllSelectedCartItems(cartId: CartId?): Flow<List<CartItem>> = findAllSelectedCartItems_internal(cartId?.id)

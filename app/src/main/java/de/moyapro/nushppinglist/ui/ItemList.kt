@@ -42,13 +42,14 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(
         listOf()
     )
+    val selectedCart by remember { mutableStateOf(viewModel.getSelectedCart()) }
 
     var filter: String by remember { mutableStateOf("") }
 // is filtering on cartItemList executed every frame?
     val cartItemList: List<CartItem> = allItemList
         .filter { it.name.lowercase().contains(filter.lowercase()) }
         .map { item ->
-            val cartItem = cartItems.firstOrNull { it.item.itemId == item.itemId }
+            val cartItem = cartItems.firstOrNull { it.item.itemId == item.itemId && selectedCart?.cartId == it.cartItemProperties.inCart  }
             cartItem
                 ?: CartItem(
                     CartItemProperties(

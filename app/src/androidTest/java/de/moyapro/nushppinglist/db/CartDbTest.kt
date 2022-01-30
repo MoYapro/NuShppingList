@@ -20,10 +20,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 @RunWith(AndroidJUnit4::class)
+@ExperimentalTime
 class CartDbTest {
     private lateinit var cartDao: CartDao
     private lateinit var viewModel: CartViewModel
@@ -116,6 +118,7 @@ class CartDbTest {
         cartDao.updateAll(cartItem.cartItemProperties.copy(amount = newAmount))
         val dbCartItemProperties = cartDao.findAllCartItems().first().first()
         assertEquals(newAmount, dbCartItemProperties.cartItemProperties.amount)
+        Unit
     }
 
     @OptIn(ExperimentalTime::class)
@@ -137,6 +140,7 @@ class CartDbTest {
             cartItemFromDb.single().item.name shouldBe cartItem.item.name
         }
 
+        Unit
     }
 
     @OptIn(ExperimentalTime::class)
@@ -153,10 +157,10 @@ class CartDbTest {
             cartItemFromDb.single().item.name shouldBe newItem.name
         }
 
+        Unit
     }
 
     @Test
-    @ExperimentalTime
     fun getSelectedCart() = runBlocking {
         val selectedCart = Cart(cartName = "Selected").apply { selected = true }
         val notSelectedCart = Cart(cartName = "Not selected").apply { selected = false }
@@ -166,10 +170,11 @@ class CartDbTest {
         val result = viewModel.getSelectedCart()
 
         result shouldBe selectedCart
+
+        Unit
     }
 
     @Test
-    @ExperimentalTime
     fun setSelectedCart() = runBlocking {
         val initialySelected = Cart().apply { selected = true }
         val eventuallySelected = Cart().apply { selected = false }
@@ -185,10 +190,10 @@ class CartDbTest {
         carts.single { it == initialySelected }.selected shouldBe false
         carts.single { it == eventuallySelected }.selected shouldBe true
 
+        Unit
     }
 
     @Test
-    @ExperimentalTime
     fun getItemsInSpecificCart() = runBlocking {
         val cart1 = Cart().apply { selected = false }
         val cart2 = Cart().apply { selected = false }
@@ -215,7 +220,31 @@ class CartDbTest {
         viewModel.selectCart(cart2)
         delay(1.seconds)
         val cart2Items = viewModel.allCartItemsGrouped.take(1).first().values.flatten()
-        cart2Items shouldContainExactlyInAnyOrder listOf (cart2Item1, cart2Item2)
+        cart2Items shouldContainExactlyInAnyOrder listOf(cart2Item1, cart2Item2)
+
+        Unit
+    }
+
+    @Test
+    @ExperimentalTime
+    fun getCartItemByItemId() = runBlocking {
+        val cart1 = Cart().apply { selected = false }
+        val cart2 = Cart().apply { selected = false }
+        val item1 = Item()
+        val cart1Item1 = CartItem(item1).apply { cartItemProperties.inCart = cart1.cartId }
+        val cart2Item1 = CartItem(item1).apply { cartItemProperties.inCart = cart2.cartId }
+        viewModel.add(cart1)
+        viewModel.add(cart2)
+        viewModel.add(cart1Item1)
+        viewModel.add(cart2Item1)
+
+        viewModel.selectCart(cart1)
+        delay(100.milliseconds)
+        viewModel.getCartItemPropertiesByItemId(cart1Item1.item.itemId) shouldBe cart1Item1.cartItemProperties
+
+        viewModel.selectCart(cart2)
+        delay(100.milliseconds)
+        viewModel.getCartItemPropertiesByItemId(cart2Item1.item.itemId) shouldBe cart2Item1.cartItemProperties
 
         Unit
     }

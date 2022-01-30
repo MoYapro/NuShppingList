@@ -138,8 +138,8 @@ class CartDaoMock(
         return itemId.mapNotNull { getItemByItemId_internal(it) }
     }
 
-    override suspend fun getCartItemByItemId_internal(itemId: UUID): CartItemProperties? {
-        return cartItemPropertiesTable.firstOrNull { itemId == it.itemId.id }
+    override suspend fun getCartItemByItemId_internal(itemId: UUID, cartId: UUID?): CartItemProperties? {
+        return cartItemPropertiesTable.singleOrNull { itemId == it.itemId.id && it.inCart?.id == cartId }
     }
 
     override suspend fun getItemByItemName(itemName: String): Item? {

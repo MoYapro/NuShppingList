@@ -58,7 +58,7 @@ class CartMessageHandler(
 
     private fun remove(cartItemProperties: CartItemProperties) {
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
-            val existingCartItemProperties = cartDao.getCartItemByItemId(cartItemProperties.itemId)
+            val existingCartItemProperties = cartDao.getCartItemByItemId(cartItemProperties.itemId, cartDao.getSelectedCart()?.cartId)
             if (null != existingCartItemProperties) {
                 cartDao.remove(existingCartItemProperties)
             }
@@ -73,7 +73,7 @@ class CartMessageHandler(
         } else {
             cartDao.updateAll(newCartItem.item)
         }
-        val existingCartItemProperties = cartDao.getCartItemByItemId(newCartItem.item.itemId)
+        val existingCartItemProperties = cartDao.getCartItemByItemId(newCartItem.item.itemId, cartDao.getSelectedCart()?.cartId)
         if (null == existingCartItemProperties) {
             cartDao.save(newCartItem.cartItemProperties)
         } else {

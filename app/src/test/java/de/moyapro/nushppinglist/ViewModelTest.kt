@@ -478,4 +478,26 @@ class ViewModelTest {
         Unit
     }
 
+    @Test
+    fun getCartItemByItemId() = runBlocking {
+        val cart1 = Cart().apply { selected = false }
+        val cart2 = Cart().apply { selected = false }
+        val item1 = Item()
+        val cart1Item1 = CartItem(item1).apply { cartItemProperties.inCart = cart1.cartId }
+        val cart2Item1 = CartItem(item1).apply { cartItemProperties.inCart = cart2.cartId }
+        viewModel.add(cart1)
+        viewModel.add(cart2)
+        viewModel.add(cart1Item1)
+        viewModel.add(cart2Item1)
+
+        viewModel.selectCart(cart1)
+        delay(100.milliseconds)
+        viewModel.getCartItemPropertiesByItemId(cart1Item1.item.itemId) shouldBe cart1Item1.cartItemProperties
+
+        viewModel.selectCart(cart2)
+        delay(100.milliseconds)
+        viewModel.getCartItemPropertiesByItemId(cart2Item1.item.itemId) shouldBe cart2Item1.cartItemProperties
+
+    }
+
 }
