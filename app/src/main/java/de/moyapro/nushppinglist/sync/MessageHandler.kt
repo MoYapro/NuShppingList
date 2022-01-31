@@ -7,11 +7,7 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
-import de.moyapro.nushppinglist.sync.handler.CartMessageHandler
-import de.moyapro.nushppinglist.sync.handler.ItemMessageHandler
-import de.moyapro.nushppinglist.sync.handler.RequestCartMessageHandler
-import de.moyapro.nushppinglist.sync.handler.RequestItemMessageHandler
-import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
+import de.moyapro.nushppinglist.sync.handler.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -23,10 +19,10 @@ class MessageHandler(
     private val requestCartMessageHandler: RequestCartMessageHandler,
     private val itemMessageHandler: ItemMessageHandler,
     private val cartMessageHandler: CartMessageHandler,
+    private val requestCartListMessageHandler: RequestCartListMessageHandler,
 ) : (Mqtt5Publish) -> Unit {
     var lastItem: Any? = null
     private val objectMapper = ConfiguredObjectMapper()
-    private val tag = MessageHandler::class.simpleName
 
     override fun invoke(message: Mqtt5Publish) {
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
@@ -44,14 +40,10 @@ class MessageHandler(
             topic matches CONSTANTS.MQTT_TOPIC_CART_REQUEST -> requestCartMessageHandler(readMessage(
                 messageBytes))
             topic matches CONSTANTS.MQTT_TOPIC_CART -> cartMessageHandler(readMessage(messageBytes))
-            topic matches CONSTANTS.MQTT_TOPIC_CARTLIST_REQUEST -> requestCartlistMessageHandler(
+            topic matches CONSTANTS.MQTT_TOPIC_CARTLIST_REQUEST -> requestCartListMessageHandler(
                 readMessage(messageBytes))
             else -> throw IllegalArgumentException("Don't know how to handle topic $topic")
         }
-    }
-
-    private fun requestCartlistMessageHandler(requestCartListMessage: RequestCartListMessage) {
-TODO()
     }
 
     companion object Builder {
@@ -61,6 +53,7 @@ TODO()
                 requestCartMessageHandler = RequestCartMessageHandler(cartDao, publisher),
                 itemMessageHandler = ItemMessageHandler(cartDao, publisher),
                 cartMessageHandler = CartMessageHandler(cartDao, publisher),
+                requestCartListMessageHandler = RequestCartListMessageHandler(cartDao, publisher)
             )
 
     }
@@ -74,8 +67,13 @@ TODO()
 
 }
 
+private val tag = MessageHandler::class.simpleName
+
+
 infix fun MqttTopic.matches(topicString: String): Boolean {
-    if(topicString.isBlank()) return false
+    if (topicString.isBlank()) return false
     val otherTopicLevels = MqttTopic.of(topicString).levels
-    return this.levels.containsAll(otherTopicLevels)
+    val matches = this.levels.containsAll(otherTopicLevels)
+    Log.i(tag, "${this.levels} ${if (matches) "does" else "doesn't"} match $topicString")
+    return matches
 }

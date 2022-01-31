@@ -140,9 +140,9 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun requestCartList(): Unit = runBlocking {
-        val cart = Cart()
+        val cart = Cart(cartName = "cart1", synced = true)
         viewModelBob.add(cart)
-        viewModelAlice.add(cart)
+        Thread.sleep(1000)
         syncServiceAlice.publish(RequestCartListMessage())
         var resultCart: Cart? = null
         waitFor {

@@ -117,6 +117,10 @@ class CartDaoMock(
         return cartFlow
     }
 
+    override suspend fun getSyncedCarts(): List<Cart> {
+        return cartTable.filter (Cart::synced)
+    }
+
     override suspend fun getAllCartItems(): List<CartItem> {
         return cartItemPropertiesTable.map {
             CartItem(

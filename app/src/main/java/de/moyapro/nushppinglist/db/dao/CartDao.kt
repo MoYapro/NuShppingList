@@ -59,6 +59,10 @@ interface CartDao {
     fun findAllCart(): Flow<List<Cart>>
 
     @Transaction
+    @Query("select * from Cart c where c.synced")
+    suspend fun getSyncedCarts(): List<Cart>
+
+    @Transaction
     @Query("select * from CartItemProperties join Item on Item.itemId = CartItemProperties.itemId")
     suspend fun getAllCartItems(): List<CartItem>
 
