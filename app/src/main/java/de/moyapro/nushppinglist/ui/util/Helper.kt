@@ -9,3 +9,7 @@ fun waitFor(timeout: Long = 5000, predicate: () -> Boolean) {
         Thread.sleep(100)
     }
 }
+
+suspend fun <T> Iterable<T>.forEach(action: suspend (T) -> Unit) {
+    for (element in this) action(element)
+}

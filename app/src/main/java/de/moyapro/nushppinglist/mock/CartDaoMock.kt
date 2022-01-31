@@ -26,7 +26,8 @@ class CartDaoMock(
 
     private val cartChannel: MutableStateFlow<List<Cart>> = MutableStateFlow(listOf())
     private val cartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
-    private val selectedCartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
+    private val selectedCartItemChannel: MutableStateFlow<List<CartItem>> =
+        MutableStateFlow(listOf())
     private val cartItemPropertiesChannel: MutableStateFlow<List<CartItemProperties>> =
         MutableStateFlow(listOf())
     private val allItemChannel: MutableStateFlow<List<Item>> = MutableStateFlow(listOf())
@@ -110,7 +111,7 @@ class CartDaoMock(
     }
 
     override fun findAllSelectedCartItems_internal(cartId: UUID?): Flow<List<CartItem>> {
-       return selectedCartItemFlow
+        return selectedCartItemFlow
     }
 
     override fun findAllCart(): Flow<List<Cart>> {
@@ -118,7 +119,7 @@ class CartDaoMock(
     }
 
     override suspend fun getSyncedCarts(): List<Cart> {
-        return cartTable.filter (Cart::synced)
+        return cartTable.filter(Cart::synced)
     }
 
     override suspend fun getAllCartItems(): List<CartItem> {
@@ -142,7 +143,10 @@ class CartDaoMock(
         return itemId.mapNotNull { getItemByItemId_internal(it) }
     }
 
-    override suspend fun getCartItemByItemId_internal(itemId: UUID, cartId: UUID?): CartItemProperties? {
+    override suspend fun getCartItemByItemId_internal(
+        itemId: UUID,
+        cartId: UUID?,
+    ): CartItemProperties? {
         return cartItemPropertiesTable.singleOrNull { itemId == it.itemId.id && it.inCart?.id == cartId }
     }
 
@@ -168,12 +172,17 @@ class CartDaoMock(
         pushCart()
     }
 
+    override suspend fun getCartByCartId_internal(cartId: UUID): Cart? {
+        return cartTable.singleOrNull { it.cartId.id == cartId }
+    }
+
     private fun pushCartItems() {
         val cartItemJoinTable = getJoin(itemTable, cartItemPropertiesTable)
         externalScope.launch {
-        val selectedCartId = getSelectedCart()?.cartId
+            val selectedCartId = getSelectedCart()?.cartId
             cartItemChannel.value = cartItemJoinTable
-            selectedCartItemChannel.value = cartItemJoinTable.filter { null == selectedCartId || it.cartItemProperties.inCart == selectedCartId }
+            selectedCartItemChannel.value =
+                cartItemJoinTable.filter { null == selectedCartId || it.cartItemProperties.inCart == selectedCartId }
         }
     }
 

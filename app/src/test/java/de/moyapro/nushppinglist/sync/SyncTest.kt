@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.sync
 import android.content.SharedPreferences
 import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.constants.SETTING
+import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.messages.CartMessage
@@ -19,8 +20,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
@@ -32,10 +31,22 @@ class SyncTest {
     init {
         // init preferences before init connection
         val preferences = mockk<SharedPreferences>()
-        every { preferences.getString(SETTING.SYNC_MQTT_SERVER_HOSTNAME.name, any()) } returns "192.168.1.101:31883"
-        every { preferences.getString(SETTING.SYNC_MQTT_SERVER_USER.name, any()) } returns "homeassistant"
-        every { preferences.getString(SETTING.SYNC_MQTT_SERVER_PASSWORD.name, any()) } returns "password"
-        every { preferences.getString(SETTING.SYNC_MQTT_SERVER_BASE_TOPIC.name, any()) } returns "nuShoppingList"
+        every {
+            preferences.getString(SETTING.SYNC_MQTT_SERVER_HOSTNAME.name,
+                any())
+        } returns "192.168.1.101:31883"
+        every {
+            preferences.getString(SETTING.SYNC_MQTT_SERVER_USER.name,
+                any())
+        } returns "homeassistant"
+        every {
+            preferences.getString(SETTING.SYNC_MQTT_SERVER_PASSWORD.name,
+                any())
+        } returns "password"
+        every {
+            preferences.getString(SETTING.SYNC_MQTT_SERVER_BASE_TOPIC.name,
+                any())
+        } returns "nuShoppingList"
         every { preferences.getBoolean(SETTING.SYNC_MQTT_SERVER_TLS.name, any()) } returns false
         every { preferences.getBoolean(SETTING.SYNC_ENABLED.name, any()) } returns true
         MainActivity.preferences = preferences
@@ -45,6 +56,7 @@ class SyncTest {
     val coroutineRule = MainCoroutineRule()
 
     private lateinit var syncServiceAlice: SyncService
+    private lateinit var cartDaoAlice: CartDao
     private lateinit var viewModelAlice: CartViewModel
 
     private lateinit var syncServiceBob: SyncService
@@ -53,7 +65,8 @@ class SyncTest {
 
     @Before
     fun setup() {
-        val (viewModelAlice, syncServiceAlice) = setupSyncService("alice")
+        cartDaoAlice = CartDaoMock(CoroutineScope(StandardTestDispatcher() + SupervisorJob()))
+        val (viewModelAlice, syncServiceAlice) = setupSyncService("alice", cartDaoAlice)
         this.syncServiceAlice = syncServiceAlice
         this.viewModelAlice = viewModelAlice
         val (viewModelBob, syncServiceBob) = setupSyncService("bob")
@@ -65,8 +78,11 @@ class SyncTest {
     fun teardown() {
     }
 
-    private fun setupSyncService(clientName: String): Pair<CartViewModel, SyncService> {
-        val cartDao = CartDaoMock(CoroutineScope(StandardTestDispatcher() + SupervisorJob()))
+    private fun setupSyncService(
+        clientName: String,
+        cartDao: CartDao = CartDaoMock(CoroutineScope(StandardTestDispatcher() + SupervisorJob())
+        ),
+    ): Pair<CartViewModel, SyncService> {
         val viewModel = CartViewModel(cartDao)
         val serviceAdapter =
             MqttServiceAdapter(clientName).connect()
@@ -144,13 +160,8 @@ class SyncTest {
         viewModelBob.add(cart)
         Thread.sleep(1000)
         syncServiceAlice.publish(RequestCartListMessage())
-        var resultCart: Cart? = null
-        waitFor {
-            runBlocking {
-                resultCart = viewModelAlice.allCart.take(1).toList().first().singleOrNull()
-                resultCart != null
-            }
-        }
+        Thread.sleep(1000)
+        var resultCart: Cart? = cartDaoAlice.getSyncedCarts().singleOrNull()
         resultCart shouldBe cart
     }
 

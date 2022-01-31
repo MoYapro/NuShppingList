@@ -20,6 +20,7 @@ class MessageHandler(
     private val itemMessageHandler: ItemMessageHandler,
     private val cartMessageHandler: CartMessageHandler,
     private val requestCartListMessageHandler: RequestCartListMessageHandler,
+    private val cartListMessageHandler: CartListMessageHandler,
 ) : (Mqtt5Publish) -> Unit {
     var lastItem: Any? = null
     private val objectMapper = ConfiguredObjectMapper()
@@ -42,6 +43,8 @@ class MessageHandler(
             topic matches CONSTANTS.MQTT_TOPIC_CART -> cartMessageHandler(readMessage(messageBytes))
             topic matches CONSTANTS.MQTT_TOPIC_CARTLIST_REQUEST -> requestCartListMessageHandler(
                 readMessage(messageBytes))
+            topic matches CONSTANTS.MQTT_TOPIC_CARTLIST -> cartListMessageHandler(
+                readMessage(messageBytes))
             else -> throw IllegalArgumentException("Don't know how to handle topic $topic")
         }
     }
@@ -53,7 +56,8 @@ class MessageHandler(
                 requestCartMessageHandler = RequestCartMessageHandler(cartDao, publisher),
                 itemMessageHandler = ItemMessageHandler(cartDao, publisher),
                 cartMessageHandler = CartMessageHandler(cartDao, publisher),
-                requestCartListMessageHandler = RequestCartListMessageHandler(cartDao, publisher)
+                requestCartListMessageHandler = RequestCartListMessageHandler(cartDao, publisher),
+                cartListMessageHandler = CartListMessageHandler(cartDao, publisher),
             )
 
     }

@@ -97,6 +97,16 @@ interface CartDao {
     @Query("select * from CartItemProperties p where p.itemId = :itemId and p.inCart = :cartId")
     suspend fun getCartItemByItemId_internal(itemId: UUID, cartId: UUID?): CartItemProperties?
 
+
+    @Deprecated(
+        "This is just for the generated Dao_Impl",
+        level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("getCartItemByItemId(itemId)")
+    )
+    @Transaction
+    @Query("select * from Cart c where c.cartId = :cartId")
+    suspend fun getCartByCartId_internal(cartId: UUID): Cart?
+
     @Transaction
     @Query("select * from Item i where i.name = :itemName")
     suspend fun getItemByItemName(itemName: String): Item?
@@ -119,8 +129,14 @@ interface CartDao {
 
 }
 
-suspend fun CartDao.getCartItemByItemId(itemId: ItemId, selectedCartId: CartId?) = getCartItemByItemId_internal(itemId.id, selectedCartId?.id)
+suspend fun CartDao.getCartItemByItemId(itemId: ItemId, selectedCartId: CartId?) =
+    getCartItemByItemId_internal(itemId.id, selectedCartId?.id)
+
 suspend fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId_internal(itemId.id)
-suspend fun CartDao.getAllItemByItemId(itemIds: List<ItemId>): List<Item> = getAllItemByItemId_internal(itemIds.map{it.id})
-fun CartDao.findAllSelectedCartItems(cartId: CartId?): Flow<List<CartItem>> = findAllSelectedCartItems_internal(cartId?.id)
+suspend fun CartDao.getAllItemByItemId(itemIds: List<ItemId>): List<Item> =
+    getAllItemByItemId_internal(itemIds.map { it.id })
+suspend fun CartDao.getCartByCartId(cartId: CartId): Cart? = getCartByCartId_internal(cartId.id)
+
+fun CartDao.findAllSelectedCartItems(cartId: CartId?): Flow<List<CartItem>> =
+    findAllSelectedCartItems_internal(cartId?.id)
 
