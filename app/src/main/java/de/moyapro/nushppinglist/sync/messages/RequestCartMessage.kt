@@ -16,6 +16,8 @@ data class RequestCartMessage(val cartId: CartId?) : ShoppingMessage {
         }
     }
 
+    constructor(): this(null)
+
     override fun getTopic(): String = CONSTANTS.MQTT_TOPIC_CART_REQUEST
 
 }

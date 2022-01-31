@@ -5,13 +5,15 @@ import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 
 data class CartMessage(
-    val cartItemPropertiesList: List<CartItemProperties>,
-    val cartId: CartId,
+    val cartItemPropertiesList: List<CartItemProperties> = listOf(),
+    val cartId: CartId = CartId(),
 ) : ShoppingMessage {
     constructor(vararg cartItemProperties: CartItemProperties, cartId: CartId) : this(
         cartItemPropertiesList = cartItemProperties.toList(),
         cartId = cartId
     )
+
+    constructor(): this(listOf(), CartId())
 
     override fun getTopic(): String = "$MQTT_TOPIC_CART/${cartId.id}"
 

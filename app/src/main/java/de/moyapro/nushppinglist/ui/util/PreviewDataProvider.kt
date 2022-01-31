@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.ui.util
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.moyapro.nushppinglist.constants.UNIT.GRAMM
 import de.moyapro.nushppinglist.constants.UNIT.LITER
+import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import java.math.BigDecimal
@@ -53,10 +54,11 @@ fun createSampleItem(name: String = "Sugar") = Item(
     price = BigDecimal.ZERO,
 )
 
-fun createSampleCartItem(recipeId: RecipeId? = RecipeId()) =
+fun createSampleCartItem(recipeId: RecipeId? = RecipeId(), inCart: CartId? = null) =
     CartItem(createSampleItem()).apply {
         cartItemProperties.cartItemPropertiesId =
             UUID.fromString("5cf9d5fd-f181-4620-86ec-7a597219cb12")
+        cartItemProperties.inCart = inCart
         cartItemProperties.recipeId = recipeId
     }
 

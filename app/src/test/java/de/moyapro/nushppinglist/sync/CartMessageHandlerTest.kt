@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.sync
 
+import com.hivemq.client.mqtt.datatypes.MqttTopic
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.handler.CartMessageHandler
@@ -157,5 +158,22 @@ class CartMessageHandlerTest {
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
         result shouldBe null
     }
+
+    @Test
+    fun matches() {
+        val topic = MqttTopic.of("a/b/c")
+        topic matches "a" shouldBe true
+        topic matches "b" shouldBe true
+        topic matches "b/b" shouldBe true
+        topic matches "a/b" shouldBe true
+        topic matches "a/c" shouldBe true
+        topic matches "b/c" shouldBe true
+        topic matches "a/b/c" shouldBe true
+        topic matches "" shouldBe false
+        topic matches "x" shouldBe false
+        topic matches "a/x" shouldBe false
+        topic matches "a/x/c" shouldBe false
+    }
+
 }
 
