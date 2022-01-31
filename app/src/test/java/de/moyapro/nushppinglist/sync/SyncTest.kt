@@ -1,10 +1,13 @@
 package de.moyapro.nushppinglist.sync
 
+import android.content.SharedPreferences
 import de.moyapro.nushppinglist.MainActivity
+import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
+import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
@@ -12,9 +15,13 @@ import de.moyapro.nushppinglist.ui.util.createSampleItem
 import de.moyapro.nushppinglist.ui.util.waitFor
 import de.moyapro.nushppinglist.util.MainCoroutineRule
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -24,7 +31,14 @@ import org.junit.Test
 class SyncTest {
     init {
         // init preferences before init connection
-        MainActivity.preferences = mockk(relaxed = true)
+        val preferences = mockk<SharedPreferences>()
+        every { preferences.getString(SETTING.SYNC_MQTT_SERVER_HOSTNAME.name, any()) } returns "192.168.1.101:31883"
+        every { preferences.getString(SETTING.SYNC_MQTT_SERVER_USER.name, any()) } returns "homeassistant"
+        every { preferences.getString(SETTING.SYNC_MQTT_SERVER_PASSWORD.name, any()) } returns "password"
+        every { preferences.getString(SETTING.SYNC_MQTT_SERVER_BASE_TOPIC.name, any()) } returns "nuShoppingList"
+        every { preferences.getBoolean(SETTING.SYNC_MQTT_SERVER_TLS.name, any()) } returns false
+        every { preferences.getBoolean(SETTING.SYNC_ENABLED.name, any()) } returns true
+        MainActivity.preferences = preferences
     }
 
     @get:Rule
@@ -122,6 +136,22 @@ class SyncTest {
             syncServiceAlice.publish(ItemMessage(item))
         }
         waitFor { null != viewModelBob.getItemByItemId(item.itemId) }
-
     }
+
+    @Test(timeout = 10_000)
+    fun requestCartList(): Unit = runBlocking {
+        val cart = Cart()
+        viewModelBob.add(cart)
+        viewModelAlice.add(cart)
+        syncServiceAlice.publish(RequestCartListMessage())
+        var resultCart: Cart? = null
+        waitFor {
+            runBlocking {
+                resultCart = viewModelAlice.allCart.take(1).toList().first().singleOrNull()
+                resultCart != null
+            }
+        }
+        resultCart shouldBe cart
+    }
+
 }

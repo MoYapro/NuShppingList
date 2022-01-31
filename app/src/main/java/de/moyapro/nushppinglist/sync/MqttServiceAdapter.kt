@@ -54,6 +54,7 @@ class MqttServiceAdapter(
 
 
     override fun connect(): MqttServiceAdapter {
+        Log.i(tag, "connect to MQTT using $connectionSettings")
         mqttClient?.connectWith()
             ?.simpleAuth()
             ?.username(connectionSettings.username)

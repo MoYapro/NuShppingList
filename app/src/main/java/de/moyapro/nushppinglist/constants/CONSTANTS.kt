@@ -11,6 +11,7 @@ object CONSTANTS {
     const val PREFERENCES_FILE_NAME = "nuShoppingListPreferences"
     const val MQTT_TOPIC_BASE = "nuShoppingList"
     const val MQTT_TOPIC_ITEM_REQUEST = "$MQTT_TOPIC_BASE/item/request"
+    const val MQTT_TOPIC_CARTLIST_REQUEST= "$MQTT_TOPIC_BASE/cartlist/request"
     const val MQTT_TOPIC_ITEM = "$MQTT_TOPIC_BASE/item"
     const val MQTT_TOPIC_CART_REQUEST =
         "$MQTT_TOPIC_BASE/cart/request" // we have only one cart at the moment
