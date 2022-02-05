@@ -35,7 +35,7 @@ fun CartListElement(
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable(onClick = {toggleCheckedAction(cartItem.cartItemProperties)})
+            .clickable(onClick = { toggleCheckedAction(cartItem.cartItemProperties) })
             .background(backgroundColor)
             .alpha(alpha),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -51,10 +51,6 @@ fun CartListElement(
                 Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
                 Spacer(modifier = Modifier.width(Dp(4F)))
             }
-            if(SWITCHES.DEBUG) {
-            Text(text = cartItem.cartItemProperties.inCart?.id?.toString()?.substring(0..6) ?: "noCart", color = textColor)
-            Spacer(modifier = Modifier.width(Dp(4F)))
-            }
             Column {
                 Text(text = cartItem.item.name, color = textColor)
                 if (cartItem.item.description.isNotBlank()) {
@@ -64,6 +60,17 @@ fun CartListElement(
                         color = textColor,
                         modifier = Modifier.alpha(CONSTANTS.MUTED_ALPHA)
                     )
+                }
+                if (SWITCHES.DEBUG) {
+                    Spacer(modifier = Modifier.width(Dp(4F)))
+                    Text(text = "cart: ${
+                        cartItem.cartItemProperties.inCart?.id?.toString()
+                            ?.substring(0..6) ?: "noCart"
+                    }", color = textColor)
+                    Spacer(modifier = Modifier.width(Dp(4F)))
+                    Text(text = "CIP: ${cartItem.cartItemProperties.cartItemPropertiesId}")
+                    Spacer(modifier = Modifier.width(Dp(4F)))
+                    Text(text = "Item: ${cartItem.item.itemId}")
                 }
             }
         }

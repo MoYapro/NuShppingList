@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.sync
 
-import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.util.waitFor
@@ -17,7 +16,7 @@ class MqttAdapterTest {
         adapterAlice.connect()
         adapterBob.connect()
         waitFor { adapterAlice.isConnected() && adapterBob.isConnected() }
-        adapterBob.subscribe(CONSTANTS.messagesWithTopic[RequestItemMessage::class]!!)
+        adapterBob.subscribe()
         adapterAlice.publish(RequestItemMessage(ItemId()))
         waitFor { messageArrived }
         messageArrived shouldBe true

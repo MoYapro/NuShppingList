@@ -1,7 +1,6 @@
 package de.moyapro.nushppinglist.sync
 
 import android.util.Log
-import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
@@ -20,7 +19,7 @@ class SyncService(
         Log.i(tag, "try to establish mqtt connection using client: ${serviceAdapter.clientIdentifier}")
         waitFor { serviceAdapter.isConnected() }
         serviceAdapter.setHandler(MessageHandler.build(serviceAdapter, cartDao))
-        serviceAdapter.subscribe("${CONSTANTS.MQTT_TOPIC_BASE}/#")
+        serviceAdapter.subscribe()
         Log.i(tag, "successfully connected to mqtt server using client: ${serviceAdapter.clientIdentifier}")
     }
 

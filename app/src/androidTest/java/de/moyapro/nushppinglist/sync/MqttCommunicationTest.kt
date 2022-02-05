@@ -47,7 +47,7 @@ class MqttCommunicationTest {
 
         waitFor { serviceAdapterBob.isConnected() }
 
-        serviceAdapterBob.subscribe(topic)
+        serviceAdapterBob.subscribe()
         serviceAdapterAlice.publish(RequestItemMessage(ItemId()))
 
         waitFor { messageReceived }

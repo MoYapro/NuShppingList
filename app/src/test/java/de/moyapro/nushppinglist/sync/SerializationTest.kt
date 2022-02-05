@@ -3,10 +3,7 @@ package de.moyapro.nushppinglist.sync
 import com.fasterxml.jackson.module.kotlin.readValue
 import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
-import de.moyapro.nushppinglist.db.model.CartItem
-import de.moyapro.nushppinglist.db.model.CartItemProperties
-import de.moyapro.nushppinglist.db.model.Item
-import de.moyapro.nushppinglist.db.model.RecipeId
+import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import de.moyapro.nushppinglist.sync.messages.*
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
@@ -124,6 +121,23 @@ class SerializationTest {
 
         val actualJson = objectMapper.writeValueAsString(instance)
         val actualInstance: CartItemProperties = objectMapper.readValue(actualJson)
+        actualInstance shouldBe instance
+    }
+
+    @Test
+    fun cartlistMessage() {
+        val expectedJson =
+            """{"carts":[{"cartId":"5e90918f-ebad-4328-9c18-4e94bb64b9c5","cartName":"Cart1","synced":true,"selected":false}]}"""
+        val instance = CartListMessage(listOf(Cart(
+            cartId = CartId(UUID.fromString("5e90918f-ebad-4328-9c18-4e94bb64b9c5")),
+            cartName = "Cart1",
+            synced = true,
+            selected = false,
+        )))
+
+        val actualJson = objectMapper.writeValueAsString(instance)
+        actualJson shouldBe expectedJson
+        val actualInstance: CartListMessage = objectMapper.readValue(actualJson)
         actualInstance shouldBe instance
     }
 

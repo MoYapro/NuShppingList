@@ -77,7 +77,8 @@ class MqttServiceAdapter(
             ?.whenComplete { _: Void, _: Throwable -> isConnected = false }
     }
 
-    fun subscribe(topic: String) {
+    fun subscribe() {
+        val topic = "${connectionSettings.topic}/#"
         println("subscribe to topic $topic")
         mqttClient?.subscribeWith()
             ?.topicFilter(topic)
