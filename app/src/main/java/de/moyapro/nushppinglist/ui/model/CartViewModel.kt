@@ -14,6 +14,7 @@ import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
+import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -251,6 +252,10 @@ class CartViewModel(
 
     fun publish(item: Item) {
         publisher?.publish(ItemMessage(item))
+    }
+
+    fun requestCartList() {
+        publisher?.publish(RequestCartListMessage())
     }
 
     fun publish(cartItemProperties: CartItemProperties) {

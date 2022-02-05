@@ -12,6 +12,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -46,6 +47,11 @@ fun CartList(viewModel: CartViewModel) {
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
+        topBar = {
+            Button(onClick = viewModel::requestCartList) {
+                Icon(Icons.Filled.Refresh, contentDescription = "Löschen")
+            }
+        },
         floatingActionButton = if (displayNewCartFab) {
             {
                 FloatingActionButton(onClick = saveAction) {
