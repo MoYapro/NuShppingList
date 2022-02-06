@@ -12,6 +12,8 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.Publisher
+import de.moyapro.nushppinglist.sync.handler.CartMessageHandler
+import de.moyapro.nushppinglist.sync.handler.ItemMessageHandler
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
 import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
@@ -25,6 +27,9 @@ class CartViewModel(
     private val cartDao: CartDao,
     private val publisher: Publisher? = null,
 ) : ViewModel() {
+
+    private val itemMessageHandler = ItemMessageHandler(cartDao, publisher)
+    private val cartMessageHandler = CartMessageHandler(cartDao, publisher)
 
     private val tag = CartViewModel::class.simpleName
 
@@ -72,7 +77,7 @@ class CartViewModel(
     fun add(newItem: Item) = viewModelScope.launch(Dispatchers.IO) {
         publish(newItem)
         println("vvv\tItem\t $newItem")
-        cartDao.save(newItem)
+        itemMessageHandler(ItemMessage(newItem))
     }
 
     fun add(newCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
@@ -83,7 +88,7 @@ class CartViewModel(
 
     fun update(updatedItem: Item) = viewModelScope.launch(Dispatchers.IO) {
         publish(updatedItem)
-        cartDao.updateAll(updatedItem)
+        itemMessageHandler(ItemMessage(updatedItem))
     }
 
     fun update(updatedCartItemProperties: CartItemProperties) =
@@ -107,17 +112,9 @@ class CartViewModel(
         publish(newCartItem.item)
         publish(newCartItem.cartItemProperties)
         println("vvv\tCartItem\t $newCartItem")
-        if (allItems.value.map { it.itemId }.contains(newCartItem.item.itemId)) {
-            cartDao.updateAll(newCartItem.item)
-        } else {
-            cartDao.save(newCartItem.item)
-        }
-        if (allCartItems.value.map { it.cartItemProperties.cartItemPropertiesId }
-                .contains(newCartItem.cartItemProperties.cartItemPropertiesId)) {
-            cartDao.updateAll(newCartItem.cartItemProperties)
-        } else {
-            cartDao.save(newCartItem.cartItemProperties)
-        }
+        itemMessageHandler(ItemMessage(newCartItem.item))
+        cartMessageHandler(CartMessage(listOf(newCartItem.cartItemProperties),
+            newCartItem.cartItemProperties.inCart))
     }
 
     fun toggleChecked(itemToToggle: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
@@ -153,15 +150,7 @@ class CartViewModel(
     }
 
     fun addToCart(item: Item) = viewModelScope.launch(Dispatchers.IO) {
-        val existingCartItem: CartItemProperties? =
-            cartDao.getCartItemByItemId(item.itemId, _selectedCart?.cartId)
-        if (null == existingCartItem) {
-            add(CartItem(item).apply { cartItemProperties.inCart = _selectedCart?.cartId })
-        } else {
-            val updatedCartItemProperties =
-                existingCartItem.copy(amount = existingCartItem.amount + 1)
-            update(updatedCartItemProperties)
-        }
+        itemMessageHandler(ItemMessage(item))
     }
 
     fun addToCart(recipeItems: List<RecipeItem>) {

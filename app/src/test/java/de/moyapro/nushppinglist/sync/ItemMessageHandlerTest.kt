@@ -108,12 +108,12 @@ class ItemMessageHandlerTest {
         resultItem?.kategory shouldBe itemInDb.kategory
     }
 
-    @Test(timeout = 10_000)
+    @Test(timeout = 10000_000)
     fun handleItemRequest__receiveDuplicateName__update() = runBlocking {
         val handler = ItemMessageHandler(cartDao, publisher)
         val itemInDb = Item(
             name = "name",
-            description = "",
+            description = "overwrite me",
             defaultItemAmount = 1,
             defaultItemUnit = UNIT.UNSPECIFIED,
             price = BigDecimal.ZERO.setScale(2),
@@ -162,7 +162,7 @@ class ItemMessageHandlerTest {
         )
         cartDao.save(itemInDb)
 
-       val resultItem = handler.merge(itemFromMessage, itemInDb)
+       val resultItem = handler.merge(itemInDb, itemFromMessage)
         resultItem.itemId shouldNotBe itemFromMessage.itemId
         resultItem.name shouldBe itemFromMessage.name
         resultItem.description shouldBe itemFromMessage.description

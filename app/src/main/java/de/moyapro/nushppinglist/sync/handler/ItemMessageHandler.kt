@@ -8,48 +8,57 @@ import de.moyapro.nushppinglist.sync.messages.ItemMessage
 
 class ItemMessageHandler(
     val cartDao: CartDao,
-    val publisher: Publisher,
+    val publisher: Publisher?,
 ) : suspend (ItemMessage) -> Unit {
 
     override suspend fun invoke(itemMessage: ItemMessage) {
-        itemMessage.items.forEach{ itemFromMessage ->
-        val itemInDB = cartDao.getItemByItemId(itemFromMessage.itemId)
-        val itemWithSameName = cartDao.getItemByItemName(itemFromMessage.name)
-        when {
-            itemInDB == itemFromMessage -> return
-            null == itemInDB -> cartDao.save(itemFromMessage)
-            null != itemWithSameName -> cartDao.updateAll(merge(itemFromMessage, itemWithSameName))
-            null != itemInDB -> cartDao.updateAll(merge(itemInDB, itemFromMessage))
-            else -> throw IllegalStateException("don't know what to do when itemInDb $itemInDB and itemMessage is $itemMessage")
-        }
+        itemMessage.items.forEach { itemFromMessage ->
+            val itemInDb = cartDao.getItemByItemId(itemFromMessage.itemId)
+            val itemWithSameName = cartDao.getItemByItemName(itemFromMessage.name)
+            when {
+                itemInDb == itemFromMessage -> return
+                null == itemInDb && null == itemWithSameName -> cartDao.save(itemFromMessage)
+                null == itemInDb && null != itemWithSameName -> cartDao.updateAll(
+                    merge(itemWithSameName, itemFromMessage))
+                null != itemInDb && null == itemWithSameName -> cartDao.updateAll(
+                    merge(itemInDb, itemFromMessage))
+                null != itemInDb && null != itemWithSameName -> {
+                    cartDao.remove(itemInDb)
+                    cartDao.updateAll(merge(merge(itemInDb, itemWithSameName), itemFromMessage))
+                }
+            }
         }
 
     }
 
-    fun merge(newValues: Item, originalItem: Item): Item {
+    fun merge(originalItem: Item, newValues: Item): Item {
         val default = Item()
         return Item(
             itemId = originalItem.itemId,
             name = takeIfNotDefault(originalItem, default, newValues) { it.name },
             description = takeIfNotDefault(originalItem, default, newValues) { it.description },
-            defaultItemAmount = takeIfNotDefault(originalItem, default, newValues) { it.defaultItemAmount },
-            defaultItemUnit = takeIfNotDefault(originalItem, default, newValues) { it.defaultItemUnit },
+            defaultItemAmount = takeIfNotDefault(originalItem,
+                default,
+                newValues) { it.defaultItemAmount },
+            defaultItemUnit = takeIfNotDefault(originalItem,
+                default,
+                newValues) { it.defaultItemUnit },
             price = takeIfNotDefault(originalItem, default, newValues) { it.price },
             kategory = takeIfNotDefault(originalItem, default, newValues) { it.kategory }
 
         )
     }
 
-    fun <T, X : Any> takeIfNotDefault(
-        input: T,
+    private fun <T, X : Any> takeIfNotDefault(
+        original: T,
         default: T,
-        alternative: T,
+        newValues: T,
         fieldAccessor: (T) -> X,
     ): X {
-        return if (fieldAccessor(input) != fieldAccessor(default)) {
-            fieldAccessor(input)
+        return if (fieldAccessor(newValues) != fieldAccessor(default)) {
+            fieldAccessor(newValues)
         } else {
-            fieldAccessor(alternative)
+            fieldAccessor(original)
         }
     }
 

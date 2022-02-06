@@ -18,7 +18,7 @@ import kotlin.time.ExperimentalTime
 
 class CartMessageHandler(
     val cartDao: CartDao,
-    val publisher: Publisher,
+    val publisher: Publisher?,
 ) : suspend (CartMessage) -> Unit {
 
     private val tag = CartMessageHandler::class.simpleName
@@ -67,12 +67,12 @@ class CartMessageHandler(
     }
 
     private suspend fun requestMissingCarts(cartMessage: CartMessage): Int {
-        val existingCart = cartDao.getCartByCartId(cartMessage.cartId)
+        val existingCart = cartMessage.cartId?.let { cartDao.getCartByCartId(it) }
         return if (null == existingCart) {
             0
         } else {
             Log.i(tag, "request non existing cart with cartId ${cartMessage.cartId}")
-            publisher.publish(RequestCartListMessage("Missing: ${listOf(cartMessage.cartId)}"))
+            publisher?.publish(RequestCartListMessage("Missing: ${listOf(cartMessage.cartId)}"))
             1
         }
     }
@@ -98,7 +98,7 @@ class CartMessageHandler(
 
         if (missingItemIds.isNotEmpty()) {
             Log.i(tag, "request non existing item with itemId $missingItemIds")
-            publisher.publish(RequestItemMessage(missingItemIds))
+            publisher?.publish(RequestItemMessage(missingItemIds))
         }
         return missingItemIds.size
     }
