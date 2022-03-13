@@ -2,16 +2,14 @@ package de.moyapro.nushppinglist.sync.handler
 
 import android.util.Log
 import de.moyapro.nushppinglist.constants.SWITCHES
-import de.moyapro.nushppinglist.db.dao.CartDao
-import de.moyapro.nushppinglist.db.dao.getAllItemByItemId
-import de.moyapro.nushppinglist.db.dao.getCartByCartId
-import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
+import de.moyapro.nushppinglist.db.dao.*
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
+import de.moyapro.nushppinglist.util.takeIfNotDefault
 import kotlinx.coroutines.*
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
@@ -46,7 +44,7 @@ class CartMessageHandler(
             Log.i(tag, "Did not find items for #$requestedCartCount itemIds")
             tryAgainLater(cartMessage, endTime)
         } else {
-            persistCartItemProperties(cartMessage)
+            persistCartItemProperties(cartMessage.cartItemPropertiesList)
         }
 
 //            .mapNotNull { cartItemProperties ->
@@ -77,8 +75,8 @@ class CartMessageHandler(
         }
     }
 
-    private suspend fun persistCartItemProperties(cartMessage: CartMessage) {
-        cartMessage.cartItemPropertiesList.forEach { add(it) }
+    private suspend fun persistCartItemProperties(cartItemPropertiesList: List<CartItemProperties>) {
+        cartItemPropertiesList.forEach { add(it) }
     }
 
     private fun removeZeroAmountItems(cartMessage: CartMessage) {
@@ -118,14 +116,57 @@ class CartMessageHandler(
     }
 
     private suspend fun add(newCartItemProperties: CartItemProperties) {
-        val existingCartItemProperties =
+        val cartItemInDb =
+            cartDao.getCartItemByCartItemPropertiesId(newCartItemProperties.cartItemPropertiesId)
+        val cartItemWithSameProperties =
             cartDao.getCartItemByItemId(newCartItemProperties.itemId, newCartItemProperties.inCart)
-        if (null == existingCartItemProperties) {
-            println("+++\tCartItemProperties\t $newCartItemProperties")
-            cartDao.save(newCartItemProperties)
-        } else {
-            println("vvv\tCartItemProperties\t $newCartItemProperties")
-            cartDao.updateAll(newCartItemProperties)
+        val cartItemWithSameId = cartDao.getCartItemByCartItemPropertiesId(newCartItemProperties.cartItemPropertiesId)
+        when {
+            cartItemInDb == newCartItemProperties -> return
+            null == cartItemInDb && null == cartItemWithSameProperties -> cartDao.save(newCartItemProperties)
+            null == cartItemInDb && null != cartItemWithSameProperties -> cartDao.updateAll(
+                merge(cartItemWithSameProperties, newCartItemProperties))
+            null != cartItemInDb && null == cartItemWithSameProperties -> cartDao.updateAll(
+                merge(cartItemInDb, newCartItemProperties))
+            null != cartItemInDb && null != cartItemWithSameProperties -> {
+                cartDao.remove(cartItemInDb)
+                cartDao.updateAll(merge(merge(cartItemInDb, cartItemWithSameProperties),
+                    newCartItemProperties))
+            }
         }
+    }
+
+    fun merge(
+        originalCartItemProperties: CartItemProperties,
+        updatedCartItemProperties: CartItemProperties,
+    ): CartItemProperties {
+        val default = CartItemProperties()
+        return CartItemProperties(
+            cartItemPropertiesId = originalCartItemProperties.cartItemPropertiesId,
+            cartItemId = takeIfNotDefault(originalCartItemProperties,
+                default,
+                updatedCartItemProperties,
+                CartItemProperties::cartItemId),
+            inCart = takeIfNotDefault(originalCartItemProperties,
+                default,
+                updatedCartItemProperties,
+                CartItemProperties::inCart),
+            itemId = takeIfNotDefault(originalCartItemProperties,
+                default,
+                updatedCartItemProperties,
+                CartItemProperties::itemId),
+            recipeId = takeIfNotDefault(originalCartItemProperties,
+                default,
+                updatedCartItemProperties,
+                CartItemProperties::recipeId),
+            amount = takeIfNotDefault(originalCartItemProperties,
+                default,
+                updatedCartItemProperties,
+                CartItemProperties::amount),
+            checked = takeIfNotDefault(originalCartItemProperties,
+                default,
+                updatedCartItemProperties,
+                CartItemProperties::checked),
+        )
     }
 }

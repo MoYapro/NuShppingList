@@ -15,6 +15,8 @@ import de.moyapro.nushppinglist.ui.util.createSampleCartItem
 import de.moyapro.nushppinglist.ui.util.createSampleItem
 import de.moyapro.nushppinglist.ui.util.waitFor
 import de.moyapro.nushppinglist.util.MainCoroutineRule
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -32,20 +34,28 @@ class SyncTest {
         // init preferences before init connection
         val preferences = mockk<SharedPreferences>()
         every {
-            preferences.getString(SETTING.SYNC_MQTT_SERVER_HOSTNAME.name,
-                any())
+            preferences.getString(
+                SETTING.SYNC_MQTT_SERVER_HOSTNAME.name,
+                any()
+            )
         } returns "192.168.1.101:31883"
         every {
-            preferences.getString(SETTING.SYNC_MQTT_SERVER_USER.name,
-                any())
+            preferences.getString(
+                SETTING.SYNC_MQTT_SERVER_USER.name,
+                any()
+            )
         } returns "homeassistant"
         every {
-            preferences.getString(SETTING.SYNC_MQTT_SERVER_PASSWORD.name,
-                any())
+            preferences.getString(
+                SETTING.SYNC_MQTT_SERVER_PASSWORD.name,
+                any()
+            )
         } returns "password"
         every {
-            preferences.getString(SETTING.SYNC_MQTT_SERVER_BASE_TOPIC.name,
-                any())
+            preferences.getString(
+                SETTING.SYNC_MQTT_SERVER_BASE_TOPIC.name,
+                any()
+            )
         } returns "nuShoppingList"
         every { preferences.getBoolean(SETTING.SYNC_MQTT_SERVER_TLS.name, any()) } returns false
         every { preferences.getBoolean(SETTING.SYNC_ENABLED.name, any()) } returns true
@@ -57,6 +67,7 @@ class SyncTest {
 
     private lateinit var syncServiceAlice: SyncService
     private lateinit var cartDaoAlice: CartDao
+    private lateinit var cartDaoBob: CartDao
     private lateinit var viewModelAlice: CartViewModel
 
     private lateinit var syncServiceBob: SyncService
@@ -69,18 +80,22 @@ class SyncTest {
         val (viewModelAlice, syncServiceAlice) = setupSyncService("alice", cartDaoAlice)
         this.syncServiceAlice = syncServiceAlice
         this.viewModelAlice = viewModelAlice
-        val (viewModelBob, syncServiceBob) = setupSyncService("bob")
+        cartDaoBob = CartDaoMock(CoroutineScope(StandardTestDispatcher() + SupervisorJob()))
+        val (viewModelBob, syncServiceBob) = setupSyncService("bob", cartDaoBob)
         this.syncServiceBob = syncServiceBob
         this.viewModelBob = viewModelBob
     }
 
     @After
     fun teardown() {
+        (cartDaoAlice as CartDaoMock).reset()
+        (cartDaoBob as CartDaoMock).reset()
     }
 
     private fun setupSyncService(
         clientName: String,
-        cartDao: CartDao = CartDaoMock(CoroutineScope(StandardTestDispatcher() + SupervisorJob())
+        cartDao: CartDao = CartDaoMock(
+            CoroutineScope(StandardTestDispatcher() + SupervisorJob())
         ),
     ): Pair<CartViewModel, SyncService> {
         val viewModel = CartViewModel(cartDao)
@@ -154,15 +169,16 @@ class SyncTest {
         waitFor { null != viewModelBob.getItemByItemId(item.itemId) }
     }
 
-    @Test(timeout = 10_000)
+    @Test(timeout = 1000000)
     fun requestCartList(): Unit = runBlocking {
-        val cart = Cart(cartName = "cart1", synced = true)
+        val cart = Cart(cartName = "cart${Math.random()}", synced = true)
         viewModelBob.add(cart)
         Thread.sleep(1000)
+        (cartDaoBob as CartDaoMock).cartTable shouldHaveSize 1
+        (cartDaoAlice as CartDaoMock).cartTable shouldHaveSize 0
         syncServiceAlice.publish(RequestCartListMessage())
         Thread.sleep(1000)
-        var resultCart: Cart? = cartDaoAlice.getSyncedCarts().singleOrNull()
-        resultCart shouldBe cart
+        (cartDaoAlice as CartDaoMock).cartTable shouldContain cart
     }
 
 }

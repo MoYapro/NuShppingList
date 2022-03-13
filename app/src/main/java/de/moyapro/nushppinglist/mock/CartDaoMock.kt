@@ -19,10 +19,10 @@ class CartDaoMock(
     private val externalScope: CoroutineScope,
 ) : CartDao {
 
-    private val itemTable: MutableSet<Item> = ConcurrentHashMap.newKeySet()
-    private val cartItemPropertiesTable: MutableSet<CartItemProperties> =
+    val itemTable: MutableSet<Item> = ConcurrentHashMap.newKeySet()
+    val cartItemPropertiesTable: MutableSet<CartItemProperties> =
         ConcurrentHashMap.newKeySet()
-    private val cartTable: MutableSet<Cart> = ConcurrentHashMap.newKeySet()
+    val cartTable: MutableSet<Cart> = ConcurrentHashMap.newKeySet()
 
     private val cartChannel: MutableStateFlow<List<Cart>> = MutableStateFlow(listOf())
     private val cartItemChannel: MutableStateFlow<List<CartItem>> = MutableStateFlow(listOf())
@@ -148,6 +148,14 @@ class CartDaoMock(
         cartId: UUID?,
     ): CartItemProperties? {
         return cartItemPropertiesTable.singleOrNull { itemId == it.itemId.id && it.inCart?.id == cartId }
+    }
+
+    override suspend fun getCartItemByCartItemId_internal(cartItemId: UUID): CartItemProperties? {
+        return cartItemPropertiesTable.singleOrNull { it.cartItemPropertiesId == cartItemId }
+    }
+
+    override suspend fun getCartItemByCartItemPropertiesId_internal(cartItemPropertiesId: UUID): CartItemProperties? {
+        return cartItemPropertiesTable.singleOrNull { it.cartItemPropertiesId == cartItemPropertiesId }
     }
 
     override suspend fun getItemByItemName(itemName: String): Item? {

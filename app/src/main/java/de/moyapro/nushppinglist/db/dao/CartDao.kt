@@ -97,6 +97,14 @@ interface CartDao {
     @Query("select * from CartItemProperties p where p.itemId = :itemId and p.inCart = :cartId")
     suspend fun getCartItemByItemId_internal(itemId: UUID, cartId: UUID?): CartItemProperties?
 
+    @Transaction
+    @Query("select * from CartItemProperties p where p.itemId = :cartItemId and p.inCart = :cartItemId")
+    suspend fun getCartItemByCartItemId_internal(cartItemId: UUID): CartItemProperties?
+
+
+    @Transaction
+    @Query("select * from CartItemProperties p where p.cartItemPropertiesId = :cartItemPropertiesId")
+    suspend fun getCartItemByCartItemPropertiesId_internal(cartItemPropertiesId: UUID): CartItemProperties?
 
     @Deprecated(
         "This is just for the generated Dao_Impl",
@@ -129,6 +137,8 @@ interface CartDao {
 
 }
 
+suspend fun CartDao.getCartItemByCartItemPropertiesId(cartItemPropertiesId: UUID)=
+    getCartItemByCartItemPropertiesId_internal(cartItemPropertiesId)
 suspend fun CartDao.getCartItemByItemId(itemId: ItemId, selectedCartId: CartId?) =
     getCartItemByItemId_internal(itemId.id, selectedCartId?.id)
 

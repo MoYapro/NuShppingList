@@ -1,7 +1,9 @@
 package de.moyapro.nushppinglist.sync
 
 import com.hivemq.client.mqtt.datatypes.MqttTopic
-import de.moyapro.nushppinglist.db.model.Cart
+import de.moyapro.nushppinglist.db.ids.CartId
+import de.moyapro.nushppinglist.db.ids.ItemId
+import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.handler.CartMessageHandler
 import de.moyapro.nushppinglist.sync.handler.ItemMessageHandler
@@ -11,15 +13,20 @@ import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
 import de.moyapro.nushppinglist.util.MainCoroutineRule
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 
 @Suppress("EXPERIMENTAL_API_USAGE")
@@ -124,7 +131,7 @@ class CartMessageHandlerTest {
         }
     }
 
-    @Test(timeout = 100_000)
+    @Test(timeout = 1000_000)
     fun handleCartRequest__success() = runBlocking {
         val cart = Cart()
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
@@ -134,6 +141,7 @@ class CartMessageHandlerTest {
             amount = cartItem.cartItemProperties.amount + 1,
             checked = !cartItem.cartItemProperties.checked
         )
+        Thread.sleep(100) // wait for DB to save
         val request = CartMessage(listOf(updatedCartItemProperties), cart.cartId)
         CartMessageHandler(cartDao, publisher)(request)
         Thread.sleep(1000) // wait for DB to save
@@ -142,7 +150,7 @@ class CartMessageHandlerTest {
         result?.checked shouldBe updatedCartItemProperties.checked
     }
 
-    @Test(timeout = 100_000)
+    @Test(timeout = 10_000)
     fun handleCartRequest__success_removeLast() = runBlocking {
         val cart = Cart()
         val cartItem = createSampleCartItem()
@@ -174,6 +182,80 @@ class CartMessageHandlerTest {
         topic matches "a/x" shouldBe false
         topic matches "a/x/c" shouldBe false
     }
+
+    @Test
+    fun merge__overwrites() {
+        val handler = CartMessageHandler(cartDao, publisher)
+        val originalCartItemProperties = CartItemProperties()
+        val updatedCartItemProperties = CartItemProperties(
+            cartItemPropertiesId = UUID.randomUUID(),
+            cartItemId = UUID.randomUUID(),
+            inCart = CartId(),
+            itemId = ItemId(),
+            recipeId = RecipeId(),
+            amount = 32,
+            checked = true,
+        )
+        val result: CartItemProperties =
+            handler.merge(originalCartItemProperties, updatedCartItemProperties)
+
+        result.cartItemPropertiesId shouldBe originalCartItemProperties.cartItemPropertiesId
+        result.cartItemId shouldBe updatedCartItemProperties.cartItemId
+        result.inCart shouldBe updatedCartItemProperties.inCart
+        result.itemId shouldBe updatedCartItemProperties.itemId
+        result.recipeId shouldBe updatedCartItemProperties.recipeId
+        result.amount shouldBe updatedCartItemProperties.amount
+        result.checked shouldBe updatedCartItemProperties.checked
+
+    }
+
+
+    @Test
+    fun merge__keeps() {
+        val handler = CartMessageHandler(cartDao, publisher)
+        val originalCartItemProperties = CartItemProperties(
+            cartItemPropertiesId = UUID.randomUUID(),
+            cartItemId = UUID.randomUUID(),
+            inCart = CartId(),
+            itemId = ItemId(),
+            recipeId = RecipeId(),
+            amount = 32,
+            checked = true,
+        )
+        val updatedCartItemProperties = CartItemProperties()
+        val result: CartItemProperties =
+            handler.merge(originalCartItemProperties, updatedCartItemProperties)
+
+        result.cartItemPropertiesId shouldBe originalCartItemProperties.cartItemPropertiesId
+        result.cartItemId shouldBe updatedCartItemProperties.cartItemId
+        result.inCart shouldBe updatedCartItemProperties.inCart
+        result.itemId shouldBe updatedCartItemProperties.itemId
+        result.recipeId shouldBe updatedCartItemProperties.recipeId
+        result.amount shouldBe originalCartItemProperties.amount
+        result.checked shouldBe originalCartItemProperties.checked
+    }
+
+    @Test
+    fun insertCartItemPropertiesWithIdConflict(): Unit = runBlocking {
+        val handler = CartMessageHandler(cartDao, publisher)
+        val cartItemPropertiesToInsert = CartItemProperties(newItemId = ItemId(), amount = 12)
+        val conflictingPropertiesInDb =
+            CartItem(cartItemProperties = cartItemPropertiesToInsert.copy(itemId = ItemId(),
+                amount = 9), item = Item())
+        cartDao.save(conflictingPropertiesInDb.item)
+        cartDao.save(conflictingPropertiesInDb.cartItemProperties)
+        delay(100.milliseconds)
+        val dbBeforeTest = cartDao.findAllCartItems().take(1).first()
+        dbBeforeTest shouldHaveSize 1
+
+        handler(CartMessage(listOf(cartItemPropertiesToInsert)))
+
+        delay(10000.milliseconds)
+        val dbAfterTest = cartDao.findAllCartItems().take(1).first()
+        dbAfterTest shouldHaveSize 2
+
+    }
+
 
 }
 

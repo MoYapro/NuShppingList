@@ -93,13 +93,7 @@ class CartViewModel(
 
     fun update(updatedCartItemProperties: CartItemProperties) =
         viewModelScope.launch(Dispatchers.IO) {
-            publish(updatedCartItemProperties)
-            if (0 < updatedCartItemProperties.amount) {
-                cartDao.updateAll(updatedCartItemProperties)
-            } else {
-                cartDao.remove(updatedCartItemProperties)
-            }
-
+            cartMessageHandler(CartMessage(listOf(updatedCartItemProperties)))
         }
 
     fun update(updatedCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
@@ -118,18 +112,9 @@ class CartViewModel(
     }
 
     fun toggleChecked(itemToToggle: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
-        _cartItems.value = _cartItems.value.map { oldValue ->
-            if (oldValue.itemId == itemToToggle.itemId) {
-                val updated = oldValue.copy(
-                    checked = !oldValue.checked
-                )
-                cartDao.updateAll(updated)
-                publish(updated)
-                updated
-            } else {
-                oldValue
-            }
-        }
+        itemToToggle.checked = !itemToToggle.checked
+        publish(itemToToggle)
+        cartMessageHandler(CartMessage(listOf(itemToToggle)))
     }
 
     fun getItemByItemId(itemId: ItemId): Item? = runBlocking {
@@ -150,7 +135,15 @@ class CartViewModel(
     }
 
     fun addToCart(item: Item) = viewModelScope.launch(Dispatchers.IO) {
-        itemMessageHandler(ItemMessage(item))
+        val existingCartItem: CartItemProperties? =
+            cartDao.getCartItemByItemId(item.itemId, _selectedCart?.cartId)
+        if (null == existingCartItem) {
+            add(CartItem(item).apply { cartItemProperties.inCart = _selectedCart?.cartId })
+        } else {
+            val updatedCartItemProperties =
+                existingCartItem.copy(amount = existingCartItem.amount + 1)
+            update(updatedCartItemProperties)
+        }
     }
 
     fun addToCart(recipeItems: List<RecipeItem>) {
@@ -180,9 +173,9 @@ class CartViewModel(
             val existingCartItem =
                 cartDao.getCartItemByItemId(existingItem.itemId, _selectedCart?.cartId)
             if (null == existingCartItem) {
-                cartDao.save(CartItem(existingItem).cartItemProperties)
+                cartMessageHandler(CartMessage(listOf(CartItem(existingItem).cartItemProperties)))
             } else {
-                cartDao.updateAll(existingCartItem.copy(amount = existingCartItem.amount + 1))
+                cartMessageHandler(CartMessage(listOf(existingCartItem.copy(amount = existingCartItem.amount + 1))))
             }
         }
     }

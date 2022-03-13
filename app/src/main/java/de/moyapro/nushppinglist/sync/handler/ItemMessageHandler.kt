@@ -5,6 +5,7 @@ import de.moyapro.nushppinglist.db.dao.getItemByItemId
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
+import de.moyapro.nushppinglist.util.takeIfNotDefault
 
 class ItemMessageHandler(
     val cartDao: CartDao,
@@ -47,19 +48,6 @@ class ItemMessageHandler(
             kategory = takeIfNotDefault(originalItem, default, newValues) { it.kategory }
 
         )
-    }
-
-    private fun <T, X : Any> takeIfNotDefault(
-        original: T,
-        default: T,
-        newValues: T,
-        fieldAccessor: (T) -> X,
-    ): X {
-        return if (fieldAccessor(newValues) != fieldAccessor(default)) {
-            fieldAccessor(newValues)
-        } else {
-            fieldAccessor(original)
-        }
     }
 
 }
