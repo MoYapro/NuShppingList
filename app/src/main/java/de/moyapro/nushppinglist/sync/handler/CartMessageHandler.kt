@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.sync.handler
 import android.util.Log
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.dao.*
+import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.sync.Publisher
@@ -10,9 +11,10 @@ import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.util.takeIfNotDefault
-import kotlinx.coroutines.*
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class CartMessageHandler(
     val cartDao: CartDao,
@@ -32,46 +34,36 @@ class CartMessageHandler(
         endTime: Long = System.currentTimeMillis() + SWITCHES.WAIT_FOR_MISSING_ITEMS_TIMEOUT,
     ) {
         if (System.currentTimeMillis() > endTime) {
-            Log.w(tag,
-                "Could not handle cart message $cartMessage after ${SWITCHES.WAIT_FOR_MISSING_ITEMS_TIMEOUT}ms")
+            Log.w(
+                tag,
+                "Could not handle cart message $cartMessage after ${SWITCHES.WAIT_FOR_MISSING_ITEMS_TIMEOUT}ms"
+            )
             return
         }
 
-        val requestedCartCount = requestMissingCarts(cartMessage)
-        val requestedItemsCount = requestMissingItemIds(cartMessage)
-        removeZeroAmountItems(cartMessage)
-        if (0 < requestedItemsCount) {
-            Log.i(tag, "Did not find items for #$requestedCartCount itemIds")
-            tryAgainLater(cartMessage, endTime)
-        } else {
-            persistCartItemProperties(cartMessage.cartItemPropertiesList)
+        if(requestMissingCarts(cartMessage)) {
+            Log.i(tag, "Did not process cartMessage, cart does not exist and was therefor requested")
+            return
+        }
+        val requestedItems = requestMissingItemIds(cartMessage)
+        removeZeroAmountItemsFromDb(cartMessage)
+        if (requestedItems.isNotEmpty()) {
+            Log.i(tag, "Did not find items for #$requestedItems itemIds")
         }
 
-//            .mapNotNull { cartItemProperties ->
-//                val item = cartDao.getItemByItemId(cartItemProperties.itemId)
-//                if (null != item) {
-//                    Log.i(tag, "save new cartItem for existing $item")
-//                    if (0 >= cartItemProperties.amount) {
-//                        this.remove(cartItemProperties)
-//                    } else {
-//                        this.add(CartItem(cartItemProperties, item))
-//                    }
-//                    null
-//                } else {
-//                    cartItemProperties.itemId
-//                }
-//            }
-
+        persistCartItemProperties(
+            cartMessage.cartItemPropertiesList.filter { it.itemId !in requestedItems }
+        )
     }
 
-    private suspend fun requestMissingCarts(cartMessage: CartMessage): Int {
+    private suspend fun requestMissingCarts(cartMessage: CartMessage): Boolean {
         val existingCart = cartMessage.cartId?.let { cartDao.getCartByCartId(it) }
         return if (null == existingCart) {
-            0
-        } else {
             Log.i(tag, "request non existing cart with cartId ${cartMessage.cartId}")
             publisher?.publish(RequestCartListMessage("Missing: ${listOf(cartMessage.cartId)}"))
-            1
+            true
+        } else {
+            false
         }
     }
 
@@ -79,17 +71,11 @@ class CartMessageHandler(
         cartItemPropertiesList.forEach { add(it) }
     }
 
-    private fun removeZeroAmountItems(cartMessage: CartMessage) {
+    private fun removeZeroAmountItemsFromDb(cartMessage: CartMessage) {
         cartMessage.cartItemPropertiesList.filter { 0 >= it.amount }.forEach(::remove)
     }
 
-    @OptIn(ExperimentalTime::class)
-    private suspend fun tryAgainLater(cartMessage: CartMessage, endTime: Long) {
-        delay(1.seconds)
-        handleCartMessage(cartMessage, endTime)
-    }
-
-    private suspend fun requestMissingItemIds(cartMessage: CartMessage): Int {
+    private suspend fun requestMissingItemIds(cartMessage: CartMessage): List<ItemId> {
         val requestedItemIds = cartMessage.cartItemPropertiesList.map(CartItemProperties::itemId)
         val availableItemIds = cartDao.getAllItemByItemId(requestedItemIds).map(Item::itemId)
         val missingItemIds = requestedItemIds - availableItemIds
@@ -98,14 +84,16 @@ class CartMessageHandler(
             Log.i(tag, "request non existing item with itemId $missingItemIds")
             publisher?.publish(RequestItemMessage(missingItemIds))
         }
-        return missingItemIds.size
+        return missingItemIds
     }
 
     private fun remove(cartItemProperties: CartItemProperties) {
         println("---\tCartItemProperties: $cartItemProperties")
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
-            val existingCartItemProperties = cartDao.getCartItemByItemId(cartItemProperties.itemId,
-                cartDao.getSelectedCart()?.cartId)
+            val existingCartItemProperties = cartDao.getCartItemByItemId(
+                cartItemProperties.itemId,
+                cartDao.getSelectedCart()?.cartId
+            )
             if (null != existingCartItemProperties) {
                 Log.i(tag, "---\tCartItemProperties: $cartItemProperties")
                 cartDao.remove(existingCartItemProperties)
@@ -120,18 +108,27 @@ class CartMessageHandler(
             cartDao.getCartItemByCartItemPropertiesId(newCartItemProperties.cartItemPropertiesId)
         val cartItemWithSameProperties =
             cartDao.getCartItemByItemId(newCartItemProperties.itemId, newCartItemProperties.inCart)
-        val cartItemWithSameId = cartDao.getCartItemByCartItemPropertiesId(newCartItemProperties.cartItemPropertiesId)
+        val cartItemWithSameId =
+            cartDao.getCartItemByCartItemPropertiesId(newCartItemProperties.cartItemPropertiesId)
         when {
             cartItemInDb == newCartItemProperties -> return
-            null == cartItemInDb && null == cartItemWithSameProperties -> cartDao.save(newCartItemProperties)
+            null == cartItemInDb && null == cartItemWithSameProperties -> cartDao.save(
+                newCartItemProperties
+            )
             null == cartItemInDb && null != cartItemWithSameProperties -> cartDao.updateAll(
-                merge(cartItemWithSameProperties, newCartItemProperties))
+                merge(cartItemWithSameProperties, newCartItemProperties)
+            )
             null != cartItemInDb && null == cartItemWithSameProperties -> cartDao.updateAll(
-                merge(cartItemInDb, newCartItemProperties))
+                merge(cartItemInDb, newCartItemProperties)
+            )
             null != cartItemInDb && null != cartItemWithSameProperties -> {
                 cartDao.remove(cartItemInDb)
-                cartDao.updateAll(merge(merge(cartItemInDb, cartItemWithSameProperties),
-                    newCartItemProperties))
+                cartDao.updateAll(
+                    merge(
+                        merge(cartItemInDb, cartItemWithSameProperties),
+                        newCartItemProperties
+                    )
+                )
             }
         }
     }
@@ -143,30 +140,42 @@ class CartMessageHandler(
         val default = CartItemProperties()
         return CartItemProperties(
             cartItemPropertiesId = originalCartItemProperties.cartItemPropertiesId,
-            cartItemId = takeIfNotDefault(originalCartItemProperties,
+            cartItemId = takeIfNotDefault(
+                originalCartItemProperties,
                 default,
                 updatedCartItemProperties,
-                CartItemProperties::cartItemId),
-            inCart = takeIfNotDefault(originalCartItemProperties,
+                CartItemProperties::cartItemId
+            ),
+            inCart = takeIfNotDefault(
+                originalCartItemProperties,
                 default,
                 updatedCartItemProperties,
-                CartItemProperties::inCart),
-            itemId = takeIfNotDefault(originalCartItemProperties,
+                CartItemProperties::inCart
+            ),
+            itemId = takeIfNotDefault(
+                originalCartItemProperties,
                 default,
                 updatedCartItemProperties,
-                CartItemProperties::itemId),
-            recipeId = takeIfNotDefault(originalCartItemProperties,
+                CartItemProperties::itemId
+            ),
+            recipeId = takeIfNotDefault(
+                originalCartItemProperties,
                 default,
                 updatedCartItemProperties,
-                CartItemProperties::recipeId),
-            amount = takeIfNotDefault(originalCartItemProperties,
+                CartItemProperties::recipeId
+            ),
+            amount = takeIfNotDefault(
+                originalCartItemProperties,
                 default,
                 updatedCartItemProperties,
-                CartItemProperties::amount),
-            checked = takeIfNotDefault(originalCartItemProperties,
+                CartItemProperties::amount
+            ),
+            checked = takeIfNotDefault(
+                originalCartItemProperties,
                 default,
                 updatedCartItemProperties,
-                CartItemProperties::checked),
+                CartItemProperties::checked
+            ),
         )
     }
 }

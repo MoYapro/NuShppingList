@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.mock
 
+import android.util.Log
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
 import de.moyapro.nushppinglist.db.model.Cart
@@ -18,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap
 class CartDaoMock(
     private val externalScope: CoroutineScope,
 ) : CartDao {
+
+    val tag = CartDaoMock::class.simpleName
 
     val itemTable: MutableSet<Item> = ConcurrentHashMap.newKeySet()
     val cartItemPropertiesTable: MutableSet<CartItemProperties> =
@@ -56,6 +59,7 @@ class CartDaoMock(
 
     override suspend fun updateAll(vararg items: Item) {
         val toUpdate = items.associateBy({ it.itemId }, { it })
+        Log.i(tag, "vvv\t Update $items")
         val updatedItemTable: List<Item> = itemTable.map { itemFromTable ->
             if (toUpdate.containsKey(itemFromTable.itemId)) {
                 toUpdate[itemFromTable.itemId]!!
@@ -111,7 +115,22 @@ class CartDaoMock(
     }
 
     override fun findAllSelectedCartItems_internal(cartId: UUID?): Flow<List<CartItem>> {
-        return selectedCartItemFlow
+        Log.i(tag, "find all selected cart Items")
+        return MutableStateFlow(cartItemPropertiesTable
+            .filter {
+
+                val isInList = it.inCart?.id == cartId
+                isInList
+            }
+            .map { cartItemProperties ->
+                val item = itemTable.first { item -> item.itemId == cartItemProperties.itemId }
+                Log.i(tag, "creating cartItem from $cartItemProperties and $item")
+                CartItem(
+                    cartItemProperties,
+                    item
+                )
+            }
+        )
     }
 
     override fun findAllCart(): Flow<List<Cart>> {

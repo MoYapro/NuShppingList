@@ -66,8 +66,8 @@ class SyncTest {
     val coroutineRule = MainCoroutineRule()
 
     private lateinit var syncServiceAlice: SyncService
-    private lateinit var cartDaoAlice: CartDao
-    private lateinit var cartDaoBob: CartDao
+    private lateinit var cartDaoAlice: CartDaoMock
+    private lateinit var cartDaoBob: CartDaoMock
     private lateinit var viewModelAlice: CartViewModel
 
     private lateinit var syncServiceBob: SyncService
@@ -118,10 +118,21 @@ class SyncTest {
     }
 
     @Test(timeout = 10_000)
+    fun syncCart() {
+        val cart = Cart()
+        viewModelBob.add(cart)
+        cartDaoAlice.cartTable shouldHaveSize 0
+        syncServiceAlice.publish(RequestCartListMessage())
+        Thread.sleep(1000)
+        cartDaoAlice.cartTable shouldHaveSize 1
+    }
+
+    @Test(timeout = 10_000)
     fun syncCartWithExistingItems() {
         val cart = Cart()
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         val item = cartItem.item
+        viewModelBob.add(cart)
         viewModelBob.add(item)
         viewModelAlice.add(cartItem)
         viewModelBob.getCartItemPropertiesByItemId(item.itemId) shouldBe null
@@ -131,18 +142,18 @@ class SyncTest {
         resultItem?.itemId shouldBe item.itemId
     }
 
-    @Test(timeout = 10_000)
+    @Test(timeout = Long.MAX_VALUE)
     fun syncCartWithoutExistingItems() {
-        val cart = Cart()
+        val cart = Cart(cartName = "Cart ${Math.random()}").apply { synced = true }
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         val item = cartItem.item
         viewModelAlice.add(cart)
         viewModelAlice.add(cartItem)
         viewModelBob.getCartItemPropertiesByItemId(item.itemId) shouldBe null
         syncServiceBob.publish(RequestCartMessage(cart.cartId))
-        waitFor { null != viewModelBob.getCartItemPropertiesByItemId(item.itemId) }
-        val resultItem = viewModelBob.getCartItemPropertiesByItemId(item.itemId)
-        resultItem?.itemId shouldBe item.itemId
+        Thread.sleep(1000)
+        cartDaoBob.cartTable shouldContain cart
+        cartDaoBob.itemTable shouldContain item
     }
 
     @Test(timeout = 10_000)
@@ -169,7 +180,7 @@ class SyncTest {
         waitFor { null != viewModelBob.getItemByItemId(item.itemId) }
     }
 
-    @Test(timeout = 1000000)
+    @Test(timeout = 10_000)
     fun requestCartList(): Unit = runBlocking {
         val cart = Cart(cartName = "cart${Math.random()}", synced = true)
         viewModelBob.add(cart)

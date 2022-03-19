@@ -6,6 +6,7 @@ import de.moyapro.nushppinglist.db.dao.getCartByCartId
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.CartListMessage
+import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.ui.util.forEach
 
 class CartListMessageHandler(
@@ -24,7 +25,10 @@ class CartListMessageHandler(
         Log.i(tag, "vvv\tCart: $cart")
         when {
             cart == existingCart -> return
-            null == existingCart -> cartDao.save(cart)
+            null == existingCart -> {
+                cartDao.save(cart)
+                publisher.publish(RequestCartMessage(cart.cartId))
+            }
             else -> {
                 cartDao.updateAll(cart)
             }

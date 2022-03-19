@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.sync.handler
 
+import android.util.Log
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
 import de.moyapro.nushppinglist.db.model.Item
@@ -12,12 +13,20 @@ class ItemMessageHandler(
     val publisher: Publisher?,
 ) : suspend (ItemMessage) -> Unit {
 
+    val tag = ItemMessageHandler::class.simpleName
+
     override suspend fun invoke(itemMessage: ItemMessage) {
+        Log.i(tag, "handle itemMessage: $itemMessage")
         itemMessage.items.forEach { itemFromMessage ->
             val itemInDb = cartDao.getItemByItemId(itemFromMessage.itemId)
             val itemWithSameName = cartDao.getItemByItemName(itemFromMessage.name)
+            Log.i(tag, "$itemFromMessage found in DB: $itemInDb")
+            Log.i(tag, "$itemFromMessage found with same name: $itemWithSameName")
             when {
-                itemInDb == itemFromMessage -> return
+                itemInDb == itemFromMessage -> {
+                    Log.i(tag, "Item already in DB")
+                    return
+                }
                 null == itemInDb && null == itemWithSameName -> cartDao.save(itemFromMessage)
                 null == itemInDb && null != itemWithSameName -> cartDao.updateAll(
                     merge(itemWithSameName, itemFromMessage))
@@ -27,12 +36,14 @@ class ItemMessageHandler(
                     cartDao.remove(itemInDb)
                     cartDao.updateAll(merge(merge(itemInDb, itemWithSameName), itemFromMessage))
                 }
+                else -> throw IllegalStateException("Could not determin action for item $itemFromMessage")
             }
         }
 
     }
 
     fun merge(originalItem: Item, newValues: Item): Item {
+        Log.i(tag, "Merging $newValues ==> $originalItem")
         val default = Item()
         return Item(
             itemId = originalItem.itemId,

@@ -4,7 +4,12 @@ import android.util.Log
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
-import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.constants.CONSTANTS.MQTT_TOPIC_CART
+import de.moyapro.nushppinglist.constants.CONSTANTS.MQTT_TOPIC_CARTLIST
+import de.moyapro.nushppinglist.constants.CONSTANTS.MQTT_TOPIC_CARTLIST_REQUEST
+import de.moyapro.nushppinglist.constants.CONSTANTS.MQTT_TOPIC_CART_REQUEST
+import de.moyapro.nushppinglist.constants.CONSTANTS.MQTT_TOPIC_ITEM
+import de.moyapro.nushppinglist.constants.CONSTANTS.MQTT_TOPIC_ITEM_REQUEST
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import de.moyapro.nushppinglist.sync.handler.*
@@ -35,15 +40,15 @@ class MessageHandler(
     suspend fun handleMessage(topic: MqttTopic, messageBytes: ByteArray) {
         Log.i(tag, "${topic.levels}")
         when {
-            topic matches CONSTANTS.MQTT_TOPIC_ITEM_REQUEST -> requestItemMessageHandler(readMessage(
+            topic matches MQTT_TOPIC_ITEM_REQUEST -> requestItemMessageHandler(readMessage(
                 messageBytes))
-            topic matches CONSTANTS.MQTT_TOPIC_ITEM -> itemMessageHandler(readMessage(messageBytes))
-            topic matches CONSTANTS.MQTT_TOPIC_CART_REQUEST -> requestCartMessageHandler(readMessage(
+            topic matches MQTT_TOPIC_ITEM -> itemMessageHandler(readMessage(messageBytes))
+            topic matches MQTT_TOPIC_CART_REQUEST -> requestCartMessageHandler(readMessage(
                 messageBytes))
-            topic matches CONSTANTS.MQTT_TOPIC_CART -> cartMessageHandler(readMessage(messageBytes))
-            topic matches CONSTANTS.MQTT_TOPIC_CARTLIST_REQUEST -> requestCartListMessageHandler(
+            topic matches MQTT_TOPIC_CART -> cartMessageHandler(readMessage(messageBytes))
+            topic matches MQTT_TOPIC_CARTLIST_REQUEST -> requestCartListMessageHandler(
                 readMessage(messageBytes))
-            topic matches CONSTANTS.MQTT_TOPIC_CARTLIST -> cartListMessageHandler(
+            topic matches MQTT_TOPIC_CARTLIST -> cartListMessageHandler(
                 readMessage(messageBytes))
             else -> throw IllegalArgumentException("Don't know how to handle topic $topic")
         }
