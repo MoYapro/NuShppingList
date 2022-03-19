@@ -142,7 +142,7 @@ class SyncTest {
         resultItem?.itemId shouldBe item.itemId
     }
 
-    @Test(timeout = Long.MAX_VALUE)
+    @Test(timeout = 10_000)
     fun syncCartWithoutExistingItems() {
         val cart = Cart(cartName = "Cart ${Math.random()}").apply { synced = true }
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
