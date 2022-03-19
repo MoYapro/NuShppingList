@@ -119,7 +119,7 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun syncCart() {
-        val cart = Cart()
+        val cart = Cart().apply { synced = true }
         viewModelBob.add(cart)
         cartDaoAlice.cartTable shouldHaveSize 0
         syncServiceAlice.publish(RequestCartListMessage())
@@ -129,7 +129,7 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun syncCartWithExistingItems() {
-        val cart = Cart()
+        val cart = Cart().apply { synced = true }
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         val item = cartItem.item
         viewModelBob.add(cart)
@@ -158,7 +158,7 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun updateCartItem() {
-        val cart = Cart()
+        val cart = Cart().apply { synced = true }
         val originalCartItem = createSampleCartItem().apply { cartItemProperties.checked = false }
         val itemId = originalCartItem.item.itemId
         val updatedCartItemProperties =
