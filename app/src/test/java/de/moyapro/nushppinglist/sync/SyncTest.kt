@@ -88,8 +88,8 @@ class SyncTest {
 
     @After
     fun teardown() {
-        (cartDaoAlice as CartDaoMock).reset()
-        (cartDaoBob as CartDaoMock).reset()
+        cartDaoAlice.reset()
+        cartDaoBob.reset()
     }
 
     private fun setupSyncService(
@@ -119,7 +119,7 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun syncCart() {
-        val cart = Cart().apply { synced = true }
+        val cart = Cart(cartName = "Sync-o-cart").apply { synced = true }
         viewModelBob.add(cart)
         cartDaoAlice.cartTable shouldHaveSize 0
         syncServiceAlice.publish(RequestCartListMessage())
@@ -156,16 +156,20 @@ class SyncTest {
         cartDaoBob.itemTable shouldContain item
     }
 
-    @Test(timeout = 10_000)
+    @Test(timeout = Long.MAX_VALUE)
     fun updateCartItem() {
         val cart = Cart().apply { synced = true }
-        val originalCartItem = createSampleCartItem().apply { cartItemProperties.checked = false }
+        val originalCartItem = createSampleCartItem().apply { cartItemProperties.checked = false; cartItemProperties.inCart = cart.cartId }
         val itemId = originalCartItem.item.itemId
         val updatedCartItemProperties =
             originalCartItem.cartItemProperties.copy(checked = true)
+        viewModelBob.add(cart)
         viewModelBob.add(originalCartItem)
+        Thread.sleep(1000)
+        cartDaoBob.cartItemPropertiesTable.single().checked shouldBe false
         syncServiceAlice.publish(CartMessage(listOf(updatedCartItemProperties), cart.cartId))
-        waitFor { viewModelBob.getCartItemPropertiesByItemId(itemId)?.checked ?: false }
+        Thread.sleep(1000)
+        cartDaoBob.cartItemPropertiesTable.single().checked shouldBe true
         val resultItem = viewModelBob.getCartItemPropertiesByItemId(itemId)
         resultItem?.itemId shouldBe itemId
         resultItem?.checked shouldBe true

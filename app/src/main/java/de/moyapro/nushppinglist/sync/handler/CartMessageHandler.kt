@@ -1,7 +1,6 @@
 package de.moyapro.nushppinglist.sync.handler
 
 import android.util.Log
-import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.dao.*
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItemProperties
@@ -25,24 +24,11 @@ class CartMessageHandler(
 
     override suspend fun invoke(cartMessage: CartMessage) {
         Log.i(tag, "start handle $cartMessage")
-        handleCartMessage(cartMessage)
-        Log.i(tag, "done handle $cartMessage")
-    }
-
-    private suspend fun handleCartMessage(
-        cartMessage: CartMessage,
-        endTime: Long = System.currentTimeMillis() + SWITCHES.WAIT_FOR_MISSING_ITEMS_TIMEOUT,
-    ) {
-        if (System.currentTimeMillis() > endTime) {
-            Log.w(
+        if (requestMissingCarts(cartMessage)) {
+            Log.i(
                 tag,
-                "Could not handle cart message $cartMessage after ${SWITCHES.WAIT_FOR_MISSING_ITEMS_TIMEOUT}ms"
+                "Did not process cartMessage, cart does not exist and was therefor requested"
             )
-            return
-        }
-
-        if(requestMissingCarts(cartMessage)) {
-            Log.i(tag, "Did not process cartMessage, cart does not exist and was therefor requested")
             return
         }
         val requestedItems = requestMissingItemIds(cartMessage)
@@ -54,6 +40,7 @@ class CartMessageHandler(
         persistCartItemProperties(
             cartMessage.cartItemPropertiesList.filter { it.itemId !in requestedItems }
         )
+        Log.i(tag, "done handle $cartMessage")
     }
 
     private suspend fun requestMissingCarts(cartMessage: CartMessage): Boolean {
