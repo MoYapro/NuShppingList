@@ -62,7 +62,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     val listState = rememberLazyListState()
     val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
 
-    Log.i("ItemList", listState.firstVisibleItemIndex.toString())
+    Log.d("ItemList", listState.firstVisibleItemIndex.toString())
 
     val coroutineScope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current

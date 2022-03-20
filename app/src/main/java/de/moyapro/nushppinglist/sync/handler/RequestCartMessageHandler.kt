@@ -22,21 +22,21 @@ class RequestCartMessageHandler(
 
     override suspend fun invoke(requestCartMessage: RequestCartMessage) {
         if (null == requestCartMessage.cartId) {
-            Log.i(tag, "syncing all carts")
+            Log.d(tag, "syncing all carts")
             publishAllSyncedCarts()
         } else {
-            Log.i(tag, "syncing cart ${requestCartMessage.cartId}")
+            Log.d(tag, "syncing cart ${requestCartMessage.cartId}")
             publishSingleCart(requestCartMessage.cartId)
         }
     }
 
     private suspend fun publishSingleCart(cartId: CartId) {
-        Log.i(tag, "publish single cart for $cartId")
+        Log.d(tag, "publish single cart for $cartId")
         val toList = cartDao.findAllSelectedCartItems(cartId)
-        Log.i(tag, "got items to publish $toList")
+        Log.d(tag, "got items to publish $toList")
         val first = toList.take(1).first()
         val cartItemPropertiesList = first.map(CartItem::cartItemProperties)
-        Log.i(tag, "Syncing $cartItemPropertiesList for $cartId")
+        Log.d(tag, "Syncing $cartItemPropertiesList for $cartId")
 
         publisher.publish(CartMessage(cartItemPropertiesList, cartId))
     }

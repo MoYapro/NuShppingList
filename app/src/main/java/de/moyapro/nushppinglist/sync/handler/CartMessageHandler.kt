@@ -23,9 +23,9 @@ class CartMessageHandler(
     private val tag = CartMessageHandler::class.simpleName
 
     override suspend fun invoke(cartMessage: CartMessage) {
-        Log.i(tag, "start handle $cartMessage")
+        Log.d(tag, "start handle $cartMessage")
         if (requestMissingCarts(cartMessage)) {
-            Log.i(
+            Log.d(
                 tag,
                 "Did not process cartMessage, cart does not exist and was therefor requested"
             )
@@ -34,19 +34,19 @@ class CartMessageHandler(
         val requestedItems = requestMissingItemIds(cartMessage)
         removeZeroAmountItemsFromDb(cartMessage)
         if (requestedItems.isNotEmpty()) {
-            Log.i(tag, "Did not find items for #$requestedItems itemIds")
+            Log.d(tag, "Did not find items for #$requestedItems itemIds")
         }
 
         persistCartItemProperties(
             cartMessage.cartItemPropertiesList.filter { it.itemId !in requestedItems }
         )
-        Log.i(tag, "done handle $cartMessage")
+        Log.d(tag, "done handle $cartMessage")
     }
 
     private suspend fun requestMissingCarts(cartMessage: CartMessage): Boolean {
         val existingCart = cartMessage.cartId?.let { cartDao.getCartByCartId(it) }
         return if (null == existingCart) {
-            Log.i(tag, "request non existing cart with cartId ${cartMessage.cartId}")
+            Log.d(tag, "request non existing cart with cartId ${cartMessage.cartId}")
             publisher?.publish(RequestCartListMessage("Missing: ${listOf(cartMessage.cartId)}"))
             true
         } else {
@@ -68,24 +68,24 @@ class CartMessageHandler(
         val missingItemIds = requestedItemIds - availableItemIds
 
         if (missingItemIds.isNotEmpty()) {
-            Log.i(tag, "request non existing item with itemId $missingItemIds")
+            Log.d(tag, "request non existing item with itemId $missingItemIds")
             publisher?.publish(RequestItemMessage(missingItemIds))
         }
         return missingItemIds
     }
 
     private fun remove(cartItemProperties: CartItemProperties) {
-        println("---\tCartItemProperties: $cartItemProperties")
+        Log.d(tag, "---\tCartItemProperties: $cartItemProperties")
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             val existingCartItemProperties = cartDao.getCartItemByItemId(
                 cartItemProperties.itemId,
                 cartDao.getSelectedCart()?.cartId
             )
             if (null != existingCartItemProperties) {
-                Log.i(tag, "---\tCartItemProperties: $cartItemProperties")
+                Log.d(tag, "---\tCartItemProperties: $cartItemProperties")
                 cartDao.remove(existingCartItemProperties)
             } else {
-                Log.i(tag, "Could not find cartItemProperties to remove. Doing nothing")
+                Log.d(tag, "Could not find cartItemProperties to remove. Doing nothing")
             }
         }
     }

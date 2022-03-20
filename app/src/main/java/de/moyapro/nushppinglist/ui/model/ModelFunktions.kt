@@ -13,7 +13,7 @@ private const val tag = "StateListener"
 fun <T> MutableStateFlow<T>.listenTo(source: Flow<T>, coroutineScope: CoroutineScope) {
     return this.listenTo(source, coroutineScope) { x ->
         if (SWITCHES.DEBUG) {
-            Log.i(tag, "load value: $x")
+            Log.d(tag, "load value: $x")
         }
         x
     }
@@ -28,7 +28,7 @@ fun <T, R> MutableStateFlow<R>.listenTo(
     coroutineScope.launch {
         source.collect { valuesFromSource ->
             if (SWITCHES.DEBUG) {
-                Log.i(tag, "load and transform value: $valuesFromSource")
+                Log.d(tag, "load and transform value: $valuesFromSource")
             }
             that.value = transformation(valuesFromSource)
         }

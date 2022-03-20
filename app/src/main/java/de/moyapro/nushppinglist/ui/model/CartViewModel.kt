@@ -69,19 +69,21 @@ class CartViewModel(
 
     private fun updateSelectedCart(cart: Cart?) {
         _selectedCart = cart
-        _allCartItemsGrouped.listenTo(cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
+        _allCartItemsGrouped.listenTo(
+            cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
             viewModelScope,
-            ModelTransformation::groupCartItemsByRecipe)
+            ModelTransformation::groupCartItemsByRecipe
+        )
     }
 
     fun add(newItem: Item) = viewModelScope.launch(Dispatchers.IO) {
         publish(newItem)
-        println("vvv\tItem\t $newItem")
+        Log.d(tag, "vvv\tItem\t $newItem")
         itemMessageHandler(ItemMessage(newItem))
     }
 
     fun add(newCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
-        println("vvv\tCart\t $newCart")
+        Log.d(tag, "vvv\tCart\t $newCart")
         cartDao.save(newCart)
     }
 
@@ -97,7 +99,7 @@ class CartViewModel(
         }
 
     fun update(updatedCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
-        Log.i(tag, "vvv\tCart: $updatedCart")
+        Log.d(tag, "vvv\tCart: $updatedCart")
         cartDao.updateAll(updatedCart)
     }
 
@@ -105,10 +107,14 @@ class CartViewModel(
     fun add(newCartItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
         publish(newCartItem.item)
         publish(newCartItem.cartItemProperties)
-        println("vvv\tCartItem\t $newCartItem")
+        Log.d(tag, "vvv\tCartItem\t $newCartItem")
         itemMessageHandler(ItemMessage(newCartItem.item))
-        cartMessageHandler(CartMessage(listOf(newCartItem.cartItemProperties),
-            newCartItem.cartItemProperties.inCart))
+        cartMessageHandler(
+            CartMessage(
+                listOf(newCartItem.cartItemProperties),
+                newCartItem.cartItemProperties.inCart
+            )
+        )
     }
 
     fun toggleChecked(itemToToggle: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
@@ -124,7 +130,7 @@ class CartViewModel(
     fun getSelectedCart(): Cart? = runBlocking {
         val selectedCart = cartDao.getSelectedCart()
         updateSelectedCart(selectedCart)
-        Log.i(tag, "^^^\tselectedCart: $selectedCart")
+        Log.d(tag, "^^^\tselectedCart: $selectedCart")
         selectedCart
     }
 
@@ -220,7 +226,7 @@ class CartViewModel(
     }
 
     fun selectCart(toBeSelected: Cart?) {
-        Log.i(tag, "vvv\tselect Cart: $toBeSelected")
+        Log.d(tag, "vvv\tselect Cart: $toBeSelected")
         val previousSelectedCart = getSelectedCart()?.copy(selected = false)
         if (null != previousSelectedCart) {
             update(previousSelectedCart)

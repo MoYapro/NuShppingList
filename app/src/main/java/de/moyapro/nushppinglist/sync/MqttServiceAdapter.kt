@@ -27,7 +27,7 @@ class MqttServiceAdapter(
     fun isConnected() = isConnected
 
     init {
-        Log.i(tag, "init")
+        Log.d(tag, "init")
         connectionSettings = SettingsConverter.toConnectionSettings(MainActivity.preferences)
         mqttClient = if (
             connectionSettings.syncEnabled
@@ -54,7 +54,7 @@ class MqttServiceAdapter(
 
 
     override fun connect(): MqttServiceAdapter {
-        Log.i(tag, "connect to MQTT using $connectionSettings")
+        Log.d(tag, "connect to MQTT using $connectionSettings")
         mqttClient?.connectWith()
             ?.simpleAuth()
             ?.username(connectionSettings.username)
@@ -63,7 +63,7 @@ class MqttServiceAdapter(
             ?.send()
             ?.whenComplete { _: Mqtt5ConnAck, error: Throwable ->
                 isConnected = true
-                Log.i(tag, "connected with error: $error")
+                Log.d(tag, "connected with error: $error")
 
             }
         return this
@@ -79,7 +79,7 @@ class MqttServiceAdapter(
 
     fun subscribe() {
         val topic = "${connectionSettings.topic}/#"
-        println("subscribe to topic $topic")
+        Log.d(tag, "subscribe to topic $topic")
         mqttClient?.subscribeWith()
             ?.topicFilter(topic)
             ?.qos(MqttQos.AT_LEAST_ONCE)
@@ -98,10 +98,10 @@ class MqttServiceAdapter(
         if (null == mqttClient) return
         val topic = connectionSettings.topic + "/" + messageObject.getTopic()
         if (!isConnected) {
-            println("xxx\tCannot send $messageObject to $topic. Client is not connected")
+            Log.d(tag, "xxx\tCannot send $messageObject to $topic. Client is not connected")
             return
         }
-        println("==>\t$topic:\t $messageObject")
+        Log.d(tag, "==>\t$topic:\t $messageObject")
         mqttClient.publishWith()
             .topic(topic)
             .payload(ConfiguredObjectMapper().writeValueAsBytes(messageObject))

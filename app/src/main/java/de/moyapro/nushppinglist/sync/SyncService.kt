@@ -16,11 +16,11 @@ class SyncService(
     private val tag = SyncService::class.simpleName
 
     init {
-        Log.i(tag, "try to establish mqtt connection using client: ${serviceAdapter.clientIdentifier}")
+        Log.d(tag, "try to establish mqtt connection using client: ${serviceAdapter.clientIdentifier}")
         waitFor { serviceAdapter.isConnected() }
         serviceAdapter.setHandler(MessageHandler.build(serviceAdapter, cartDao))
         serviceAdapter.subscribe()
-        Log.i(tag, "successfully connected to mqtt server using client: ${serviceAdapter.clientIdentifier}")
+        Log.d(tag, "successfully connected to mqtt server using client: ${serviceAdapter.clientIdentifier}")
     }
 
     fun isConnected() = serviceAdapter.isConnected()

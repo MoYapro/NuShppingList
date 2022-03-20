@@ -59,7 +59,7 @@ class CartDaoMock(
 
     override suspend fun updateAll(vararg items: Item) {
         val toUpdate = items.associateBy({ it.itemId }, { it })
-        Log.i(tag, "vvv\t Update $items")
+        Log.d(tag, "vvv\t Update $items")
         val updatedItemTable: List<Item> = itemTable.map { itemFromTable ->
             if (toUpdate.containsKey(itemFromTable.itemId)) {
                 toUpdate[itemFromTable.itemId]!!
@@ -115,7 +115,7 @@ class CartDaoMock(
     }
 
     override fun findAllSelectedCartItems_internal(cartId: UUID?): Flow<List<CartItem>> {
-        Log.i(tag, "find all selected cart Items")
+        Log.d(tag, "find all selected cart Items")
         return MutableStateFlow(cartItemPropertiesTable
             .filter {
 
@@ -124,7 +124,7 @@ class CartDaoMock(
             }
             .map { cartItemProperties ->
                 val item = itemTable.first { item -> item.itemId == cartItemProperties.itemId }
-                Log.i(tag, "creating cartItem from $cartItemProperties and $item")
+                Log.d(tag, "creating cartItem from $cartItemProperties and $item")
                 CartItem(
                     cartItemProperties,
                     item

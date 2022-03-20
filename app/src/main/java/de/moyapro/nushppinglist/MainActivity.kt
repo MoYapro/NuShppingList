@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i(tag, "create onCreate")
+        Log.d(tag, "create onCreate")
         super.onCreate(savedInstanceState)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initTestData() {
-        Log.i(tag, "start initTestData")
+        Log.d(tag, "start initTestData")
         val items = listOf(
             "EintestwoallesineinemlangenWortistundkeinLeerzeichenzumumbrechen",
             "Handkäse mit Pflaumen (Anmerkung) am besten die kleinen",
@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
                 recipeViewModel.save(createSampleRecipeNoodels())
             }
         }
-        Log.i(tag, "done initTestData")
+        Log.d(tag, "done initTestData")
     }
 
 

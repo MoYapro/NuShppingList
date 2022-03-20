@@ -22,7 +22,7 @@ class CartListMessageHandler(
 
     private suspend fun handleCart(cart: Cart) {
         val existingCart: Cart? = cartDao.getCartByCartId(cart.cartId)
-        Log.i(tag, "vvv\tCart: $cart")
+        Log.d(tag, "vvv\tCart: $cart")
         when {
             cart == existingCart -> return
             null == existingCart -> {

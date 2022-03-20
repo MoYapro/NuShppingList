@@ -27,7 +27,7 @@ class BackgroundSyncService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.i(tag, "onCreate")
+        Log.d(tag, "onCreate")
         Toast.makeText(this, "Invoke background service onCreate method.", Toast.LENGTH_LONG).show()
         if (!isConnected()) {
             syncService = SyncService(MqttSingleton.adapter, database.cartDao())
@@ -36,7 +36,7 @@ class BackgroundSyncService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i(tag, "onStartCommand: connected: ${syncService?.isConnected()}")
+        Log.d(tag, "onStartCommand: connected: ${syncService?.isConnected()}")
         val superReturnStatus = super.onStartCommand(intent, flags, startId)
         Toast.makeText(this, "Invoke background service onStartCommand method.", Toast.LENGTH_LONG)
             .show()
@@ -45,7 +45,7 @@ class BackgroundSyncService : Service() {
     }
 
     override fun onDestroy() {
-        Log.i(tag, "onDestroy")
+        Log.d(tag, "onDestroy")
         super.onDestroy()
         syncService?.shutdown()
         syncService = null

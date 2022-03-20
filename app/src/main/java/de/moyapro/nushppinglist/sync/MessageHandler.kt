@@ -32,13 +32,13 @@ class MessageHandler(
 
     override fun invoke(message: Mqtt5Publish) {
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
-            println("<==\t${message.topic}:\t ${String(message.payloadAsBytes)}")
+            Log.d(tag, "<==\t${message.topic}:\t ${String(message.payloadAsBytes)}")
             handleMessage(message.topic, message.payloadAsBytes)
         }
     }
 
     suspend fun handleMessage(topic: MqttTopic, messageBytes: ByteArray) {
-        Log.i(tag, "${topic.levels}")
+        Log.d(tag, "${topic.levels}")
         when {
             topic matches MQTT_TOPIC_ITEM_REQUEST -> requestItemMessageHandler(readMessage(
                 messageBytes))
@@ -83,6 +83,6 @@ infix fun MqttTopic.matches(topicString: String): Boolean {
     if (topicString.isBlank()) return false
     val otherTopicLevels = MqttTopic.of(topicString).levels
     val matches = this.levels.containsAll(otherTopicLevels)
-    Log.i(tag, "${this.levels} ${if (matches) "does" else "doesn't"} match $topicString")
+    Log.d(tag, "${this.levels} ${if (matches) "does" else "doesn't"} match $topicString")
     return matches
 }

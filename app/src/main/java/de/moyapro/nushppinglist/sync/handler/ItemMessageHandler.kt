@@ -16,15 +16,15 @@ class ItemMessageHandler(
     val tag = ItemMessageHandler::class.simpleName
 
     override suspend fun invoke(itemMessage: ItemMessage) {
-        Log.i(tag, "handle itemMessage: $itemMessage")
+        Log.d(tag, "handle itemMessage: $itemMessage")
         itemMessage.items.forEach { itemFromMessage ->
             val itemInDb = cartDao.getItemByItemId(itemFromMessage.itemId)
             val itemWithSameName = cartDao.getItemByItemName(itemFromMessage.name)
-            Log.i(tag, "$itemFromMessage found in DB: $itemInDb")
-            Log.i(tag, "$itemFromMessage found with same name: $itemWithSameName")
+            Log.d(tag, "$itemFromMessage found in DB: $itemInDb")
+            Log.d(tag, "$itemFromMessage found with same name: $itemWithSameName")
             when {
                 itemInDb == itemFromMessage -> {
-                    Log.i(tag, "Item already in DB")
+                    Log.d(tag, "Item already in DB")
                     return
                 }
                 null == itemInDb && null == itemWithSameName -> cartDao.save(itemFromMessage)
@@ -43,7 +43,7 @@ class ItemMessageHandler(
     }
 
     fun merge(originalItem: Item, newValues: Item): Item {
-        Log.i(tag, "Merging $newValues ==> $originalItem")
+        Log.d(tag, "Merging $newValues ==> $originalItem")
         val default = Item()
         return Item(
             itemId = originalItem.itemId,

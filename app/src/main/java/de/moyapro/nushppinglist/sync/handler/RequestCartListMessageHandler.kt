@@ -15,13 +15,13 @@ class RequestCartListMessageHandler(
     private val tag = RequestCartListMessageHandler::class.simpleName
 
     override suspend fun invoke(requestCartlistMessage: RequestCartListMessage) {
-        Log.i(tag, "start handling $requestCartlistMessage")
+        Log.d(tag, "start handling $requestCartlistMessage")
         val syncedCarts: List<Cart> = cartDao.getSyncedCarts()
-        Log.i(tag, "found carts to sync: $syncedCarts")
+        Log.d(tag, "found carts to sync: $syncedCarts")
         if (syncedCarts.isNotEmpty()) {
             publisher.publish(CartListMessage(syncedCarts))
         } else {
-            Log.i(tag, "No synced carts found")
+            Log.d(tag, "No synced carts found")
         }
     }
 }
