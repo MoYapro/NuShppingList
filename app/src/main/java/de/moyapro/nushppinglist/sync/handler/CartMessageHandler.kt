@@ -98,7 +98,10 @@ class CartMessageHandler(
         val cartItemWithSameId =
             cartDao.getCartItemByCartItemPropertiesId(newCartItemProperties.cartItemPropertiesId)
         when {
-            cartItemInDb == newCartItemProperties -> return
+            cartItemInDb == newCartItemProperties -> {
+                Log.d(tag, "Item already exists $newCartItemProperties")
+                return
+            }
             null == cartItemInDb && null == cartItemWithSameProperties -> cartDao.save(
                 newCartItemProperties
             )
@@ -109,7 +112,6 @@ class CartMessageHandler(
                 merge(cartItemInDb, newCartItemProperties)
             )
             null != cartItemInDb && null != cartItemWithSameProperties -> {
-                cartDao.remove(cartItemInDb)
                 cartDao.updateAll(
                     merge(
                         merge(cartItemInDb, cartItemWithSameProperties),

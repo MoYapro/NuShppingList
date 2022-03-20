@@ -41,6 +41,7 @@ class CartDaoMock(
     private val cartFlow: Flow<List<Cart>> = cartChannel
 
     override suspend fun save(vararg cartItemProperties: CartItemProperties) {
+        Log.d(tag, "vvv\t Add $cartItemProperties")
         cartItemPropertiesTable += cartItemProperties
         pushCartItemProperties()
         pushCartItems()
@@ -74,6 +75,7 @@ class CartDaoMock(
 
     override suspend fun updateAll(vararg items: CartItemProperties) {
         val toUpdate = items.associateBy({ it.itemId }, { it })
+        Log.d(tag, "vvv\t Update $toUpdate")
         val updatedCartItemPropertiesTable: List<CartItemProperties> =
             cartItemPropertiesTable.map { itemFromTable ->
                 if (toUpdate.containsKey(itemFromTable.itemId)) {
@@ -184,6 +186,7 @@ class CartDaoMock(
     override suspend fun getSelectedCart(): Cart? = this.cartTable.firstOrNull { it.selected }
 
     override suspend fun remove(cartItem: CartItemProperties) {
+        Log.d(tag, "---\t Remove $cartItem")
         cartItemPropertiesTable.remove(cartItem)
         pushCartItemProperties()
 

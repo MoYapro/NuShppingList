@@ -170,6 +170,7 @@ class SyncTest {
         syncServiceAlice.publish(CartMessage(listOf(updatedCartItemProperties), cart.cartId))
         Thread.sleep(1000)
         cartDaoBob.cartItemPropertiesTable.single().checked shouldBe true
+        viewModelBob.selectCart(cart)
         val resultItem = viewModelBob.getCartItemPropertiesByItemId(itemId)
         resultItem?.itemId shouldBe itemId
         resultItem?.checked shouldBe true
