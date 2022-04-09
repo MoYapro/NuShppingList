@@ -6,6 +6,7 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.serialization.ConfiguredObjectMapper
 import de.moyapro.nushppinglist.sync.handler.RequestItemMessageHandler
+import de.moyapro.nushppinglist.sync.messages.ItemMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleItem
@@ -13,7 +14,6 @@ import de.moyapro.nushppinglist.util.MainCoroutineRule
 import de.moyapro.nushppinglist.util.test.MockPublisher
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -40,7 +40,7 @@ class RequestItemMessageHandlerTest {
     @Before
     fun setup() {
         viewModel = CartViewModel(cartDao)
-        publisher = MockPublisher(CONSTANTS.MQTT_TOPIC_ITEM)
+        publisher = MockPublisher
     }
 
     @After
@@ -50,24 +50,26 @@ class RequestItemMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest__success() = runBlocking {
+    fun handleItemRequest__success(): Unit = runBlocking {
         val item = createSampleItem()
         viewModel.add(item)
+        Thread.sleep(100)
         val request = RequestItemMessage(item.itemId)
         val requestHandler = RequestItemMessageHandler(cartDao, publisher)
         requestHandler(request)
-        Thread.sleep(1000) // wait for DB to save
-        publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.itemId.id.toString()
-        publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.name
-        publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.description
-        publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.defaultItemAmount.toString()
-        publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.defaultItemUnit.toString()
-        publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM] shouldContain item.kategory.toString()
-        Unit
+        Thread.sleep(100)
+        with((publisher.messages[CONSTANTS.MQTT_TOPIC_ITEM]?.single() as ItemMessage).items.single()) {
+            this.itemId shouldBe item.itemId
+            this.name shouldBe item.name
+            this.description shouldBe item.description
+            this.defaultItemAmount shouldBe item.defaultItemAmount
+            this.defaultItemUnit shouldBe item.defaultItemUnit
+            this.kategory shouldBe item.kategory
+        }
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest__itemNotFound() = runBlocking {
+    fun handleItemRequest__itemNotFound(): Unit = runBlocking {
         val request = RequestItemMessage(ItemId())
         val requestHandler = RequestItemMessageHandler(cartDao, publisher)
         requestHandler(request)
@@ -75,7 +77,7 @@ class RequestItemMessageHandlerTest {
     }
 
     @Test
-    fun deserialize_requestItemMessage() = runBlocking {
+    fun deserialize_requestItemMessage(): Unit = runBlocking {
         val requestHandler = RequestItemMessageHandler(cartDao, publisher)
         val messageContent =
             """{"itemIds":["07329ba4-a378-495e-8233-ab7ed340842a"]}""".toByteArray()

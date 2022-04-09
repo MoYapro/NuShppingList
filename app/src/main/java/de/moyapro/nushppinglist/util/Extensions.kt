@@ -12,3 +12,12 @@ fun <T, X : Any?> takeIfNotDefault(
         fieldAccessor(original)
     }
 }
+
+fun <T, K> MutableMap<K, MutableList<T>>.addOrAppend(key: K, newElement: T) {
+    val existing = this[key]
+    if (existing != null) {
+        existing.add(newElement)
+    } else {
+        this[key] = mutableListOf(newElement)
+    }
+}

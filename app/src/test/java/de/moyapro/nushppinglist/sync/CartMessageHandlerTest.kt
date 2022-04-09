@@ -13,9 +13,9 @@ import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.createSampleCartItem
 import de.moyapro.nushppinglist.util.MainCoroutineRule
+import de.moyapro.nushppinglist.util.test.MockPublisher
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
@@ -37,7 +37,6 @@ class CartMessageHandlerTest {
     val coroutineRule = MainCoroutineRule()
 
     private lateinit var viewModel: CartViewModel
-    private val publisher: Publisher = mockk(relaxed = true)
     private val cartDao: CartDaoMock =
         CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
 
@@ -49,10 +48,11 @@ class CartMessageHandlerTest {
     @After
     fun tearDown() {
         cartDao.reset()
+        MockPublisher.reset()
     }
 
     @Test(timeout = 10_000)
-    fun handleCartMessage__cartAndItemExists() = runBlocking {
+    fun handleCartMessage__cartAndItemExists(): Unit = runBlocking {
         val cart = Cart()
         val cartItemList = listOf(
             createSampleCartItem(),
@@ -69,8 +69,8 @@ class CartMessageHandlerTest {
                 .map { it.copy(checked = true) },
             cart.cartId,
         )
-        CartMessageHandler(cartDao, publisher)(requestWithUpdatedCartItems)
-        Thread.sleep(100) // wait for DB to save
+        CartMessageHandler(cartDao, MockPublisher)(requestWithUpdatedCartItems)
+        Thread.sleep(100)
         cartItemList.map { it.item.itemId }.forEach { itemId ->
             val resultItem = viewModel.getCartItemPropertiesByItemId(itemId)
             resultItem?.itemId shouldBe itemId
@@ -79,7 +79,7 @@ class CartMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun handleCartMessage__ItemExists() = runBlocking {
+    fun handleCartMessage__ItemExists(): Unit = runBlocking {
         val cart = Cart()
         val cartItemList = listOf(
             createSampleCartItem(),
@@ -90,8 +90,8 @@ class CartMessageHandlerTest {
             viewModel.add(it)
         }
         val request = CartMessage(cartItemList.map { it.cartItemProperties }, cart.cartId)
-        CartMessageHandler(cartDao, publisher)(request)
-        Thread.sleep(100) // wait for DB to save
+        CartMessageHandler(cartDao, MockPublisher)(request)
+        Thread.sleep(100)
         cartItemList.map { it.item.itemId }.forEach { itemId ->
             val resultItem = viewModel.getCartItemPropertiesByItemId(itemId)
             resultItem?.itemId shouldBe itemId
@@ -113,15 +113,15 @@ class CartMessageHandlerTest {
             cart.cartId,
         )
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
-            CartMessageHandler(cartDao, publisher)(cartMessage)
+            CartMessageHandler(cartDao, MockPublisher)(cartMessage)
         }
         Thread.sleep(100) // wait for itemrequests to be created
         cartItemList.map { it.item.itemId }.forEach { itemId ->
-            verify { publisher.publish(RequestItemMessage(itemId)) }
+            verify { MockPublisher.publish(RequestItemMessage(itemId)) }
         }
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             cartItemList.map { it.item }.forEach { item ->
-                ItemMessageHandler(cartDao, publisher)(ItemMessage(item))
+                ItemMessageHandler(cartDao, MockPublisher)(ItemMessage(item))
             }
         }
         Thread.sleep(500) // wait for itemrequests to be received and saved
@@ -132,7 +132,7 @@ class CartMessageHandlerTest {
     }
 
     @Test(timeout = 1000_000)
-    fun handleCartRequest__success() = runBlocking {
+    fun handleCartRequest__success(): Unit = runBlocking {
         val cart = Cart()
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         viewModel.add(cart)
@@ -141,17 +141,17 @@ class CartMessageHandlerTest {
             amount = cartItem.cartItemProperties.amount + 1,
             checked = !cartItem.cartItemProperties.checked
         )
-        Thread.sleep(100) // wait for DB to save
+        Thread.sleep(100)
         val request = CartMessage(listOf(updatedCartItemProperties), cart.cartId)
-        CartMessageHandler(cartDao, publisher)(request)
-        Thread.sleep(1000) // wait for DB to save
+        CartMessageHandler(cartDao, MockPublisher)(request)
+        Thread.sleep(100)
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
         result?.amount shouldBe updatedCartItemProperties.amount
         result?.checked shouldBe updatedCartItemProperties.checked
     }
 
     @Test(timeout = 10_000)
-    fun handleCartRequest__success_removeLast() = runBlocking {
+    fun handleCartRequest__success_removeLast(): Unit = runBlocking {
         val cart = Cart()
         val cartItem = createSampleCartItem()
         viewModel.add(cart)
@@ -161,8 +161,8 @@ class CartMessageHandlerTest {
             checked = cartItem.cartItemProperties.checked
         )
         val request = CartMessage(listOf(zeroCartItemProperties), cart.cartId)
-        CartMessageHandler(cartDao, publisher)(request)
-        Thread.sleep(1000) // wait for DB to save
+        CartMessageHandler(cartDao, MockPublisher)(request)
+        Thread.sleep(100)
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
         result shouldBe null
     }
@@ -185,7 +185,7 @@ class CartMessageHandlerTest {
 
     @Test
     fun merge__overwrites() {
-        val handler = CartMessageHandler(cartDao, publisher)
+        val handler = CartMessageHandler(cartDao, MockPublisher)
         val originalCartItemProperties = CartItemProperties()
         val updatedCartItemProperties = CartItemProperties(
             cartItemPropertiesId = UUID.randomUUID(),
@@ -212,7 +212,7 @@ class CartMessageHandlerTest {
 
     @Test
     fun merge__keeps() {
-        val handler = CartMessageHandler(cartDao, publisher)
+        val handler = CartMessageHandler(cartDao, MockPublisher)
         val originalCartItemProperties = CartItemProperties(
             cartItemPropertiesId = UUID.randomUUID(),
             cartItemId = UUID.randomUUID(),
@@ -237,7 +237,7 @@ class CartMessageHandlerTest {
 
     @Test
     fun insertCartItemPropertiesWithIdConflict(): Unit = runBlocking {
-        val handler = CartMessageHandler(cartDao, publisher)
+        val handler = CartMessageHandler(cartDao, MockPublisher)
         val cartItemPropertiesToInsert = CartItemProperties(newItemId = ItemId(), amount = 12)
         val conflictingPropertiesInDb =
             CartItem(cartItemProperties = cartItemPropertiesToInsert.copy(itemId = ItemId(),

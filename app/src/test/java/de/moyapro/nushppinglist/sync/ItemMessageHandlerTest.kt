@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.sync
 
-import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.KATEGORY
 import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
@@ -16,7 +15,6 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.math.BigDecimal
@@ -29,27 +27,22 @@ class ItemMessageHandlerTest {
     @get:Rule
     val coroutineRule = MainCoroutineRule()
 
-    private lateinit var publisher: MockPublisher
     private val cartDao: CartDaoMock =
         CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
 
-    @Before
-    fun setup() {
-        publisher = MockPublisher(CONSTANTS.MQTT_TOPIC_ITEM)
-    }
 
     @After
     fun tearDown() {
         cartDao.reset()
-        publisher.reset()
+        MockPublisher.reset()
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest() = runBlocking {
+    fun handleItemRequest(): Unit = runBlocking {
         val item = createSampleItem()
         val request = ItemMessage(item)
-        ItemMessageHandler(cartDao, publisher)(request)
-        Thread.sleep(100) // wait for DB to save
+        ItemMessageHandler(cartDao, MockPublisher)(request)
+        Thread.sleep(100)
         val resultItem = cartDao.getItemByItemId(item.itemId)
         resultItem?.itemId.shouldBe(item.itemId)
         resultItem?.name shouldBe item.name
@@ -60,12 +53,12 @@ class ItemMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest__receiveTwice() = runBlocking {
+    fun handleItemRequest__receiveTwice(): Unit = runBlocking {
         val item = createSampleItem()
         val request = ItemMessage(item)
-        ItemMessageHandler(cartDao, publisher)(request)
-        ItemMessageHandler(cartDao, publisher)(request)
-        Thread.sleep(100) // wait for DB to save
+        ItemMessageHandler(cartDao, MockPublisher)(request)
+        ItemMessageHandler(cartDao, MockPublisher)(request)
+        Thread.sleep(100)
         val resultItem = cartDao.getItemByItemId(item.itemId)
         resultItem?.itemId.shouldBe(item.itemId)
         resultItem?.name shouldBe item.name
@@ -76,8 +69,8 @@ class ItemMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest__receiveDuplicateName__keep() = runBlocking {
-        val handler = ItemMessageHandler(cartDao, publisher)
+    fun handleItemRequest__receiveDuplicateName__keep(): Unit = runBlocking {
+        val handler = ItemMessageHandler(cartDao, MockPublisher)
         val itemInDb = Item(
             name = "name",
             description = "description1",
@@ -92,25 +85,19 @@ class ItemMessageHandlerTest {
             defaultItemAmount = 3,
             defaultItemUnit = UNIT.LITER,
             price = BigDecimal(3),
-            kategory = KATEGORY.SONSTIGES,
+            kategory = KATEGORY.BROTBELAG,
         )
         cartDao.save(itemInDb)
+        Thread.sleep(100)
 
         handler(ItemMessage(itemFromMessage))
-
-        Thread.sleep(100) // wait for DB to save
-        val resultItem = cartDao.getItemByItemId(itemInDb.itemId)
-        resultItem?.itemId.shouldBe(itemInDb.itemId)
-        resultItem?.name shouldBe itemInDb.name
-        resultItem?.description shouldBe itemInDb.description
-        resultItem?.defaultItemAmount shouldBe itemInDb.defaultItemAmount
-        resultItem?.defaultItemUnit shouldBe itemInDb.defaultItemUnit
-        resultItem?.kategory shouldBe itemInDb.kategory
+        Thread.sleep(100)
+        cartDao.getItemByItemId(itemInDb.itemId) shouldBe itemFromMessage.apply { itemId = itemInDb.itemId } // id is not overwritten
     }
 
     @Test(timeout = 10000_000)
-    fun handleItemRequest__receiveDuplicateName__update() = runBlocking {
-        val handler = ItemMessageHandler(cartDao, publisher)
+    fun handleItemRequest__receiveDuplicateName__update(): Unit = runBlocking {
+        val handler = ItemMessageHandler(cartDao, MockPublisher)
         val itemInDb = Item(
             name = "name",
             description = "overwrite me",
@@ -131,7 +118,7 @@ class ItemMessageHandlerTest {
 
         handler(ItemMessage(itemFromMessage))
 
-        Thread.sleep(200) // wait for DB to save
+        Thread.sleep(200)
         val resultItem = cartDao.getItemByItemId(itemInDb.itemId)
         resultItem?.itemId shouldNotBe itemFromMessage.itemId
         resultItem?.name shouldBe itemFromMessage.name
@@ -142,8 +129,8 @@ class ItemMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun mergeItems() = runBlocking {
-        val handler = ItemMessageHandler(cartDao, publisher)
+    fun mergeItems(): Unit = runBlocking {
+        val handler = ItemMessageHandler(cartDao, MockPublisher)
         val itemInDb = Item(
             name = "name",
             description = "",
@@ -162,7 +149,7 @@ class ItemMessageHandlerTest {
         )
         cartDao.save(itemInDb)
 
-       val resultItem = handler.merge(itemInDb, itemFromMessage)
+        val resultItem = handler.merge(itemInDb, itemFromMessage)
         resultItem.itemId shouldNotBe itemFromMessage.itemId
         resultItem.name shouldBe itemFromMessage.name
         resultItem.description shouldBe itemFromMessage.description
@@ -172,8 +159,8 @@ class ItemMessageHandlerTest {
     }
 
     @Test(timeout = 10_000)
-    fun handleItemRequest__receiveMany() = runBlocking {
-        val handler = ItemMessageHandler(cartDao, publisher)
+    fun handleItemRequest__receiveMany(): Unit = runBlocking {
+        val handler = ItemMessageHandler(cartDao, MockPublisher)
         val uniqueItems = (1..20).map { createSampleItem(name = "itemname") }
         val items = (uniqueItems.shuffled() + uniqueItems.shuffled()).shuffled()
         items.parallelStream()

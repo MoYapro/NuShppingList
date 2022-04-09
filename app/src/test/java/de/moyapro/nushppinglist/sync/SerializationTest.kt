@@ -103,7 +103,6 @@ class SerializationTest {
         actualJson shouldBe expectedJson
         val actualInstance: RequestCartListMessage = objectMapper.readValue(actualJson)
         actualInstance shouldBe instance
-
     }
 
     @Test
