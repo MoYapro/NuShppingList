@@ -20,15 +20,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.TestCoroutineDispatcher
-import org.junit.After
+import org.junit.*
 import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
 import java.util.*
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 
 @Suppress("EXPERIMENTAL_API_USAGE")
@@ -58,17 +54,6 @@ class ViewModelTest {
     }
 
     @Test
-    fun getNotInCart() = runBlocking {
-        val inCart = CartItem("in cart")
-        val notInCart = Item("not in cart")
-        viewModel.add(inCart)
-        viewModel.add(notInCart)
-        Thread.sleep(100)
-        val notInCartItems = viewModel.nonCartItems.take(1).toList().flatten()
-        assertEquals("Should have an item not in cart", 1, notInCartItems.size)
-    }
-
-    @Test
     fun addNewItem() = runBlocking {
         val newItem = Item("bar")
         viewModel.add(newItem)
@@ -85,17 +70,17 @@ class ViewModelTest {
         val timesAdded = 3
         repeat(timesAdded) {
             viewModel.addToCart(newItem)
+            Thread.sleep(100)
         }
-        Thread.sleep(100)
 
-        viewModel.cartItems.take(1).first().first().amount shouldBe timesAdded
+        cartDao.cartItemPropertiesTable.single().amount shouldBe timesAdded
 
         viewModel.subtractFromCart(newItem.itemId)
         Thread.sleep(100)
-        viewModel.cartItems.take(1).first().first().amount shouldBe timesAdded - 1
+        cartDao.cartItemPropertiesTable.single().amount shouldBe timesAdded - 1
         viewModel.subtractFromCart(newItem.itemId)
         Thread.sleep(100)
-        viewModel.cartItems.take(1).first().first().amount shouldBe timesAdded - 2
+        cartDao.cartItemPropertiesTable.single().amount shouldBe timesAdded - 2
     }
 
     @Test
@@ -133,16 +118,16 @@ class ViewModelTest {
     }
 
     @Test
-    fun removeItemFromCart() = runBlocking {
+    fun removeCheckedItemFromCart() = runBlocking {
         val itemToRemove = Item("remove me")
         viewModel.add(CartItem(itemToRemove).apply { cartItemProperties.checked = true })
-
+        Thread.sleep(100)
+        cartDao.cartItemPropertiesTable.single().checked shouldBe true
         viewModel.removeCheckedFromCart()
         Thread.sleep(100)
-
         viewModel.getItemByItemId(itemToRemove.itemId) shouldBe itemToRemove
         viewModel.getCartItemPropertiesByItemId(itemToRemove.itemId) shouldBe null
-        viewModel.cartItems.take(1).first() shouldBe emptyList()
+        cartDao.cartItemPropertiesTable shouldBe emptyList()
     }
 
     @Test
@@ -179,16 +164,10 @@ class ViewModelTest {
         val item = CartItem("my item")
         viewModel.add(item)
         Thread.sleep(100)
-        val itemsBeforeCheck = viewModel.cartItems.take(1).toList()[0]
-        assertTrue("No item should be checked",
-            itemsBeforeCheck.none { it.checked })
+        cartDao.cartItemPropertiesTable.single().checked shouldBe false
         viewModel.toggleChecked(item.cartItemProperties)
         Thread.sleep(100)
-        val itemsAfterCheck = viewModel.cartItems.take(1).toList()[0]
-        assertEquals("Should have one item in cart", 1, itemsAfterCheck.size)
-        assertTrue(
-            "All items should be checked",
-            itemsAfterCheck.all { it.checked })
+        cartDao.cartItemPropertiesTable.single().checked shouldBe true
     }
 
     @Test
@@ -241,11 +220,9 @@ class ViewModelTest {
         val itemName = "Milk"
         viewModel.addToCart(itemName)
         Thread.sleep(100)
-        assertEquals(
-            "Should have added item to cart",
-            1,
-            viewModel.cartItems.take(1).toList()[0].size
-        )
+        with(cartDao.itemTable.single()) {
+            this.name shouldBe itemName
+        }
     }
 
     @Test
@@ -255,9 +232,10 @@ class ViewModelTest {
         viewModel.add(newItem)
         viewModel.addToCart(itemName)
         Thread.sleep(100)
-        val updatedCart = viewModel.cartItems.take(1).toList()[0]
-        assertEquals("Should have added item to cart", 1, updatedCart.size)
-        assertEquals("Cart should contain itemId", newItem.itemId, updatedCart[0].itemId)
+        with(cartDao.itemTable.single()) {
+         this.name shouldBe itemName
+         this.itemId shouldBe newItem.itemId
+        }
     }
 
     @Test
@@ -304,30 +282,19 @@ class ViewModelTest {
     }
 
     @Test
-    fun updateCartItemProperties() = runBlocking {
+    fun updateCartItemProperties(): Unit = runBlocking {
         val itemId = ItemId()
-        val cartItemProperties = CartItemProperties(newItemId = itemId).apply { checked = true }
-        val cartItem = CartItem(
-            cartItemProperties,
-            Item("x", itemId)
-        )
-        val expectedUpdated = cartItemProperties.copy(checked = false)
+        val originalCartItemProperties =
+            CartItemProperties(newItemId = itemId).apply { checked = true }
+        val cartItem = CartItem(originalCartItemProperties, Item("x", itemId))
+        val updatedCartItemProperties = originalCartItemProperties.copy(checked = false)
         viewModel.add(cartItem)
         Thread.sleep(100)
-        assertEquals(
-            "Should have saved original state",
-            cartItemProperties,
-            viewModel.getCartItemPropertiesByItemId(itemId)
-        )
-        viewModel.update(expectedUpdated)
-
-        val cartItems = viewModel.cartItems.take(1).toList().flatten()
-        assertEquals("Should still be one cart item but was $cartItems", 1, cartItems.size)
-        assertEquals(
-            "Should have updated saved state",
-            expectedUpdated,
-            viewModel.getCartItemPropertiesByItemId(itemId)
-        )
+        viewModel.getCartItemPropertiesByItemId(itemId) shouldBe originalCartItemProperties
+        viewModel.update(updatedCartItemProperties)
+        Thread.sleep(100)
+        viewModel.getCartItemPropertiesByItemId(itemId) shouldBe updatedCartItemProperties
+        cartDao.cartItemPropertiesTable shouldHaveSize 1
     }
 
     @Test
@@ -353,6 +320,7 @@ class ViewModelTest {
     }
 
     @Test
+    @Ignore("recipe not implemented yet")
     fun getCartGroupedByRecipe(): Unit = runBlocking {
         val recipeCake = createSampleRecipeCake()
         val recipeNoodels = createSampleRecipeNoodels()
@@ -373,6 +341,7 @@ class ViewModelTest {
         val recipe = createSampleRecipeCake()
         recipe.recipeItems = listOf(createSampleRecipeItem().apply { item = itemToRemove })
         viewModel.addToCart(itemToRemove)
+        Thread.sleep(100)
 
         viewModel.removeItem(itemToRemove)
         Thread.sleep(100)
@@ -397,8 +366,10 @@ class ViewModelTest {
         val carts = viewModel.allCart.take(1).toList().flatten()
         carts.single() shouldBe cart
 
-        val updatedCart = cart.copy(cartName = "newName", synced = !cart.synced)
+        val updatedCart = cart.copy(cartName = "newName", synced = !cart.synced, selected = true)
         viewModel.update(updatedCart)
+        Thread.sleep(100)
+        cartDao.cartTable.single() shouldBe updatedCart
         Unit
     }
 
@@ -421,7 +392,7 @@ class ViewModelTest {
         val notSelectedCart = Cart(cartName = "Not selected").apply { selected = false }
         viewModel.add(selectedCart)
         viewModel.add(notSelectedCart)
-        delay(1.seconds)
+        Thread.sleep(100)
         val result = viewModel.getSelectedCart()
 
         result shouldBe selectedCart
@@ -430,30 +401,39 @@ class ViewModelTest {
 
     @Test
     fun setSelectedCart() = runBlocking {
-        val initialySelected = Cart().apply { selected = true }
-        val eventuallySelected = Cart().apply { selected = false }
+        val initialySelected = Cart().apply { selected = true; cartName = "initialySelected" }
+        val eventuallySelected = Cart().apply { selected = false; cartName = "eventuallySelected" }
         viewModel.add(initialySelected)
+        Thread.sleep(100)
         viewModel.add(eventuallySelected)
-        delay(1.seconds)
+        Thread.sleep(100)
+        viewModel.getSelectedCart() shouldBe initialySelected
 
         viewModel.selectCart(eventuallySelected)
-        delay(1.seconds)
+        Thread.sleep(100)
 
-        val carts: List<Cart> = viewModel.allCart.take(1).first()
-
-        viewModel.getSelectedCart() shouldBe eventuallySelected
-        carts.single { it == eventuallySelected }.selected shouldBe true
-        carts.single { it == initialySelected }.selected shouldBe false
+        val carts: List<Cart> = cartDao.cartTable.toList()
+        cartDao.cartTable shouldHaveSize 2
+        carts.single { it.cartId == eventuallySelected.cartId }.selected shouldBe true
+        carts.single { it.cartId == initialySelected.cartId }.selected shouldBe false
     }
 
     @Test
     fun getItemsInSpecificCart() = runBlocking {
         val cart1 = Cart().apply { selected = false }
         val cart2 = Cart().apply { selected = false }
-        val cart1Item1 = CartItem(Item()).apply { cartItemProperties.inCart = cart1.cartId }
-        val cart1Item2 = CartItem(Item()).apply { cartItemProperties.inCart = cart1.cartId }
-        val cart2Item1 = CartItem(Item()).apply { cartItemProperties.inCart = cart2.cartId }
-        val cart2Item2 = CartItem(Item()).apply { cartItemProperties.inCart = cart2.cartId }
+        val cart1Item1 = CartItem(Item()).apply {
+            cartItemProperties.inCart = cart1.cartId; item.name = "cart1Item1"
+        }
+        val cart1Item2 = CartItem(Item()).apply {
+            cartItemProperties.inCart = cart1.cartId; item.name = "cart1Item2"
+        }
+        val cart2Item1 = CartItem(Item()).apply {
+            cartItemProperties.inCart = cart2.cartId; item.name = "cart2Item1"
+        }
+        val cart2Item2 = CartItem(Item()).apply {
+            cartItemProperties.inCart = cart2.cartId; item.name = "cart2Item2"
+        }
         viewModel.add(cart1)
         viewModel.add(cart2)
         viewModel.add(cart1Item1)
@@ -473,7 +453,7 @@ class ViewModelTest {
         viewModel.selectCart(cart2)
         delay(100.milliseconds)
         val cart2Items = viewModel.allCartItemsGrouped.take(1).first().values.flatten()
-        cart2Items shouldContainExactlyInAnyOrder listOf (cart2Item1, cart2Item2)
+        cart2Items shouldContainExactlyInAnyOrder listOf(cart2Item1, cart2Item2)
 
         Unit
     }

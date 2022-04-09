@@ -13,7 +13,7 @@ data class CartItemProperties(
     var cartItemId: UUID,
     @get:JvmName("getInCart")
     @set:JvmName("setInCart")
-    var inCart: CartId? = CartId(),
+    var inCart: CartId? = null,
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
     var itemId: ItemId,

@@ -20,7 +20,6 @@ import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 
 @FlowPreview
 class CartViewModel(
@@ -39,8 +38,6 @@ class CartViewModel(
 
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
     val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
-    private val _nonCartItems = MutableStateFlow<List<Item>>(emptyList())
-    val nonCartItems: StateFlow<List<Item>> = _nonCartItems
     private val _allItems = MutableStateFlow<List<Item>>(emptyList())
     val allItems: StateFlow<List<Item>> = _allItems
     private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
@@ -57,14 +54,6 @@ class CartViewModel(
         _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
         updateSelectedCart(_selectedCart)
 
-        viewModelScope.launch {
-            cartDao.findAllItems()
-                .collect { items ->
-                    val cartItemIds = _cartItems.value.map { cartItem -> cartItem.itemId }
-                    _nonCartItems.value =
-                        items.filter { item -> !cartItemIds.contains(item.itemId) }
-                }
-        }
     }
 
     private fun updateSelectedCart(cart: Cart?) {
@@ -78,12 +67,12 @@ class CartViewModel(
 
     fun add(newItem: Item) = viewModelScope.launch(Dispatchers.IO) {
         publish(newItem)
-        Log.d(tag, "vvv\tItem\t $newItem")
+        Log.d(tag, "+++\tItem\t $newItem")
         itemMessageHandler(ItemMessage(newItem))
     }
 
     fun add(newCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
-        Log.d(tag, "vvv\tCart\t $newCart")
+        Log.d(tag, "+++\tCart\t $newCart")
         cartDao.save(newCart)
     }
 
@@ -95,6 +84,8 @@ class CartViewModel(
 
     fun update(updatedCartItemProperties: CartItemProperties) =
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d(tag, "vvv\t$updatedCartItemProperties")
+            cartDao.updateAll(updatedCartItemProperties)
             cartMessageHandler(CartMessage(listOf(updatedCartItemProperties)))
         }
 
@@ -107,7 +98,7 @@ class CartViewModel(
     fun add(newCartItem: CartItem) = viewModelScope.launch(Dispatchers.IO) {
         publish(newCartItem.item)
         publish(newCartItem.cartItemProperties)
-        Log.d(tag, "vvv\tCartItem\t $newCartItem")
+        Log.d(tag, "+++\tCartItem\t $newCartItem")
         itemMessageHandler(ItemMessage(newCartItem.item))
         cartMessageHandler(
             CartMessage(
@@ -124,6 +115,7 @@ class CartViewModel(
     }
 
     fun getItemByItemId(itemId: ItemId): Item? = runBlocking {
+        Log.d(tag, "^^^\tItem by $itemId")
         cartDao.getItemByItemId(itemId)
     }
 
@@ -157,6 +149,7 @@ class CartViewModel(
     }
 
     fun addToCart(recipeItem: RecipeItem) = viewModelScope.launch(Dispatchers.IO) {
+        Log.d(tag, "+++\tRecipeItem\t $recipeItem")
         val existingCartItem: CartItemProperties? =
             cartDao.getCartItemByItemId(recipeItem.item.itemId, _selectedCart?.cartId)
         if (null == existingCartItem) {
@@ -174,8 +167,10 @@ class CartViewModel(
     fun addToCart(itemName: String) = viewModelScope.launch(Dispatchers.IO) {
         val existingItem: Item? = cartDao.getItemByItemName(itemName)
         if (null == existingItem) {
+            Log.d(tag, "create new item from name: $itemName")
             add(CartItem(itemName))
         } else {
+            Log.d(tag, "add item with name $itemName to cart ${_selectedCart?.cartId}")
             val existingCartItem =
                 cartDao.getCartItemByItemId(existingItem.itemId, _selectedCart?.cartId)
             if (null == existingCartItem) {
@@ -195,6 +190,7 @@ class CartViewModel(
     }
 
     fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? = runBlocking {
+        Log.d(tag, "^^^\tItem by $itemId")
         cartDao.getCartItemByItemId(itemId, _selectedCart?.cartId)
     }
 

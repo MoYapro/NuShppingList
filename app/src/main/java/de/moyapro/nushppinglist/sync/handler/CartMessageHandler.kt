@@ -45,6 +45,7 @@ class CartMessageHandler(
 
     private suspend fun requestMissingCarts(cartMessage: CartMessage): Boolean {
         val existingCart = cartMessage.cartId?.let { cartDao.getCartByCartId(it) }
+        if (null == cartMessage.cartId) return false
         return if (null == existingCart) {
             Log.d(tag, "request non existing cart with cartId ${cartMessage.cartId}")
             publisher?.publish(RequestCartListMessage("Missing: ${listOf(cartMessage.cartId)}"))
