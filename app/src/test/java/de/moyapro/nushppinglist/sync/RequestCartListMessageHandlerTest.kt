@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.sync
 
-import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.sync.handler.RequestCartListMessageHandler
@@ -50,7 +49,7 @@ class RequestCartListMessageHandlerTest {
         val requestHandler = RequestCartListMessageHandler(cartDao, MockPublisher)
         requestHandler(request)
         Thread.sleep(100)
-        with((MockPublisher.messages[CONSTANTS.MQTT_TOPIC_CART]?.single() as CartListMessage).carts.single()) {
+        with((MockPublisher.messages.values.single().single() as CartListMessage).carts.single()) {
             this.cartId shouldBe cart.cartId
             this.cartName shouldBe cart.cartName
         }

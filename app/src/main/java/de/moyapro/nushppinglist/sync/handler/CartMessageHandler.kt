@@ -31,8 +31,8 @@ class CartMessageHandler(
             )
             return
         }
-        val requestedItems = requestMissingItemIds(cartMessage)
         removeZeroAmountItemsFromDb(cartMessage)
+        val requestedItems = requestMissingItemIds(cartMessage)
         if (requestedItems.isNotEmpty()) {
             Log.d(tag, "Did not find items for #$requestedItems itemIds")
         }
@@ -94,28 +94,38 @@ class CartMessageHandler(
     private suspend fun add(newCartItemProperties: CartItemProperties) {
         val cartItemInDb =
             cartDao.getCartItemByCartItemPropertiesId(newCartItemProperties.cartItemPropertiesId)
-        val cartItemWithSameProperties =
+        val cartItemWithSameItemId =
             cartDao.getCartItemByItemId(newCartItemProperties.itemId, newCartItemProperties.inCart)
-        val cartItemWithSameId =
-            cartDao.getCartItemByCartItemPropertiesId(newCartItemProperties.cartItemPropertiesId)
         when {
             cartItemInDb == newCartItemProperties -> {
                 Log.d(tag, "Item already exists $newCartItemProperties")
                 return
             }
-            null == cartItemInDb && null == cartItemWithSameProperties -> cartDao.save(
-                newCartItemProperties
-            )
-            null == cartItemInDb && null != cartItemWithSameProperties -> cartDao.updateAll(
-                merge(cartItemWithSameProperties, newCartItemProperties)
-            )
-            null != cartItemInDb && null == cartItemWithSameProperties -> cartDao.updateAll(
-                merge(cartItemInDb, newCartItemProperties)
-            )
-            null != cartItemInDb && null != cartItemWithSameProperties -> {
+            null == cartItemInDb && null == cartItemWithSameItemId -> {
+                Log.d(tag, "Item does not exist $newCartItemProperties")
+                cartDao.save(newCartItemProperties)
+            }
+            null == cartItemInDb && null != cartItemWithSameItemId -> {
+                Log.d(
+                    tag,
+                    "Update existing itemProperties for same item $cartItemWithSameItemId with new values: $newCartItemProperties "
+                )
+                cartDao.updateAll(merge(cartItemWithSameItemId, newCartItemProperties))
+            }
+            null != cartItemInDb && null == cartItemWithSameItemId -> {
+                Log.d(
+                    tag,
+                    "Update existing itemProperties $cartItemWithSameItemId with new values: $newCartItemProperties "
+                )
+                cartDao.updateAll(
+                    merge(cartItemInDb, newCartItemProperties)
+                )
+            }
+            null != cartItemInDb && null != cartItemWithSameItemId -> {
+                Log.d(tag, "Strange state just merge it")
                 cartDao.updateAll(
                     merge(
-                        merge(cartItemInDb, cartItemWithSameProperties),
+                        merge(cartItemInDb, cartItemWithSameItemId),
                         newCartItemProperties
                     )
                 )

@@ -3,7 +3,6 @@ package de.moyapro.nushppinglist.sync
 import android.content.SharedPreferences
 import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.constants.SETTING
-import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.moquette.BrokerConstants.*
@@ -11,7 +10,6 @@ import io.moquette.broker.Server
 import io.moquette.broker.config.IConfig
 import io.moquette.broker.config.MemoryConfig
 import org.junit.BeforeClass
-import org.junit.Test
 import java.util.*
 
 class EmbeddedMqttServerTest {
@@ -71,13 +69,5 @@ class EmbeddedMqttServerTest {
             properties[AUTHORIZATOR_CLASS_NAME] = ""
             return MemoryConfig(properties)
         }
-    }
-
-    @Test
-    fun getConnection() {
-        Thread.sleep(10000)
-        val client = MqttServiceAdapter().connect()
-        Thread.sleep(1000)
-        client.isConnected() shouldBe true
     }
 }

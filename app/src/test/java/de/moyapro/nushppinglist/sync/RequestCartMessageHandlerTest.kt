@@ -53,7 +53,7 @@ class RequestCartMessageHandlerTest {
         Thread.sleep(100)
         val requestHandler = RequestCartMessageHandler(cartDao, MockPublisher)
         requestHandler(RequestCartMessage(cart.cartId))
-        Thread.sleep(100)
+        Thread.sleep(200)
         with((MockPublisher.messages.values.single().single() as CartMessage)) {
             this.cartItemPropertiesList shouldContainExactlyInAnyOrder listOf(cartItem1, cartItem2).map { it.cartItemProperties }
         }

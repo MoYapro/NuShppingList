@@ -41,7 +41,9 @@ class CartDaoMock(
     private val cartFlow: Flow<List<Cart>> = cartChannel
 
     override suspend fun save(vararg cartItemProperties: CartItemProperties) {
-        Log.d(tag, "vvv\t Add $cartItemProperties")
+        cartItemProperties.forEach {
+            Log.d(tag, "vvv\t Add $it")
+        }
         cartItemPropertiesTable += cartItemProperties
         pushCartItemProperties()
         pushCartItems()

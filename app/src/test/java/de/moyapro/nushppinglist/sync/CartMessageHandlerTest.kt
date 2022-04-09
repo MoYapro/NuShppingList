@@ -16,6 +16,7 @@ import de.moyapro.nushppinglist.util.MainCoroutineRule
 import de.moyapro.nushppinglist.util.test.MockPublisher
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.verify
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
@@ -131,23 +132,26 @@ class CartMessageHandlerTest {
         }
     }
 
-    @Test(timeout = 1000_000)
+    @Test(timeout = Long.MAX_VALUE)
     fun handleCartRequest__success(): Unit = runBlocking {
         val cart = Cart()
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
-        viewModel.add(cart)
-        viewModel.add(cartItem)
         val updatedCartItemProperties = cartItem.cartItemProperties.copy(
             amount = cartItem.cartItemProperties.amount + 1,
             checked = !cartItem.cartItemProperties.checked
         )
+        viewModel.add(cart)
+        viewModel.add(cartItem)
         Thread.sleep(100)
         val request = CartMessage(listOf(updatedCartItemProperties), cart.cartId)
-        CartMessageHandler(cartDao, MockPublisher)(request)
+        val cartMessageHandler = CartMessageHandler(cartDao, MockPublisher)
+        cartMessageHandler(request)
         Thread.sleep(100)
-        val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
-        result?.amount shouldBe updatedCartItemProperties.amount
-        result?.checked shouldBe updatedCartItemProperties.checked
+        with(cartDao.cartItemPropertiesTable.single()) {
+            this shouldNotBe null
+            this.amount shouldBe updatedCartItemProperties.amount
+            this.checked shouldBe updatedCartItemProperties.checked
+        }
     }
 
     @Test(timeout = 10_000)
@@ -240,8 +244,12 @@ class CartMessageHandlerTest {
         val handler = CartMessageHandler(cartDao, MockPublisher)
         val cartItemPropertiesToInsert = CartItemProperties(newItemId = ItemId(), amount = 12)
         val conflictingPropertiesInDb =
-            CartItem(cartItemProperties = cartItemPropertiesToInsert.copy(itemId = ItemId(),
-                amount = 9), item = Item())
+            CartItem(
+                cartItemProperties = cartItemPropertiesToInsert.copy(
+                    itemId = ItemId(),
+                    amount = 9
+                ), item = Item()
+            )
         cartDao.save(conflictingPropertiesInDb.item)
         cartDao.save(conflictingPropertiesInDb.cartItemProperties)
         delay(100.milliseconds)
