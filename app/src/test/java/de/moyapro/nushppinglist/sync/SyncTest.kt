@@ -137,14 +137,10 @@ class SyncTest {
         viewModelBob.add(cartItem)
         Thread.sleep(100)
         cartDaoAlice.cartItemPropertiesTable shouldBe emptyList()
-        syncServiceAlice.publish(RequestCartMessage(cart.cartId))
-        waitFor { cartDaoAlice.itemTable.any { it.itemId == item.itemId } }
-
-         item is transfered because of subsequent request for missing item but cart / cartitems are never fetched
-
+        syncServiceAlice.publish(RequestCartListMessage())
+        waitFor { cartDaoAlice.cartTable.any { it.cartId == cart.cartId } }
         waitFor { cartDaoAlice.cartItemPropertiesTable.any { it.itemId == item.itemId } }
-        val resultItem = viewModelBob.getCartItemPropertiesByItemId(item.itemId)
-        resultItem?.itemId shouldBe item.itemId
+        waitFor { cartDaoAlice.itemTable.any { it.itemId == item.itemId } }
     }
 
     @Test(timeout = 10_000)

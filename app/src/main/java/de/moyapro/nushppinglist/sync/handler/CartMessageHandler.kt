@@ -37,9 +37,7 @@ class CartMessageHandler(
             Log.d(tag, "Did not find items for #$requestedItems itemIds")
         }
 
-        persistCartItemProperties(
-            cartMessage.cartItemPropertiesList.filter { it.itemId !in requestedItems }
-        )
+        persistCartItemProperties(cartMessage.cartItemPropertiesList)
         Log.d(tag, "done handle $cartMessage")
     }
 
