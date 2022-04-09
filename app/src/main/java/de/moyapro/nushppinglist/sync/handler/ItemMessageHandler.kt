@@ -27,7 +27,10 @@ class ItemMessageHandler(
                     Log.d(tag, "Item already in DB")
                     return
                 }
-                null == itemInDb && null == itemWithSameName -> cartDao.save(itemFromMessage)
+                null == itemInDb && null == itemWithSameName -> {
+                    Log.d(tag, "+++\t$itemFromMessage")
+                    cartDao.save(itemFromMessage)
+                }
                 null == itemInDb && null != itemWithSameName -> cartDao.updateAll(
                     merge(itemWithSameName, itemFromMessage))
                 null != itemInDb && null == itemWithSameName -> cartDao.updateAll(
