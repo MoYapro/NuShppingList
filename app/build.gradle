@@ -88,6 +88,8 @@ dependencies {
     testImplementation "junit:junit:4.13.2"
     testImplementation "io.kotest:kotest-assertions-core-jvm:5.0.3"
     testImplementation "org.testcontainers:testcontainers:1.16.3"
+    testImplementation 'io.moquette:moquette-broker:0.15'
+    androidTestImplementation 'io.moquette:moquette-broker:0.15'
     androidTestImplementation "io.kotest:kotest-assertions-core-jvm:5.0.3"
     androidTestImplementation "app.cash.turbine:turbine:0.7.0"
     androidTestImplementation "androidx.test.ext:junit:1.1.3"

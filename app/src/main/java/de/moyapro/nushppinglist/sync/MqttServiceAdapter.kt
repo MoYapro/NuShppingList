@@ -62,7 +62,7 @@ class MqttServiceAdapter(
             ?.applySimpleAuth()
             ?.send()
             ?.whenComplete { _: Mqtt5ConnAck, error: Throwable ->
-                isConnected = true
+                isConnected = false
                 Log.d(tag, "connected with error: $error")
 
             }
