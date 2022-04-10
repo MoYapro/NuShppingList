@@ -123,6 +123,7 @@ class CartMessageHandlerTest {
         val cartItem = createSampleCartItem()
         viewModel.add(cart)
         viewModel.add(cartItem)
+        Thread.sleep(100)
         val zeroCartItemProperties = cartItem.cartItemProperties.copy(
             amount = 0,
             checked = cartItem.cartItemProperties.checked
@@ -189,7 +190,7 @@ class CartMessageHandlerTest {
             amount = 32,
             checked = true,
         )
-        val updatedCartItemProperties = CartItemProperties()
+        val updatedCartItemProperties = CartItemProperties().copy(inCart = originalCartItemProperties.inCart)
         val result: CartItemProperties =
             handler.merge(originalCartItemProperties, updatedCartItemProperties)
 
