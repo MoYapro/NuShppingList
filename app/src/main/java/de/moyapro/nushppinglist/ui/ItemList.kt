@@ -17,8 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -29,10 +27,13 @@ import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.component.EditTextField
+import de.moyapro.nushppinglist.ui.component.SumDisplay
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.ItemListProvider
-import de.moyapro.nushppinglist.util.CartItemByName
+import de.moyapro.nushppinglist.util.SortCartItemPairByCheckedAndName
+import de.moyapro.nushppinglist.util.sumByBigDecimal
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -58,15 +59,17 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                     ),
                     item,
                 )
-        }.sortedWith(CartItemByName)
+        }
+        .sortedWith(SortCartItemPairByCheckedAndName)
     val listState = rememberLazyListState()
     val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
+    val total: BigDecimal =
+        cartItemList.map { it.item.price * BigDecimal(it.cartItemProperties.amount) }
+            .sumByBigDecimal()
 
     Log.d("ItemList", listState.firstVisibleItemIndex.toString())
 
     val coroutineScope = rememberCoroutineScope()
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
 
     val clearFilter = { filter = "" }
     Scaffold(
@@ -87,6 +90,9 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         } else {
             {} // emptyFab
         },
+        topBar = {
+            SumDisplay(total)
+        },
         content = { innerPadding ->
             Box(
                 modifier = Modifier
@@ -103,6 +109,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                         val cartItem = cartItemList[index]
                         ItemListElement(
                             cartItem = cartItem,
+                            toggleCheckAction = viewModel::toggleChecked,
                             saveAction = viewModel::update,
                             addAction = viewModel::addToCart,
                             deleteAction = viewModel::removeItem,

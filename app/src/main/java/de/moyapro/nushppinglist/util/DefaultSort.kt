@@ -9,13 +9,26 @@ object CartItemByName : Comparator<CartItem> {
     }
 }
 
-object SortCartItemPairByCheckedAndName : Comparator<Pair<RecipeId?, CartItem>> {
+object SortCartItemPairByCheckedAndNameRecipe : Comparator<Pair<RecipeId?, CartItem>> {
 
     override fun compare(p0: Pair<RecipeId?, CartItem>, p1: Pair<RecipeId?, CartItem>): Int {
         val compareChecked =
             p0.second.cartItemProperties.checked.compareTo(p1.second.cartItemProperties.checked)
         return if (0 == compareChecked) {
             p0.second.item.name.compareTo(p1.second.item.name)
+        } else {
+            compareChecked
+        }
+    }
+}
+
+object SortCartItemPairByCheckedAndName : Comparator<CartItem> {
+
+    override fun compare(p0: CartItem, p1: CartItem): Int {
+        val compareChecked =
+            p0.cartItemProperties.checked.compareTo(p1.cartItemProperties.checked)
+        return if (0 == compareChecked) {
+            p0.item.name.compareTo(p1.item.name)
         } else {
             compareChecked
         }

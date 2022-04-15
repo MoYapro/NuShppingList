@@ -2,7 +2,10 @@ package de.moyapro.nushppinglist.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -12,8 +15,9 @@ import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
 import de.moyapro.nushppinglist.ui.component.Autocomplete
 import de.moyapro.nushppinglist.ui.component.Dropdown
+import de.moyapro.nushppinglist.ui.component.SumDisplay
 import de.moyapro.nushppinglist.ui.model.CartViewModel
-import de.moyapro.nushppinglist.util.SortCartItemPairByCheckedAndName
+import de.moyapro.nushppinglist.util.SortCartItemPairByCheckedAndNameRecipe
 import de.moyapro.nushppinglist.util.sumByBigDecimal
 import java.math.BigDecimal
 
@@ -34,7 +38,7 @@ fun CartView(viewModel: CartViewModel) {
             }
         }
             .flatten()
-            .sortedWith(SortCartItemPairByCheckedAndName)
+            .sortedWith(SortCartItemPairByCheckedAndNameRecipe)
 
     val total: BigDecimal =
         cartItemProperties.map { it.second.item.price * BigDecimal(it.second.cartItemProperties.amount) }
@@ -73,24 +77,6 @@ fun CartView(viewModel: CartViewModel) {
     )
 
 
-}
-
-@Composable
-private fun SumDisplay(total: BigDecimal) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Gesamtpreis")
-            Text(
-                modifier = Modifier.absolutePadding(right = 21.dp),
-                text = "$total €")
-        }
-    }
 }
 
 @Composable

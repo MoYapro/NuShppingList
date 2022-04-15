@@ -1,7 +1,8 @@
 package de.moyapro.nushppinglist.ui
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,10 +11,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.RemoveShoppingCart
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
@@ -30,6 +33,7 @@ import de.moyapro.nushppinglist.ui.component.*
 @Composable
 fun ItemListElement(
     cartItem: CartItem,
+    toggleCheckAction: (CartItemProperties) -> Unit = {},
     saveAction: (Item) -> Unit = {},
     addAction: (Item) -> Unit = {},
     subtractAction: (ItemId) -> Unit = {},
@@ -52,7 +56,7 @@ fun ItemListElement(
                 .fillMaxWidth()
                 .animateContentSize()
             ) {
-                JustView(cartItem, addAction, subtractAction) {
+                JustView(cartItem, addAction, toggleCheckAction, subtractAction) {
                     isEdited = !isEdited
                     if (isEdited) scrollIntoViewAction()
                 }
@@ -173,26 +177,41 @@ fun EditView(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun JustView(
     cartItem: CartItem,
     addAction: (Item) -> Unit,
+    toggleCheckAction: (CartItemProperties) -> Unit,
     subtractAction: (ItemId) -> Unit = {},
     beginEditMode: () -> Unit,
 ) {
     Spacer(Modifier.height(3.dp))
     val item = cartItem.item
     val cartItemProperties = cartItem.cartItemProperties
+    val alpha = if (cartItem.cartItemProperties.checked) .7F else 1F
+
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .absolutePadding(left = 4.dp)
             .fillMaxWidth()
-            .clickable(onClick = beginEditMode)
+            .combinedClickable(
+                onClick = { toggleCheckAction(cartItemProperties) },
+                onLongClick = beginEditMode
+            )
+            .alpha(alpha)
     ) {
         Row(Modifier.fillMaxWidth(.63F)) {
             KategoryIndicator(item)
+            Spacer(modifier = Modifier.width(2.dp))
+            Text("${cartItem.cartItemProperties.amount} ")
+            if (cartItemProperties.checked) {
+                Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
+            } else {
+                Text(" x ")
+            }
             Spacer(modifier = Modifier.width(2.dp))
             Text(item.name)
         }
