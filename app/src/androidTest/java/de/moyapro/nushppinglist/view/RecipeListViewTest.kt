@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.model.Recipe
+import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.ui.RecipeListView
 import de.moyapro.nushppinglist.ui.amountText
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -14,7 +15,6 @@ import de.moyapro.nushppinglist.ui.model.ViewModelFactory
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
 import de.moyapro.nushppinglist.util.DbTestHelper
-import de.moyapro.nushppinglist.util.test.MockPublisher
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -28,7 +28,7 @@ class RecipeListViewTest {
 
     val database = DbTestHelper.createTestDatabase()
 
-    val publisher = MockPublisher("testtopic")
+    val publisher: Publisher? = null
 
     @Before
     fun setup() {

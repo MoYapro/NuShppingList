@@ -48,7 +48,7 @@ internal class CartViewTest {
     }
 
     @Test
-    fun removeChecked() = runBlocking {
+    fun removeChecked(): Unit = runBlocking {
         val viewModel = createComposable(CartItem("one"), CartItem("checked one", true))
         composeTestRule.onNodeWithText("⎚").assertIsDisplayed().performClick()
         val cartItems = viewModel.cartItems.take(1).toList().flatten()
@@ -57,7 +57,7 @@ internal class CartViewTest {
     }
 
     @Test
-    fun markItemChecked() = runBlocking {
+    fun markItemChecked(): Unit = runBlocking {
         val itemName = "Milk"
         val viewModel = createComposable(CartItem(itemName, UNCHECKED))
         composeTestRule.onNodeWithText(itemName).performClick()

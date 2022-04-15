@@ -46,7 +46,7 @@ class CartDbTest {
 
     @Test(timeout = 10000)
     @Throws(Exception::class)
-    fun writeAndLoadItem() = runBlocking {
+    fun writeAndLoadItem(): Unit = runBlocking {
         val item = Item("Milk")
         cartDao.save(item)
         val dbItem = cartDao.findAllItems().first().first()
@@ -55,7 +55,7 @@ class CartDbTest {
 
     @Test(timeout = 10000)
     @Throws(Exception::class)
-    fun updateAndLoadItem() = runBlocking {
+    fun updateAndLoadItem(): Unit = runBlocking {
         val newName = "newName"
         val item = Item("Milk")
         cartDao.save(item)
@@ -66,7 +66,7 @@ class CartDbTest {
 
     @Test(timeout = 10000)
     @Throws(Exception::class)
-    fun writeAndLoadCartItemProperties() = runBlocking {
+    fun writeAndLoadCartItemProperties(): Unit = runBlocking {
         val cartItem = CartItem("someName")
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
@@ -76,7 +76,7 @@ class CartDbTest {
 
     @Test(timeout = 10000)
     @Throws(Exception::class)
-    fun updateAndLoadCartItemProperties() = runBlocking {
+    fun updateAndLoadCartItemProperties(): Unit = runBlocking {
         val cartItem = CartItem("someName")
         val newAmount = 3
         cartDao.save(cartItem.item)
@@ -88,7 +88,7 @@ class CartDbTest {
 
     @Test(timeout = 10000)
     @Throws(Exception::class)
-    fun writeAndLoadCartItem() = runBlocking {
+    fun writeAndLoadCartItem(): Unit = runBlocking {
         val cartItem = CartItem("Milk")
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
@@ -98,7 +98,7 @@ class CartDbTest {
 
     @Test(timeout = 10000)
     @Throws(Exception::class)
-    fun updateAndLoadCartItem_item() = runBlocking {
+    fun updateAndLoadCartItem_item(): Unit = runBlocking {
         val newName = "NoMilk"
         val cartItem = CartItem("Milk")
         cartDao.save(cartItem.item)
@@ -110,7 +110,7 @@ class CartDbTest {
 
     @Test(timeout = 10000)
     @Throws(Exception::class)
-    fun updateAndLoadCartItem_cartItemProperties() = runBlocking {
+    fun updateAndLoadCartItem_cartItemProperties(): Unit = runBlocking {
         val newAmount = 4
         val cartItem = CartItem("Milk")
         cartDao.save(cartItem.item)
@@ -124,7 +124,7 @@ class CartDbTest {
     @OptIn(ExperimentalTime::class)
     @Test(timeout = 10000)
     @Throws(Exception::class)
-    fun subscribeToCartItemUpdates() = runBlocking {
+    fun subscribeToCartItemUpdates(): Unit = runBlocking {
         val newAmount = 4
         var currentCartItems = 0
         var currentAmount: Int? = 0
@@ -145,7 +145,7 @@ class CartDbTest {
 
     @OptIn(ExperimentalTime::class)
     @Test(timeout = 10000)
-    fun addExistingItemByName() = runBlocking {
+    fun addExistingItemByName(): Unit = runBlocking {
         val itemName = "Milk"
         val newItem = Item(itemName)
         viewModel.add(newItem)
@@ -161,7 +161,7 @@ class CartDbTest {
     }
 
     @Test
-    fun getSelectedCart() = runBlocking {
+    fun getSelectedCart(): Unit = runBlocking {
         val selectedCart = Cart(cartName = "Selected").apply { selected = true }
         val notSelectedCart = Cart(cartName = "Not selected").apply { selected = false }
         viewModel.add(selectedCart)
@@ -175,7 +175,7 @@ class CartDbTest {
     }
 
     @Test
-    fun setSelectedCart() = runBlocking {
+    fun setSelectedCart(): Unit = runBlocking {
         val initialySelected = Cart().apply { selected = true }
         val eventuallySelected = Cart().apply { selected = false }
         viewModel.add(initialySelected)
@@ -194,7 +194,7 @@ class CartDbTest {
     }
 
     @Test
-    fun getItemsInSpecificCart() = runBlocking {
+    fun getItemsInSpecificCart(): Unit = runBlocking {
         val cart1 = Cart().apply { selected = false }
         val cart2 = Cart().apply { selected = false }
         val cart1Item1 = CartItem(Item()).apply { cartItemProperties.inCart = cart1.cartId }
@@ -227,7 +227,7 @@ class CartDbTest {
 
     @Test
     @ExperimentalTime
-    fun getCartItemByItemId() = runBlocking {
+    fun getCartItemByItemId(): Unit = runBlocking {
         val cart1 = Cart().apply { selected = false }
         val cart2 = Cart().apply { selected = false }
         val item1 = Item()

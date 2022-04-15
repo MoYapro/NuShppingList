@@ -15,16 +15,18 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.*
 import org.junit.Assert.*
 import java.util.*
 import kotlin.random.Random
-import kotlin.time.Duration.Companion.milliseconds
 
 
 @Suppress("EXPERIMENTAL_API_USAGE")
@@ -54,7 +56,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun addNewItem() = runBlocking {
+    fun addNewItem(): Unit = runBlocking {
         val newItem = Item("bar")
         viewModel.add(newItem)
         Thread.sleep(100)
@@ -65,7 +67,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun subtractItemFromCart() = runBlocking {
+    fun subtractItemFromCart(): Unit = runBlocking {
         val newItem = Item("bar")
         val timesAdded = 3
         repeat(timesAdded) {
@@ -84,7 +86,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun updateItem() = runBlocking {
+    fun updateItem(): Unit = runBlocking {
         val newItem = Item("foo")
         viewModel.add(newItem)
         Thread.sleep(100)
@@ -99,7 +101,7 @@ class ViewModelTest {
 
 
     @Test
-    fun addNewItemToCart() = runBlocking {
+    fun addNewItemToCart(): Unit = runBlocking {
         val newItem = CartItem("bar")
         viewModel.add(newItem)
         Thread.sleep(100)
@@ -118,7 +120,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun removeCheckedItemFromCart() = runBlocking {
+    fun removeCheckedItemFromCart(): Unit = runBlocking {
         val itemToRemove = Item("remove me")
         viewModel.add(CartItem(itemToRemove).apply { cartItemProperties.checked = true })
         Thread.sleep(100)
@@ -131,7 +133,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun setChecked() = runBlocking {
+    fun setChecked(): Unit = runBlocking {
         val item1 = CartItem("foo")
         val item2 = CartItem("bar")
         viewModel.add(item1)
@@ -160,7 +162,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun setCheckedIsPersisted() = runBlocking {
+    fun setCheckedIsPersisted(): Unit = runBlocking {
         val item = CartItem("my item")
         viewModel.add(item)
         Thread.sleep(100)
@@ -201,7 +203,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun getAllCartItems() = runBlocking {
+    fun getAllCartItems(): Unit = runBlocking {
         val name = "newItemInCart"
         viewModel.add(CartItem(name))
         Thread.sleep(100)
@@ -216,7 +218,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun addNewItemByName() = runBlocking {
+    fun addNewItemByName(): Unit = runBlocking {
         val itemName = "Milk"
         viewModel.addToCart(itemName)
         Thread.sleep(100)
@@ -226,31 +228,50 @@ class ViewModelTest {
     }
 
     @Test
-    fun addExistingItemByName() = runBlocking {
+    fun addExistingItemByName(): Unit = runBlocking {
         val itemName = "Milk"
         val newItem = Item(itemName)
         viewModel.add(newItem)
         viewModel.addToCart(itemName)
         Thread.sleep(100)
         with(cartDao.itemTable.single()) {
-         this.name shouldBe itemName
-         this.itemId shouldBe newItem.itemId
+            this.name shouldBe itemName
+            this.itemId shouldBe newItem.itemId
         }
     }
 
     @Test
-    fun addExistingItemAsItem() = runBlocking {
+    fun addExistingItemAsItem(): Unit = runBlocking {
         val newItem = Item("Itemname${Random.nextLong()}")
         viewModel.add(newItem)
         viewModel.addToCart(newItem)
         Thread.sleep(100)
-        val updatedCart = viewModel.cartItems.take(1).toList()[0]
-        assertEquals("Should have added item to cart", 1, updatedCart.size)
-        assertEquals("Cart should contain itemId", newItem.itemId, updatedCart[0].itemId)
+        with(viewModel.cartItems.take(1).toList().flatten().single()) {
+            this.itemId shouldBe newItem.itemId
+            this.amount shouldBe 1
+        }
     }
 
     @Test
-    fun removeCheckedFromCart() = runBlocking {
+    fun addExistingItemAsItemMultiple(): Unit = runBlocking {
+        val repetitions = 99
+        val newItem = Item("Itemname${Random.nextLong()}")
+        viewModel.add(newItem)
+        run {
+            repeat(repetitions) {
+                viewModel.addToCart(newItem)
+                Thread.sleep(10)
+            }
+        }
+        with(viewModel.cartItems.take(1).toList().flatten().single()) {
+            this.itemId shouldBe newItem.itemId
+            this.amount shouldBe repetitions
+        }
+        cartDao.cartItemPropertiesTable shouldHaveSize 1
+    }
+
+    @Test
+    fun removeCheckedFromCart(): Unit = runBlocking {
         viewModel.addToCart("one")
         viewModel.add(CartItem("checked one", checked = true))
         viewModel.addToCart("two")
@@ -268,7 +289,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun getCartItemPropertiesForItem() = runBlocking {
+    fun getCartItemPropertiesForItem(): Unit = runBlocking {
         val cartItem = CartItem("thing")
         val (expectedCartItemProperties: CartItemProperties, item: Item) = cartItem
         viewModel.add(cartItem)
@@ -298,7 +319,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun addRecipeItemToCart() = runBlocking {
+    fun addRecipeItemToCart(): Unit = runBlocking {
         val recipeItem = createSampleRecipeItem()
         viewModel.addToCart(recipeItem)
         Thread.sleep(100)
@@ -336,7 +357,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun deleteItem() = runBlocking {
+    fun deleteItem(): Unit = runBlocking {
         val itemToRemove = Item("Dubiose Matsche")
         val recipe = createSampleRecipeCake()
         recipe.recipeItems = listOf(createSampleRecipeItem().apply { item = itemToRemove })
@@ -350,7 +371,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun createNewCart() = runBlocking {
+    fun createNewCart(): Unit = runBlocking {
         val cart = Cart()
         viewModel.add(cart)
         Thread.sleep(100)
@@ -359,7 +380,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun updateCart() = runBlocking {
+    fun updateCart(): Unit = runBlocking {
         val cart = Cart()
         viewModel.add(cart)
         Thread.sleep(100)
@@ -374,7 +395,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun deleteCart() = runBlocking {
+    fun deleteCart(): Unit = runBlocking {
         val cart = Cart()
         viewModel.add(cart)
         Thread.sleep(100)
@@ -387,7 +408,7 @@ class ViewModelTest {
 
 
     @Test
-    fun getSelectedCart() = runBlocking {
+    fun getSelectedCart(): Unit = runBlocking {
         val selectedCart = Cart(cartName = "Selected").apply { selected = true }
         val notSelectedCart = Cart(cartName = "Not selected").apply { selected = false }
         viewModel.add(selectedCart)
@@ -400,7 +421,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun setSelectedCart() = runBlocking {
+    fun setSelectedCart(): Unit = runBlocking {
         val initialySelected = Cart().apply { selected = true; cartName = "initialySelected" }
         val eventuallySelected = Cart().apply { selected = false; cartName = "eventuallySelected" }
         viewModel.add(initialySelected)
@@ -419,7 +440,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun getItemsInSpecificCart() = runBlocking {
+    fun getItemsInSpecificCart(): Unit = runBlocking {
         val cart1 = Cart().apply { selected = false }
         val cart2 = Cart().apply { selected = false }
         val cart1Item1 = CartItem(Item()).apply {
@@ -440,18 +461,18 @@ class ViewModelTest {
         viewModel.add(cart1Item2)
         viewModel.add(cart2Item1)
         viewModel.add(cart2Item2)
-        delay(100.milliseconds)
+        Thread.sleep(100)
         // no cart selected
         val emptyCart = viewModel.allCartItemsGrouped.take(1).first()
         emptyCart shouldBe emptyMap()
 
         viewModel.selectCart(cart1)
-        delay(100.milliseconds)
+        Thread.sleep(100)
         val cart1Items = viewModel.allCartItemsGrouped.take(1).first().values.flatten()
         cart1Items shouldContainExactlyInAnyOrder listOf(cart1Item1, cart1Item2)
 
         viewModel.selectCart(cart2)
-        delay(100.milliseconds)
+        Thread.sleep(100)
         val cart2Items = viewModel.allCartItemsGrouped.take(1).first().values.flatten()
         cart2Items shouldContainExactlyInAnyOrder listOf(cart2Item1, cart2Item2)
 
@@ -459,7 +480,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun getCartItemByItemId() = runBlocking {
+    fun getCartItemByItemId(): Unit = runBlocking {
         val cart1 = Cart().apply { selected = false }
         val cart2 = Cart().apply { selected = false }
         val item1 = Item()
@@ -471,13 +492,12 @@ class ViewModelTest {
         viewModel.add(cart2Item1)
 
         viewModel.selectCart(cart1)
-        delay(100.milliseconds)
+        Thread.sleep(100)
         viewModel.getCartItemPropertiesByItemId(cart1Item1.item.itemId) shouldBe cart1Item1.cartItemProperties
 
         viewModel.selectCart(cart2)
-        delay(100.milliseconds)
+        Thread.sleep(100)
         viewModel.getCartItemPropertiesByItemId(cart2Item1.item.itemId) shouldBe cart2Item1.cartItemProperties
-
     }
 
 }

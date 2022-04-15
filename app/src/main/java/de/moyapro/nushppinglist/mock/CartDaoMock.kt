@@ -256,6 +256,7 @@ class CartDaoMock(
     fun reset() {
         itemTable.clear()
         cartItemPropertiesTable.clear()
+        cartTable.clear()
         externalScope.launch {
             cartItemPropertiesChannel.value = cartItemPropertiesTable.toList()
             allItemChannel.value = itemTable.toList()
