@@ -159,6 +159,12 @@ class ViewModelTest {
         assertTrue(
             "All are checked after checking all items",
             cartItems.all { it.checked })
+
+        viewModel.toggleChecked(item1.cartItemProperties)
+        viewModel.toggleChecked(item2.cartItemProperties)
+        Thread.sleep(100)
+        assertTrue("All are unchecked after toggeling again",
+            cartItems.all { !it.checked })
     }
 
     @Test
@@ -391,8 +397,7 @@ class ViewModelTest {
         viewModel.update(updatedCart)
         Thread.sleep(100)
         cartDao.cartTable.single() shouldBe updatedCart
-        Unit
-    }
+           }
 
     @Test
     fun deleteCart(): Unit = runBlocking {
@@ -403,8 +408,7 @@ class ViewModelTest {
         carts.single() shouldBe cart
 
         viewModel.removeCart(cart)
-        Unit
-    }
+           }
 
 
     @Test
@@ -429,7 +433,6 @@ class ViewModelTest {
         viewModel.add(eventuallySelected)
         Thread.sleep(100)
         viewModel.getSelectedCart() shouldBe initialySelected
-
         viewModel.selectCart(eventuallySelected)
         Thread.sleep(100)
 
@@ -476,8 +479,7 @@ class ViewModelTest {
         val cart2Items = viewModel.allCartItemsGrouped.take(1).first().values.flatten()
         cart2Items shouldContainExactlyInAnyOrder listOf(cart2Item1, cart2Item2)
 
-        Unit
-    }
+           }
 
     @Test
     fun getCartItemByItemId(): Unit = runBlocking {

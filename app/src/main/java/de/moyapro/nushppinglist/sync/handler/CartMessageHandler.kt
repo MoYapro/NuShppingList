@@ -108,27 +108,25 @@ class CartMessageHandler(
                     tag,
                     "Update existing itemProperties for same item $cartItemWithSameItemId with new values: $newCartItemProperties "
                 )
-                cartDao.updateAll(merge(cartItemWithSameItemId, newCartItemProperties))
+                mergeAndUpdate(cartItemWithSameItemId, newCartItemProperties)
             }
             null != cartItemInDb && null == cartItemWithSameItemId -> {
                 Log.d(
                     tag,
                     "Update existing itemProperties $cartItemWithSameItemId with new values: $newCartItemProperties "
                 )
-                cartDao.updateAll(
-                    merge(cartItemInDb, newCartItemProperties)
-                )
+                mergeAndUpdate(cartItemInDb, newCartItemProperties)
             }
             null != cartItemInDb && null != cartItemWithSameItemId -> {
                 Log.d(tag, "Strange state just merge it")
-                cartDao.updateAll(
-                    merge(
-                        merge(cartItemInDb, cartItemWithSameItemId),
-                        newCartItemProperties
-                    )
-                )
+                mergeAndUpdate(cartItemInDb, cartItemWithSameItemId, newCartItemProperties)
             }
         }
+    }
+
+    suspend fun mergeAndUpdate(vararg cartItemProperties: CartItemProperties) {
+        val mergedCartItemProperties = cartItemProperties.reduce(this::merge)
+        cartDao.updateAll(mergedCartItemProperties)
     }
 
     fun merge(
