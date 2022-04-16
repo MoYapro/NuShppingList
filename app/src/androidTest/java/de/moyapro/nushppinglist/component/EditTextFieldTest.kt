@@ -1,12 +1,10 @@
-package de.moyapro.nushppinglist.view
+package de.moyapro.nushppinglist.component
 
-import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.performTextInput
 import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
-import org.junit.Assert.assertEquals
+import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 
@@ -18,14 +16,18 @@ class EditTextFieldTest {
     @Test
     fun textEditIsEditable() {
         val initialValue = "original"
-        var value = initialValue
+        var actionValue = ""
         val textInput = "input"
+        val expectedOutput = initialValue + textInput
         composeTestRule.setContent {
             NuShppingListTheme {
                 EditTextField(
                     label = "Label",
                     initialValue = initialValue,
-                    onValueChange = { x -> value = x })
+                    onValueChange = { x ->
+                        println("do action $actionValue + $x")
+                        actionValue = x
+                    })
             }
         }
         val fields =
@@ -33,7 +35,9 @@ class EditTextFieldTest {
         fields.assertCountEquals(1)
         val editField = fields[0]
         editField.performTextInput(textInput)
-        assertEquals("Should update initialValue", initialValue + textInput, value)
+        actionValue shouldBe expectedOutput
+        composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
+            .assertTextContains(expectedOutput)
     }
 
 }

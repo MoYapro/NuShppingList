@@ -8,7 +8,7 @@ import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.ui.RecipeListView
-import de.moyapro.nushppinglist.ui.amountText
+import de.moyapro.nushppinglist.ui.component.amountText
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
 import de.moyapro.nushppinglist.ui.model.ViewModelFactory

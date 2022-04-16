@@ -68,13 +68,6 @@ fun ItemListElement(
     }
 }
 
-fun getAmountText(cartItemProperties: CartItemProperties?): String {
-    if (null == cartItemProperties || 0 == cartItemProperties.amount) {
-        return ""
-    }
-    return "x ${cartItemProperties.amount}"
-}
-
 @Composable
 fun EditView(
     item: Item,
@@ -235,7 +228,7 @@ fun JustView(
                     cartItemProperties)),
             ) {
                 Icon(Icons.Filled.AddShoppingCart, contentDescription = "Hinzufügen")
-                Text(text = getAmountText(cartItemProperties).trim())
+                Text(text = amountText(cartItemProperties).trim())
             }
         }
     }

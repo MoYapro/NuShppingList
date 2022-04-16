@@ -19,10 +19,10 @@ import java.math.RoundingMode.HALF_UP
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DecimalTextField(
-    label: String? = null,
+    label: String?,
     initialValue: BigDecimal,
-    onValueChange: (BigDecimal) -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
+    onValueChange: (BigDecimal) -> Unit = {},
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
     doneAction: () -> Unit = {},
 ) {

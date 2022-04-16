@@ -19,6 +19,7 @@ import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Recipe
 import de.moyapro.nushppinglist.db.model.RecipeItem
 import de.moyapro.nushppinglist.db.model.RecipeProperties
+import de.moyapro.nushppinglist.ui.component.amountText
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.RecipePropertiesProvider
 import de.moyapro.nushppinglist.ui.util.RecipeProvider
