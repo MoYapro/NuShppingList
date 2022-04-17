@@ -25,7 +25,6 @@ class EditTextFieldTest {
                     label = "Label",
                     initialValue = initialValue,
                     onValueChange = { x ->
-                        println("do action $actionValue + $x")
                         actionValue = x
                     })
             }

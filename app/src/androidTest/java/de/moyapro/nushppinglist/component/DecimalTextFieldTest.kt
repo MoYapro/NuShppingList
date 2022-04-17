@@ -50,15 +50,12 @@ internal class DecimalTextFieldTest {
         }
         val component =
             composeTestRule.onAllNodesWithContentDescription(DecimalTextField.DESCRIPTION)
-        Thread.sleep(2000)
         component.onFirst().performTextInput("44")
-        Thread.sleep(2000)
 
         component.assertCountEquals(1)
         component.assertAll(hasText("133.44"))
         component.assertAll(hasText(label))
         value shouldBe BigDecimal("133.44")
-        Thread.sleep(5000)
     }
 
 }

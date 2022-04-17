@@ -3,7 +3,7 @@ package de.moyapro.nushppinglist.ui.component
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -28,13 +28,20 @@ fun DecimalTextField(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
+    var displayedValue by remember { mutableStateOf(initialValue.toString()) }
 
     OutlinedTextField(
-        value = TextFieldValue(text = initialValue.toString(),
-            selection = TextRange(initialValue.toString().length)),
+        value = TextFieldValue(
+            text = displayedValue,
+            selection = TextRange(displayedValue.length)
+        ),
         label = { Label(labelText = label ?: "") },
         onValueChange = { newTextValue ->
-            onValueChange(DecimalTextField.bigDecimalFromStringInput(newTextValue.text))
+            run {
+                val bigDecimalValue = DecimalTextField.bigDecimalFromStringInput(newTextValue.text)
+                displayedValue = bigDecimalValue.toString()
+                onValueChange(bigDecimalValue)
+            }
         },
         keyboardOptions = keyboardOptions.copy(keyboardType = KeyboardType.Number),
         keyboardActions = KeyboardActions(
@@ -56,7 +63,8 @@ object DecimalTextField {
         val numbersWithAddedDecimal = onlyNumberChars.replaceRange(
             startIndex = onlyNumberChars.length - 2,
             endIndex = onlyNumberChars.length - 2,
-            replacement = ".")
+            replacement = "."
+        )
         return BigDecimal(numbersWithAddedDecimal).setScale(2, HALF_UP)
     }
 }
