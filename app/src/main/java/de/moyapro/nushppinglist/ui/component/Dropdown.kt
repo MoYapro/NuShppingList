@@ -10,6 +10,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -17,9 +19,9 @@ fun <T> Dropdown(
     label: String,
     initialValue: T,
     values: List<T>,
-    onValueChange: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    onValueChange: (T) -> Unit = {},
     itemLabel: (T) -> String = { it.toString() },
-    modifier: Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val itemIndex = values.indexOf(initialValue)
@@ -27,19 +29,24 @@ fun <T> Dropdown(
     Surface(
         elevation = 0.dp,
         shape = RoundedCornerShape(20),
+        modifier = Modifier
+            .semantics { contentDescription = Dropdown.DESCRIPTION }
     ) {
         Row(
             modifier = modifier
                 .clickable(onClick = { expanded = true })
         ) {
-            if (values.isEmpty() || -1 == selectedIndex) {
-                Text(label,
+            if (values.isEmpty() || 0 > selectedIndex) {
+                Text(
+                    label,
                     modifier = Modifier
-                        .padding(12.dp),
+                        .padding(12.dp)
+                        .clickable(onClick = {expanded = true}),
                     color = Color.LightGray
                 )
             } else {
-                Text(itemLabel(values[selectedIndex]),
+                Text(
+                    itemLabel(values[selectedIndex]),
                     modifier = Modifier
                         .padding(12.dp)
                 )
@@ -62,10 +69,16 @@ fun <T> Dropdown(
                         onValueChange(itemValue)
                     }
                 ) {
-                    Text(text = itemLabel(itemValue),
-                        color = contentColorFor(backgroundColor = MaterialTheme.colors.background))
+                    Text(
+                        text = itemLabel(itemValue),
+                        color = contentColorFor(backgroundColor = MaterialTheme.colors.background)
+                    )
                 }
             }
         }
     }
+}
+
+object Dropdown {
+    const val DESCRIPTION = "DropDown"
 }
