@@ -38,10 +38,8 @@ fun EditTextField(
         label = { Label(labelText = label ?: "") },
         value = displayedTest,
         onValueChange = { newValue ->
-            run {
-                displayedTest = newValue
-                onValueChange(newValue)
-            }
+            displayedTest = newValue
+            onValueChange(newValue)
         },
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(

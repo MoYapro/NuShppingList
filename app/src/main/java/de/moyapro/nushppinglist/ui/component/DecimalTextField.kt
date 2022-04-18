@@ -37,11 +37,9 @@ fun DecimalTextField(
         ),
         label = { Label(labelText = label ?: "") },
         onValueChange = { newTextValue ->
-            run {
-                val bigDecimalValue = DecimalTextField.bigDecimalFromStringInput(newTextValue.text)
-                displayedValue = bigDecimalValue.toString()
-                onValueChange(bigDecimalValue)
-            }
+            val bigDecimalValue = DecimalTextField.bigDecimalFromStringInput(newTextValue.text)
+            displayedValue = bigDecimalValue.toString()
+            onValueChange(bigDecimalValue)
         },
         keyboardOptions = keyboardOptions.copy(keyboardType = KeyboardType.Number),
         keyboardActions = KeyboardActions(
