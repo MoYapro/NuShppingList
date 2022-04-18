@@ -10,6 +10,10 @@ import de.moyapro.nushppinglist.ui.ItemListElement
 import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
+import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Rule
@@ -21,7 +25,6 @@ class ItemListElementTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    @Ignore("it works but test says no.... wtf")
     fun saveExecutesSaveActionWithNewValue() {
         var saveActionCalled = false
         var itemText = ""
@@ -42,7 +45,8 @@ class ItemListElementTest {
             composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
         editField.performClick()
         editField.performTextInput("Milk2")
-        composeTestRule.onNodeWithContentDescription("Hinzufügen").assertHasClickAction().performClick()
+        composeTestRule.onAllNodesWithContentDescription("Hinzufügen")[1].assertHasClickAction()
+            .performClick()
         assertTrue("Saveaction should be called", saveActionCalled)
         assertEquals("Itemname should be updated", "Milk2", itemText)
     }
@@ -54,27 +58,47 @@ class ItemListElementTest {
         val action: (Item) -> Unit = { item -> addedItem = item }
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(cartItem = existingItem,
-                    addAction = action)
+                ItemListElement(
+                    cartItem = existingItem,
+                    addAction = action
+                )
             }
         }
-        composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").performClick()
-        assertNotNull("add action should be called", addedItem)
+        composeTestRule.onAllNodesWithContentDescription("Hinzufügen")[0].performClick()
+        assertNotNull("add action should have been called", addedItem)
         assertEquals("Should have added correct item", existingItem.item, addedItem)
     }
 
     @Test
-    fun showAmountInCartOnButton() {
+    fun showAmountInCartOnButton(): Unit = runBlocking {
         val cartItem = CartItem("thing")
         val viewModel = CartViewModel()
+        var lastEditItem: Item? = null
         viewModel.add(cartItem)
 
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(cartItem, subtractAction = viewModel::subtractFromCart)
+                ItemListElement(cartItem,
+                    subtractAction = viewModel::subtractFromCart,
+                    addAction = { itemToSave ->
+                        lastEditItem = itemToSave
+                        viewModel.addToCart(itemToSave)
+                    }
+                )
             }
         }
-        composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").assertIsDisplayed()
+        Thread.sleep(Long.MAX_VALUE)
+        val addToCartButton = composeTestRule.onAllNodesWithContentDescription("Hinzufügen")[0]
+        addToCartButton.assertTextContains("x 1")
+        Thread.sleep(2000)
+        addToCartButton.performClick()
+        Thread.sleep(2000)
+        lastEditItem shouldBe cartItem.item
+        val savedCartItem = viewModel.allCartItems.take(1).toList().flatten()
+            .single { it.item.itemId == cartItem.item.itemId }
+        savedCartItem.cartItemProperties.amount shouldBe 2
+        addToCartButton.assertTextContains("x 2")
+
     }
 
     @Test
@@ -110,8 +134,10 @@ class ItemListElementTest {
     private fun createComposable(cartItem: CartItem, editMode: Boolean = false) {
         composeTestRule.setContent {
             NuShppingListTheme {
-                ItemListElement(cartItem = cartItem,
-                    editMode = editMode)
+                ItemListElement(
+                    cartItem = cartItem,
+                    editMode = editMode
+                )
             }
         }
     }

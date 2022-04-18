@@ -250,11 +250,17 @@ class ViewModelTest {
     fun addExistingItemAsItem(): Unit = runBlocking {
         val newItem = Item("Itemname${Random.nextLong()}")
         viewModel.add(newItem)
-        viewModel.addToCart(newItem)
-        Thread.sleep(100)
-        with(viewModel.cartItems.take(1).toList().flatten().single()) {
-            this.itemId shouldBe newItem.itemId
-            this.amount shouldBe 1
+        repeat(10) { i ->
+            viewModel.addToCart(newItem)
+            Thread.sleep(100)
+            with(viewModel.cartItems.take(1).toList().flatten().single()) {
+                this.itemId shouldBe newItem.itemId
+                this.amount shouldBe (1 + i)
+            }
+            with(viewModel.allCartItems.take(1).toList().flatten().single()) {
+                this.cartItemProperties.itemId shouldBe newItem.itemId
+                this.cartItemProperties.amount shouldBe (1 + i)
+            }
         }
     }
 
@@ -397,7 +403,7 @@ class ViewModelTest {
         viewModel.update(updatedCart)
         Thread.sleep(100)
         cartDao.cartTable.single() shouldBe updatedCart
-           }
+    }
 
     @Test
     fun deleteCart(): Unit = runBlocking {
@@ -408,7 +414,7 @@ class ViewModelTest {
         carts.single() shouldBe cart
 
         viewModel.removeCart(cart)
-           }
+    }
 
 
     @Test
@@ -479,7 +485,7 @@ class ViewModelTest {
         val cart2Items = viewModel.allCartItemsGrouped.take(1).first().values.flatten()
         cart2Items shouldContainExactlyInAnyOrder listOf(cart2Item1, cart2Item2)
 
-           }
+    }
 
     @Test
     fun getCartItemByItemId(): Unit = runBlocking {

@@ -114,6 +114,7 @@ class CartDbTest {
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         cartDao.updateAll(cartItem.cartItemProperties.copy(amount = newAmount))
+        Thread.sleep(100)
         val dbCartItemProperties = cartDao.findAllCartItems().first().first()
         assertEquals(newAmount, dbCartItemProperties.cartItemProperties.amount)
     }
