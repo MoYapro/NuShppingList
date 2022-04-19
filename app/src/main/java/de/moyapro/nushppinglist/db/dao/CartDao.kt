@@ -51,7 +51,7 @@ interface CartDao {
     fun findAllCartItems(): Flow<List<CartItem>>
 
     @Transaction
-    @Query("select * from CartItemProperties cip join Item on Item.itemId = cip.itemId where cip.inCart = :cartId OR :cartId is null")
+    @Query("select * from CartItemProperties cip join Item on Item.itemId = cip.itemId where :cartId is null OR cip.inCart = :cartId ")
     fun findAllSelectedCartItems_internal(cartId: UUID?): Flow<List<CartItem>>
 
     @Transaction
@@ -94,7 +94,7 @@ interface CartDao {
         replaceWith = ReplaceWith("getCartItemByItemId(itemId)")
     )
     @Transaction
-    @Query("select * from CartItemProperties p where p.itemId = :itemId and p.inCart = :cartId")
+    @Query("select * from CartItemProperties p where p.itemId = :itemId and (:cartId is null OR p.inCart = :cartId)")
     suspend fun getCartItemByItemId_internal(itemId: UUID, cartId: UUID?): CartItemProperties?
 
     @Transaction

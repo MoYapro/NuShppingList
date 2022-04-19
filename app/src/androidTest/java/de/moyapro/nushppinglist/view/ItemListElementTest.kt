@@ -10,6 +10,7 @@ import de.moyapro.nushppinglist.ui.ItemListElement
 import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
+import de.moyapro.nushppinglist.util.DbTestHelper
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -72,7 +73,8 @@ class ItemListElementTest {
     @Test
     fun showAmountInCartOnButton(): Unit = runBlocking {
         val cartItem = CartItem("thing")
-        val viewModel = CartViewModel()
+        val cartDao = DbTestHelper.createTestDatabase().cartDao()
+        val viewModel = CartViewModel(cartDao)
         var lastEditItem: Item? = null
         viewModel.add(cartItem)
 
@@ -87,18 +89,14 @@ class ItemListElementTest {
                 )
             }
         }
-        Thread.sleep(Long.MAX_VALUE)
         val addToCartButton = composeTestRule.onAllNodesWithContentDescription("Hinzufügen")[0]
         addToCartButton.assertTextContains("x 1")
-        Thread.sleep(2000)
         addToCartButton.performClick()
-        Thread.sleep(2000)
+        Thread.sleep(100)
         lastEditItem shouldBe cartItem.item
         val savedCartItem = viewModel.allCartItems.take(1).toList().flatten()
             .single { it.item.itemId == cartItem.item.itemId }
         savedCartItem.cartItemProperties.amount shouldBe 2
-        addToCartButton.assertTextContains("x 2")
-
     }
 
     @Test
