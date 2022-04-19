@@ -124,8 +124,9 @@ class CartMessageHandler(
         }
     }
 
-    suspend fun mergeAndUpdate(vararg cartItemProperties: CartItemProperties) {
+    private suspend fun mergeAndUpdate(vararg cartItemProperties: CartItemProperties) {
         val mergedCartItemProperties = cartItemProperties.reduce(this::merge)
+        Log.d(tag, "Merge result: $mergedCartItemProperties")
         cartDao.updateAll(mergedCartItemProperties)
     }
 
@@ -166,12 +167,7 @@ class CartMessageHandler(
                 updatedCartItemProperties,
                 CartItemProperties::amount
             ),
-            checked = takeIfNotDefault(
-                originalCartItemProperties,
-                default,
-                updatedCartItemProperties,
-                CartItemProperties::checked
-            ),
+            checked = updatedCartItemProperties.checked,
         )
     }
 }
