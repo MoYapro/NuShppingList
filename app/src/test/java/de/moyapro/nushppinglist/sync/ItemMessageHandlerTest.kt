@@ -170,7 +170,7 @@ class ItemMessageHandlerTest {
                     handler(itemMessage)
                 }
             }
-        Thread.sleep(5000)
+        Thread.sleep(100)
         items.forEach { cartDao.getItemByItemId(it.itemId) shouldBe it }
     }
 

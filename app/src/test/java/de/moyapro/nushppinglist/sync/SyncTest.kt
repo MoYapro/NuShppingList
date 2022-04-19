@@ -123,7 +123,7 @@ class SyncTest {
         viewModelBob.add(cart)
         cartDaoAlice.cartTable shouldHaveSize 0
         syncServiceAlice.publish(RequestCartListMessage())
-        Thread.sleep(1000)
+        Thread.sleep(100)
         cartDaoAlice.cartTable shouldHaveSize 1
     }
 
@@ -152,7 +152,7 @@ class SyncTest {
         viewModelAlice.add(cartItem)
         viewModelBob.getCartItemPropertiesByItemId(item.itemId) shouldBe null
         syncServiceBob.publish(RequestCartMessage(cart.cartId))
-        Thread.sleep(1000)
+        Thread.sleep(100)
         cartDaoBob.cartTable shouldContain cart
         cartDaoBob.itemTable shouldContain item
     }
@@ -166,10 +166,10 @@ class SyncTest {
             originalCartItem.cartItemProperties.copy(checked = true)
         viewModelBob.add(cart)
         viewModelBob.add(originalCartItem)
-        Thread.sleep(1000)
+        Thread.sleep(100)
         cartDaoBob.cartItemPropertiesTable.single().checked shouldBe false
         syncServiceAlice.publish(CartMessage(listOf(updatedCartItemProperties), cart.cartId))
-        Thread.sleep(1000)
+        Thread.sleep(100)
         cartDaoBob.cartItemPropertiesTable.single().checked shouldBe true
         viewModelBob.selectCart(cart)
         val resultItem = cartDaoBob.cartItemPropertiesTable.single()
@@ -190,11 +190,11 @@ class SyncTest {
     fun requestCartList(): Unit = runBlocking {
         val cart = Cart(cartName = "cart${Math.random()}", synced = true)
         viewModelBob.add(cart)
-        Thread.sleep(1000)
+        Thread.sleep(100)
         (cartDaoBob as CartDaoMock).cartTable shouldHaveSize 1
         (cartDaoAlice as CartDaoMock).cartTable shouldHaveSize 0
         syncServiceAlice.publish(RequestCartListMessage())
-        Thread.sleep(1000)
+        Thread.sleep(100)
         (cartDaoAlice as CartDaoMock).cartTable shouldContain cart
     }
 

@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -110,7 +109,6 @@ class ItemListElementTest {
 
 
     @Test
-    @Ignore
     fun increaseAmountOnAddAgain() {
         val cartItem = CartItem("thing")
         val viewModel = CartViewModel()
@@ -124,7 +122,7 @@ class ItemListElementTest {
 
         composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").assertIsDisplayed()
             .performClick()
-        Thread.sleep(10000)
+        Thread.sleep(100)
         composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 2").assertIsDisplayed()
     }
 
