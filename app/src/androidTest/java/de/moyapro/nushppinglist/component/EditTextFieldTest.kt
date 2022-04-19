@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.component
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import de.moyapro.nushppinglist.ui.component.EditTextField
+import de.moyapro.nushppinglist.ui.component.EditTextField.DESCRIPTION
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -30,12 +31,13 @@ class EditTextFieldTest {
             }
         }
         val fields =
-            composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)
+            composeTestRule.onAllNodesWithContentDescription(DESCRIPTION)
         fields.assertCountEquals(1)
         val editField = fields[0]
         editField.performTextInput(textInput)
+        Thread.sleep(Long.MAX_VALUE)
         actionValue shouldBe expectedOutput
-        composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
+        composeTestRule.onNodeWithContentDescription(DESCRIPTION)
             .assertTextContains(expectedOutput)
     }
 
