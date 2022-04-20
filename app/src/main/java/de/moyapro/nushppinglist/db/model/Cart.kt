@@ -16,4 +16,5 @@ data class Cart(
     var selected: Boolean = false,
 ) {
     constructor() : this(cartName = "")
+    constructor(cartName: String) : this(cartId= CartId(), cartName = cartName)
 }

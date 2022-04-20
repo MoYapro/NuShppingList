@@ -49,6 +49,7 @@ fun ItemListElement(
     ) {
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
+            Text(cartItem.cartItemProperties.inCart.toString())
         }
         Surface(
         ) {

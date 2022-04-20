@@ -23,6 +23,7 @@ import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
+import de.moyapro.nushppinglist.ui.component.CartSelector
 import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.component.SumDisplay
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -89,10 +90,11 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         },
         topBar = {
             Column() {
-                Button(onClick = { viewModel.removeCheckedFromCart() }) {
-                    Text("⎚")
+                Row() {
+                    removeCheckedButton(viewModel)
+                    CartSelector(viewModel)
                 }
-            SumDisplay(total)
+                    SumDisplay(total)
             }
         },
         content = { innerPadding ->
@@ -152,4 +154,11 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
             }
         }
     )
+}
+
+@Composable
+private fun removeCheckedButton(viewModel: CartViewModel) {
+    Button(onClick = { viewModel.removeCheckedFromCart() }) {
+        Text("⎚")
+    }
 }

@@ -6,15 +6,16 @@ import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import de.moyapro.nushppinglist.constants.SWITCHES
-import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.RecipeId
 import de.moyapro.nushppinglist.ui.component.Autocomplete
-import de.moyapro.nushppinglist.ui.component.Dropdown
+import de.moyapro.nushppinglist.ui.component.CartSelector
 import de.moyapro.nushppinglist.ui.component.SumDisplay
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.util.SortCartItemPairByCheckedAndNameRecipe
@@ -80,34 +81,6 @@ fun CartView(viewModel: CartViewModel) {
 
 }
 
-@Composable
-private fun CartSelector(viewModel: CartViewModel) {
-    val carts: List<Cart?> by viewModel.allCart.collectAsState(listOf())
-    val cartsAndEmpty = listOf(null) + carts
-
-
-    var selectedCart by remember { mutableStateOf(viewModel.getSelectedCart()) }
-    if (carts.isNullOrEmpty()) {
-        return
-    }
-    Column() {
-
-        Dropdown(
-            label = "Alle Listen",
-            initialValue = selectedCart,
-            values = cartsAndEmpty,
-            onValueChange = {
-                selectedCart = it
-                viewModel.selectCart(it)
-            },
-            itemLabel = { it?.cartName ?: "Alle Listen" },
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (SWITCHES.DEBUG) {
-            Text(selectedCart.toString())
-        }
-    }
-}
 
 
 
