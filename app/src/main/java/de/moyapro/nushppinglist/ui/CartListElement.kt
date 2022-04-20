@@ -35,7 +35,7 @@ fun CartListElement(
         .fillMaxWidth()
     ) {
         if (SWITCHES.DEBUG) {
-            Text(cart.cartId.toString())
+            Text(cart.toString())
         }
         Surface(
         ) {

@@ -192,7 +192,6 @@ fun JustView(
             }
         }
 
-
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
