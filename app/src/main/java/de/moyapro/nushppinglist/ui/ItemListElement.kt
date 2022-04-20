@@ -182,7 +182,8 @@ fun JustView(
     Spacer(Modifier.height(3.dp))
     val item = cartItem.item
     val cartItemProperties = cartItem.cartItemProperties
-    val alpha = if (cartItem.cartItemProperties.checked) .7F else 1F
+    var checked by remember {mutableStateOf(cartItemProperties.checked)}
+    val alpha = if (checked) .7F else 1F
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -191,7 +192,7 @@ fun JustView(
             .absolutePadding(left = 4.dp)
             .fillMaxWidth()
             .combinedClickable(
-                onClick = { toggleCheckAction(cartItemProperties) },
+                onClick = { checked = !cartItemProperties.checked; toggleCheckAction(cartItemProperties) },
                 onLongClick = beginEditMode
             )
             .alpha(alpha)
@@ -200,7 +201,7 @@ fun JustView(
             KategoryIndicator(item)
             Spacer(modifier = Modifier.width(2.dp))
             Text("${cartItem.cartItemProperties.amount} ")
-            if (cartItemProperties.checked) {
+            if (checked) {
                 Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
             } else {
                 Text(" x ")

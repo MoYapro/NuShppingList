@@ -2,11 +2,12 @@ package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.moyapro.nushppinglist.constants.CONSTANTS.UNCHECKED
 import de.moyapro.nushppinglist.db.model.CartItem
-import de.moyapro.nushppinglist.ui.CartView
+import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.util.DbTestHelper
@@ -63,12 +64,14 @@ internal class CartViewTest {
         assertTrue(
             "All cartItems should be checked but was: $cartAfterChecking",
             cartAfterChecking.all { it.checked })
+        composeTestRule.onNodeWithContentDescription("Gekauft").assertIsDisplayed()
         composeTestRule.onNodeWithText(itemName).performClick()
         Thread.sleep(100)
         val cartAfterUnChecking = viewModel.cartItems.take(1).toList().flatten()
         assertTrue(
             "No cartItems should be unchecked but was: $cartAfterUnChecking",
             cartAfterUnChecking.none { it.checked })
+        composeTestRule.onNodeWithContentDescription("Gekauft").assertDoesNotExist()
     }
 
 
@@ -77,7 +80,7 @@ internal class CartViewTest {
         items.forEach { viewModel.add(it) }
         composeTestRule.setContent {
             NuShppingListTheme {
-                CartView(viewModel)
+                ItemList(viewModel)
             }
         }
         return viewModel
