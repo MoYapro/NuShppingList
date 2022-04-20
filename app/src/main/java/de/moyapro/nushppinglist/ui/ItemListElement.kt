@@ -182,8 +182,15 @@ fun JustView(
     Spacer(Modifier.height(3.dp))
     val item = cartItem.item
     val cartItemProperties = cartItem.cartItemProperties
-    var checked by remember {mutableStateOf(cartItemProperties.checked)}
+    var checked by remember { mutableStateOf(cartItemProperties.checked) }
+    val toggleCheckActionInternal =
+        {
+            if (0 < cartItemProperties.amount) {
+                checked = !cartItemProperties.checked; toggleCheckAction(cartItemProperties)
+            }
+        }
     val alpha = if (checked) .7F else 1F
+
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -192,7 +199,7 @@ fun JustView(
             .absolutePadding(left = 4.dp)
             .fillMaxWidth()
             .combinedClickable(
-                onClick = { checked = !cartItemProperties.checked; toggleCheckAction(cartItemProperties) },
+                onClick = toggleCheckActionInternal,
                 onLongClick = beginEditMode
             )
             .alpha(alpha)

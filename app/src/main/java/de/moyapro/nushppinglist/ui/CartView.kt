@@ -23,6 +23,7 @@ import java.math.BigDecimal
 
 
 @OptIn(ExperimentalMaterialApi::class)
+@Deprecated("Use ItemList instead")
 @Composable
 fun CartView(viewModel: CartViewModel) {
     val collectAsState: State<Map<RecipeId?, List<CartItem>>> =
