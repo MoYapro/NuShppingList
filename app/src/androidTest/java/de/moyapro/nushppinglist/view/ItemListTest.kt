@@ -3,16 +3,16 @@ package de.moyapro.nushppinglist.view
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import de.moyapro.nushppinglist.db.dao.CartDao
+import de.moyapro.nushppinglist.db.model.Cart
+import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
-import de.moyapro.nushppinglist.mock.CartDaoMock
 import de.moyapro.nushppinglist.ui.ItemList
 import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
+import de.moyapro.nushppinglist.util.DbTestHelper
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -21,8 +21,14 @@ internal class ItemListTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val cartDao: CartDao =
-        CartDaoMock(CoroutineScope(TestCoroutineDispatcher() + SupervisorJob()))
+    val database = DbTestHelper.createTestDatabase()
+
+    private val cartDao: CartDao = database.cartDao()
+
+    @Before
+    fun setup() {
+        database.clearAllTables()
+    }
 
     @Test
     fun showItemList() {
@@ -69,9 +75,45 @@ internal class ItemListTest {
         composeTestRule.onNodeWithText(names.random()).assertIsDisplayed()
     }
 
-    private fun createComposable(items: List<Item>) = runBlocking {
+    @Test
+    fun displayItemsInCart() {
+        val cart1 = Cart("cart1")
+        val cart2 = Cart("cart2")
+        val carts = listOf(cart1, cart2)
+        val cartItem1 = CartItem("item1").apply {
+            cartItemProperties.inCart = cart1.cartId; cartItemProperties.amount = 101
+        }
+        val cartItem2 = CartItem("item2").apply {
+            cartItemProperties.inCart = cart2.cartId; cartItemProperties.amount = 202
+        }
+        val cartItem3 = CartItem("item3").apply {
+            cartItemProperties.inCart = null; cartItemProperties.amount = 303
+        }
+        createComposable(carts = carts, cartItems = listOf(cartItem1, cartItem2, cartItem3))
+
+        composeTestRule.onNodeWithText("item1").assertIsDisplayed()
+        composeTestRule.onNodeWithText("item2").assertIsDisplayed()
+        composeTestRule.onNodeWithText("item3").assertIsDisplayed()
+        composeTestRule.onNodeWithText("101").assertIsDisplayed()
+        composeTestRule.onNodeWithText("202").assertIsDisplayed()
+        composeTestRule.onNodeWithText("303").assertIsDisplayed()
+        Thread.sleep(5000)
+
+    }
+
+    private fun createComposable(
+        items: List<Item> = emptyList(),
+        cartItems: List<CartItem> = emptyList(),
+        carts: List<Cart> = emptyList(),
+    ) = runBlocking {
         val viewModel = CartViewModel(cartDao)
+        carts.forEach { cartDao.save(it) }
         items.forEach { cartDao.save(it) }
+        cartItems.forEach {
+            cartDao.save(it.item)
+            cartDao.save(it.cartItemProperties)
+        }
+        Thread.sleep(100)
         composeTestRule.setContent {
             NuShppingListTheme {
                 ItemList(viewModel)

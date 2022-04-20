@@ -184,13 +184,13 @@ fun JustView(
     val item = cartItem.item
     val cartItemProperties = cartItem.cartItemProperties
     var checked by remember { mutableStateOf(cartItemProperties.checked) }
+    val alpha = if (checked) .7F else 1F
     val toggleCheckActionInternal =
         {
             if (0 < cartItemProperties.amount) {
                 checked = !cartItemProperties.checked; toggleCheckAction(cartItemProperties)
             }
         }
-    val alpha = if (checked) .7F else 1F
 
 
     Row(
@@ -208,7 +208,7 @@ fun JustView(
         Row(Modifier.fillMaxWidth(.63F)) {
             KategoryIndicator(item)
             Spacer(modifier = Modifier.width(2.dp))
-            Text("${cartItem.cartItemProperties.amount} ")
+            Text(cartItem.cartItemProperties.amount.toString())
             if (checked) {
                 Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
             } else {

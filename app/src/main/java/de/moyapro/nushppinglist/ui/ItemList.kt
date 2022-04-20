@@ -45,10 +45,11 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
 
     var filter: String by remember { mutableStateOf("") }
 // is filtering on cartItemList executed every frame?
-    val cartItemList: List<CartItem> = allItemList
-        .filter { it.name.lowercase().contains(filter.lowercase()) }
+    val filteredItems = allItemList.filter { it.name.lowercase().contains(filter.lowercase()) }
+    val cartItemList: List<CartItem> = filteredItems
         .map { item ->
-            val cartItem = cartItems.firstOrNull { it.item.itemId == item.itemId && selectedCart?.cartId == it.cartItemProperties.inCart  }
+            val cartItem =
+                cartItems.firstOrNull { it.item.itemId == item.itemId && (null == selectedCart || selectedCart?.cartId == it.cartItemProperties.inCart) }
             cartItem
                 ?: CartItem(
                     CartItemProperties(
@@ -94,7 +95,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                     removeCheckedButton(viewModel)
                     CartSelector(viewModel)
                 }
-                    SumDisplay(total)
+                SumDisplay(total)
             }
         },
         content = { innerPadding ->
