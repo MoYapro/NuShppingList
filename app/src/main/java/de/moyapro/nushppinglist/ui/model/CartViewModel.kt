@@ -42,6 +42,8 @@ class CartViewModel(
     val allItems: StateFlow<List<Item>> = _allItems
     private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
+    private var _currentCartItems = MutableStateFlow<List<CartItem>>(emptyList())
+    val currentCartItems = _currentCartItems
     private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
     val allCartItemsGrouped: StateFlow<Map<RecipeId?, List<CartItem>>> = _allCartItemsGrouped
     private val _allCart = MutableStateFlow<List<Cart>>(emptyList())
@@ -58,6 +60,8 @@ class CartViewModel(
 
     private fun updateSelectedCart(cart: Cart?) {
         _selectedCart = cart
+        _currentCartItems.listenTo(cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
+            viewModelScope)
         _allCartItemsGrouped.listenTo(
             cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
             viewModelScope,

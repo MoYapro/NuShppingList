@@ -11,6 +11,8 @@ import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.util.DbTestHelper
+import de.moyapro.nushppinglist.util.assertDoesNotExist
+import de.moyapro.nushppinglist.util.assertIsDisplayed
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -90,14 +92,21 @@ internal class ItemListTest {
             cartItemProperties.inCart = null; cartItemProperties.amount = 303
         }
         createComposable(carts = carts, cartItems = listOf(cartItem1, cartItem2, cartItem3))
+        listOf("item1", "item2", "item3", "101", "202", "303").assertIsDisplayed(composeTestRule)
 
-        composeTestRule.onNodeWithText("item1").assertIsDisplayed()
-        composeTestRule.onNodeWithText("item2").assertIsDisplayed()
-        composeTestRule.onNodeWithText("item3").assertIsDisplayed()
-        composeTestRule.onNodeWithText("101").assertIsDisplayed()
-        composeTestRule.onNodeWithText("202").assertIsDisplayed()
-        composeTestRule.onNodeWithText("303").assertIsDisplayed()
-        Thread.sleep(5000)
+        composeTestRule.onNodeWithText("Alle Listen").performClick()
+        composeTestRule.onNodeWithText("cart1").performClick()
+        Thread.sleep(100)
+        listOf("item1", "item2", "item3", "101").assertIsDisplayed(composeTestRule)
+        Thread.sleep(3000)
+        listOf("202", "303").assertDoesNotExist(composeTestRule)
+        Thread.sleep(2000)
+        composeTestRule.onNodeWithText("cart1").performClick()
+        composeTestRule.onNodeWithText("cart2").performClick()
+        Thread.sleep(100)
+        listOf("item1", "item2", "item3", "202").assertIsDisplayed(composeTestRule)
+        Thread.sleep(3000)
+        listOf("101", "303").assertDoesNotExist(composeTestRule)
 
     }
 

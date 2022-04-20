@@ -49,8 +49,10 @@ class CartSelectorTest {
             val currentCartName = "cart $number"
             composeTestRule.onNodeWithText(currentCartName).performClick() // select cart
             Thread.sleep(100)
-            viewModel.getSelectedCart()?.cartName shouldBe currentCartName
-            viewModel.getSelectedCart()?.selected shouldBe true
+            with(viewModel.getSelectedCart()) {
+                this?.cartName shouldBe currentCartName
+                this?.selected shouldBe true
+            }
             viewModel.allCart.take(1).toList().flatten().filter{it.cartName != currentCartName}.none { it.selected }
             composeTestRule.onNodeWithText(currentCartName).performClick() // open selection list for next cart
         }

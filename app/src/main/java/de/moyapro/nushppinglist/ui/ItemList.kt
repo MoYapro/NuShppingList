@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,17 +29,17 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.ItemListProvider
 import de.moyapro.nushppinglist.util.SortCartItemPairByCheckedAndName
 import de.moyapro.nushppinglist.util.sumByBigDecimal
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
-@OptIn(ExperimentalComposeUiApi::class)
+
+@FlowPreview
 @Composable
 @Preview
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel) {
     val allItemList: List<Item> by viewModel.allItems.collectAsState(listOf())
-    val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(
-        listOf()
-    )
+    val cartItems: List<CartItem> by viewModel.currentCartItems.collectAsState(listOf())
     val selectedCart by remember { mutableStateOf(viewModel.getSelectedCart()) }
 
     var filter: String by remember { mutableStateOf("") }
