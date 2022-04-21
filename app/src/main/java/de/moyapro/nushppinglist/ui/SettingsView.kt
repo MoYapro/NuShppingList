@@ -20,7 +20,7 @@ import de.moyapro.nushppinglist.ui.component.settings.StringSettings
 
 @Composable
 fun SettingsView() {
-    val preferences: SharedPreferences = MainActivity.preferences
+    val preferences: SharedPreferences = MainActivity.preferences ?: return
     var isSyncEnabled by remember {
         mutableStateOf(preferences.getBoolean(SETTING.SYNC_ENABLED.name,
             false))
@@ -32,7 +32,10 @@ fun SettingsView() {
 
         Spacer(modifier = Modifier.height(20.dp))
         BooleanSettings(SETTING.CLEAR_AFTER_ADD, preferences)
-        Spacer(modifier = Modifier.height(2.dp).fillMaxWidth().background(if(isSyncEnabled) Color.LightGray else MaterialTheme.colors.surface))
+        Spacer(modifier = Modifier
+            .height(2.dp)
+            .fillMaxWidth()
+            .background(if (isSyncEnabled) Color.LightGray else MaterialTheme.colors.surface))
         BooleanSettings(SETTING.SYNC_ENABLED, preferences) { newValue ->
             isSyncEnabled = newValue
         }
@@ -43,13 +46,20 @@ fun SettingsView() {
             StringSettings(SETTING.SYNC_MQTT_SERVER_PASSWORD, preferences)
             BooleanSettings(SETTING.SYNC_MQTT_SERVER_TLS, preferences)
         }
-        Spacer(modifier = Modifier.height(2.dp).fillMaxWidth().background(if(isSyncEnabled) Color.LightGray else MaterialTheme.colors.surface))
+        Spacer(modifier = Modifier
+            .height(2.dp)
+            .fillMaxWidth()
+            .background(if (isSyncEnabled) Color.LightGray else MaterialTheme.colors.surface))
         Spacer(modifier = Modifier.height(250.dp))
     }
 }
 
 @Composable
-private fun DebugRawSettings(preferences: SharedPreferences) {
+private fun DebugRawSettings(preferences: SharedPreferences?) {
+    if (null == preferences) {
+        Text("Preferences are not set: null")
+        return
+    }
     if (SWITCHES.DEBUG)
         for ((settingsKey, settingsValue) in preferences.all) {
             Row(

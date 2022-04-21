@@ -35,9 +35,9 @@ fun CartList(viewModel: CartViewModel) {
 
 
     val clearFilter: () -> Unit = {
-        newCartName = if (MainActivity.preferences.getBoolean(SETTING.CLEAR_AFTER_ADD.name, false)
-        )
-            "" else newCartName.trim()
+        newCartName =
+            if (MainActivity.preferences?.getBoolean(SETTING.CLEAR_AFTER_ADD.name, false) == true)
+                "" else newCartName.trim()
     }
 
     val saveAction: () -> Unit = {

@@ -27,6 +27,7 @@ internal class ItemListTest {
 
     private val cartDao: CartDao = database.cartDao()
 
+
     @Before
     fun setup() {
         database.clearAllTables()
@@ -42,15 +43,31 @@ internal class ItemListTest {
     }
 
     @Test
-    fun addNewItemByName() {
+    fun addNewItemByName_noCartSelected() {
         val newItemName = "some new item"
         createComposable(emptyList())
         val input = composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
         input.performTextInput(newItemName)
         val addNewItemButton = composeTestRule.onNodeWithContentDescription("Neu")
         addNewItemButton.performClick()
+    }
 
-
+    @Test
+    fun addNewItemByName_selectedCart() {
+        val newItemName = "some new item"
+        val cart = Cart("cart")
+        createComposable(emptyList())
+        composeTestRule.onNodeWithText(newItemName).assertDoesNotExist()
+        Thread.sleep(1000)
+        composeTestRule.onNodeWithText("Alle Listen").performClick()
+        composeTestRule.onNodeWithText(cart.cartName).performClick()
+        Thread.sleep(1000)
+        val input = composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
+        input.performTextInput(newItemName)
+        Thread.sleep(1000)
+        composeTestRule.onNodeWithContentDescription("Neu").performClick()
+        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(newItemName).assertIsDisplayed()
     }
 
     @Test
@@ -98,14 +115,13 @@ internal class ItemListTest {
         composeTestRule.onNodeWithText("cart1").performClick()
         Thread.sleep(100)
         listOf("item1", "item2", "item3", "101").assertIsDisplayed(composeTestRule)
-        Thread.sleep(3000)
+        Thread.sleep(100)
         listOf("202", "303").assertDoesNotExist(composeTestRule)
-        Thread.sleep(2000)
+        Thread.sleep(100)
         composeTestRule.onNodeWithText("cart1").performClick()
         composeTestRule.onNodeWithText("cart2").performClick()
         Thread.sleep(100)
         listOf("item1", "item2", "item3", "202").assertIsDisplayed(composeTestRule)
-        Thread.sleep(3000)
         listOf("101", "303").assertDoesNotExist(composeTestRule)
 
     }

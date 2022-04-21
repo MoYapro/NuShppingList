@@ -1,7 +1,9 @@
 package de.moyapro.nushppinglist.component
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.performTextInput
 import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.component.EditTextField.DESCRIPTION
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
@@ -35,10 +37,8 @@ class EditTextFieldTest {
         fields.assertCountEquals(1)
         val editField = fields[0]
         editField.performTextInput(textInput)
-        Thread.sleep(Long.MAX_VALUE)
+        Thread.sleep(100)
         actionValue shouldBe expectedOutput
-        composeTestRule.onNodeWithContentDescription(DESCRIPTION)
-            .assertTextContains(expectedOutput)
     }
 
 }

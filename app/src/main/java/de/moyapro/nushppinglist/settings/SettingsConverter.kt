@@ -7,7 +7,7 @@ object SettingsConverter {
     val INVALID_CONNECTION_SETTINGS: ConnectionSettings =
         ConnectionSettings(false,"", -1, "", "", "", false)
 
-    fun toConnectionSettings(preferences: SharedPreferences): ConnectionSettings {
+    fun toConnectionSettings(preferences: SharedPreferences?): ConnectionSettings {
         val connectionSettings = buildConnectionSettingsFromPreferences(preferences)
         return if (isValid(connectionSettings)) connectionSettings else INVALID_CONNECTION_SETTINGS
     }
@@ -19,17 +19,17 @@ object SettingsConverter {
         return hostnameValid && portValid && topicValid
     }
 
-    private fun buildConnectionSettingsFromPreferences(preferences: SharedPreferences): ConnectionSettings {
-        val (hostname, port) = splitHostnamePort(preferences.getString(SETTING.SYNC_MQTT_SERVER_HOSTNAME.name,
+    private fun buildConnectionSettingsFromPreferences(preferences: SharedPreferences?): ConnectionSettings {
+        val (hostname, port) = splitHostnamePort(preferences?.getString(SETTING.SYNC_MQTT_SERVER_HOSTNAME.name,
             "") ?: "")
         return ConnectionSettings(
-            syncEnabled = preferences.getBoolean(SETTING.SYNC_ENABLED.name, false) ,
+            syncEnabled = preferences?.getBoolean(SETTING.SYNC_ENABLED.name, false) ?: false ,
             hostname = hostname,
             port = port,
-            username = preferences.getString(SETTING.SYNC_MQTT_SERVER_USER.name, "") ?: "",
-            password = preferences.getString(SETTING.SYNC_MQTT_SERVER_PASSWORD.name, "") ?: "",
-            topic = preferences.getString(SETTING.SYNC_MQTT_SERVER_BASE_TOPIC.name, "") ?: "",
-            useTls = preferences.getBoolean(SETTING.SYNC_MQTT_SERVER_TLS.name, true),
+            username = preferences?.getString(SETTING.SYNC_MQTT_SERVER_USER.name, "") ?: "",
+            password = preferences?.getString(SETTING.SYNC_MQTT_SERVER_PASSWORD.name, "") ?: "",
+            topic = preferences?.getString(SETTING.SYNC_MQTT_SERVER_BASE_TOPIC.name, "") ?: "",
+            useTls = preferences?.getBoolean(SETTING.SYNC_MQTT_SERVER_TLS.name, true) ?: true,
         )
     }
 

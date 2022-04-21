@@ -68,8 +68,8 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     Log.d("ItemList", listState.firstVisibleItemIndex.toString())
 
     val coroutineScope = rememberCoroutineScope()
-
     val clearFilter = { filter = "" }
+
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
         floatingActionButton = if (displayNewItemFab) {
@@ -77,8 +77,8 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                 FloatingActionButton(onClick = {
                     viewModel.addToCart(filter.trim())
                     filter =
-                        if (MainActivity.preferences.getBoolean(SETTING.CLEAR_AFTER_ADD.name,
-                                false)
+                        if (MainActivity.preferences?.getBoolean(SETTING.CLEAR_AFTER_ADD.name,
+                                false) == true
                         )
                             "" else filter.trim()
                 }) {

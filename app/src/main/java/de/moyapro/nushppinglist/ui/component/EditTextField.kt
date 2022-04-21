@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
@@ -32,13 +32,11 @@ fun EditTextField(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-    var displayedTest by remember { mutableStateOf(initialValue) }
 
     OutlinedTextField(
         label = { Label(labelText = label ?: "") },
-        value = displayedTest,
+        value = initialValue,
         onValueChange = { newValue ->
-            displayedTest = newValue
             onValueChange(newValue)
         },
         keyboardOptions = keyboardOptions,

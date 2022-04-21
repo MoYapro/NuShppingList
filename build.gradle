@@ -8,6 +8,7 @@ buildscript {
         coroutine_version = '1.6.0-native-mt'
         room_version = "2.4.2"
         kotest_version = "5.2.1"
+        mockk_version = "1.12.1"
         GROUP_ID = "de.moyapro"
         ARTIFACT_ID = "de.moyapro.nuShoppingList"
     }
@@ -16,7 +17,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0-beta04'
+        classpath 'com.android.tools.build:gradle:7.2.0-rc01'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong

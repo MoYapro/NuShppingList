@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        lateinit var preferences: SharedPreferences
+        var preferences: SharedPreferences? = null
 
         fun makeToast(text: String, context: Context) {
             Toast.makeText(
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-        if (preferences.getBoolean(SETTING.SYNC_ENABLED.name, false)) {
+        if (preferences?.getBoolean(SETTING.SYNC_ENABLED.name, false) == true) {
             applicationContext.startService(Intent(applicationContext,
                 BackgroundSyncService::class.java))
         }
