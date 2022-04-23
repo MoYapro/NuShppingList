@@ -7,13 +7,11 @@ import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.sync.Publisher
 import de.moyapro.nushppinglist.sync.messages.CartMessage
+import de.moyapro.nushppinglist.sync.messages.ItemMessage
 import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.util.takeIfNotDefault
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class CartMessageHandler(
     val cartDao: CartDao,
@@ -21,9 +19,14 @@ class CartMessageHandler(
 ) : suspend (CartMessage) -> Unit {
 
     private val tag = CartMessageHandler::class.simpleName
+    private val itemMessageHandler = ItemMessageHandler(cartDao, publisher)
 
     override suspend fun invoke(cartMessage: CartMessage) {
         Log.d(tag, "start handle $cartMessage")
+
+        saveItems(cartMessage.itemList)
+
+
         if (requestMissingCarts(cartMessage)) {
             Log.d(
                 tag,
@@ -39,6 +42,10 @@ class CartMessageHandler(
 
         persistCartItemProperties(cartMessage.cartItemPropertiesList)
         Log.d(tag, "done handle $cartMessage")
+    }
+
+    private fun saveItems(itemList: List<Item>) = runBlocking {
+        itemMessageHandler(ItemMessage(itemList))
     }
 
     private suspend fun requestMissingCarts(cartMessage: CartMessage): Boolean {

@@ -228,9 +228,11 @@ class ViewModelTest {
         val itemName = "Milk"
         viewModel.addToCart(itemName)
         Thread.sleep(100)
-        with(cartDao.itemTable.single()) {
-            this.name shouldBe itemName
-        }
+        val item = cartDao.itemTable.single()
+        val cartItemProperties = cartDao.cartItemPropertiesTable.single()
+        item.name shouldBe itemName
+        cartItemProperties.itemId shouldBe item.itemId
+        cartItemProperties.amount shouldBe item.defaultItemAmount
     }
 
     @Test

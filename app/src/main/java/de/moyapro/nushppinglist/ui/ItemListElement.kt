@@ -207,11 +207,13 @@ fun JustView(
         Row(Modifier.fillMaxWidth(.63F)) {
             KategoryIndicator(item)
             Spacer(modifier = Modifier.width(2.dp))
-            Text(cartItem.cartItemProperties.amount.toString())
-            if (checked) {
-                Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
-            } else {
-                Text(" x ")
+            if(0 < cartItemProperties.amount) {
+                Text(cartItemProperties.amount.toString())
+            }
+            when {
+                0 >= cartItemProperties.amount -> {}
+                checked -> Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
+                else -> Text(" x ")
             }
             Spacer(modifier = Modifier.width(2.dp))
             Text(item.name)

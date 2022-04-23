@@ -26,10 +26,12 @@ internal class ItemListTest {
     val database = DbTestHelper.createTestDatabase()
 
     private val cartDao: CartDao = database.cartDao()
+    private lateinit var viewModel: CartViewModel
 
 
     @Before
     fun setup() {
+        viewModel = CartViewModel(cartDao)
         database.clearAllTables()
     }
 
@@ -54,20 +56,45 @@ internal class ItemListTest {
 
     @Test
     fun addNewItemByName_selectedCart() {
-        val newItemName = "some new item"
-        val cart = Cart("cart")
+        val cart1 = Cart("cart1")
+        val cart2 = Cart("cart2")
+        val carts = listOf(cart1, cart2)
+        viewModel.add(cart1)
+        viewModel.add(cart2)
+        Thread.sleep(100)
+        val itemsPerCart: MutableMap<Cart, MutableList<String>> = mutableMapOf()
+        itemsPerCart[cart1] = mutableListOf()
+        itemsPerCart[cart2] = mutableListOf()
         createComposable(emptyList())
-        composeTestRule.onNodeWithText(newItemName).assertDoesNotExist()
-        Thread.sleep(1000)
         composeTestRule.onNodeWithText("Alle Listen").performClick()
-        composeTestRule.onNodeWithText(cart.cartName).performClick()
-        Thread.sleep(1000)
-        val input = composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
-        input.performTextInput(newItemName)
-        Thread.sleep(1000)
-        composeTestRule.onNodeWithContentDescription("Neu").performClick()
-        Thread.sleep(1000)
-        composeTestRule.onNodeWithText(newItemName).assertIsDisplayed()
+        repeat(6) { i ->
+            val cartToUse = carts[i % 2]
+            val itemName = "${cartToUse.cartName}-item$i"
+            itemsPerCart[cartToUse]?.add(itemName)
+            composeTestRule.onNodeWithText(cartToUse.cartName).performClick()
+            val input = composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
+            input.performTextInput(itemName)
+            composeTestRule.onNodeWithContentDescription("Neu").performClick()
+            composeTestRule.onNodeWithContentDescription("Leeren").performClick()
+            itemsPerCart[cartToUse]?.assertIsDisplayed(composeTestRule)
+            itemsPerCart.filter { e -> e.key != cartToUse }.map { it.value }.single()
+                .assertDoesNotExist(composeTestRule)
+            composeTestRule.onNodeWithText(cartToUse.cartName).performClick() // open cart selector
+        }
+
+        composeTestRule.onNodeWithText(cart1.cartName).performClick()
+        listOf("cart1-item0", "cart1-item2", "cart1-item4").assertIsDisplayed(composeTestRule)
+        listOf("cart1-item1", "cart1-item3", "cart1-item5").assertDoesNotExist(composeTestRule)
+
+        composeTestRule.onNodeWithText(cart1.cartName).performClick()
+        composeTestRule.onNodeWithText(cart2.cartName).performClick()
+
+        listOf("cart1-item1", "cart1-item3", "cart1-item5").assertIsDisplayed(composeTestRule)
+        listOf("cart1-item0", "cart1-item2", "cart1-item4").assertDoesNotExist(composeTestRule)
+
+        // check viewmodel / db
+
+
     }
 
     @Test
@@ -131,7 +158,6 @@ internal class ItemListTest {
         cartItems: List<CartItem> = emptyList(),
         carts: List<Cart> = emptyList(),
     ) = runBlocking {
-        val viewModel = CartViewModel(cartDao)
         carts.forEach { cartDao.save(it) }
         items.forEach { cartDao.save(it) }
         cartItems.forEach {

@@ -103,11 +103,11 @@ class CartViewModel(
         publish(newCartItem.item)
         publish(newCartItem.cartItemProperties)
         Log.d(tag, "+++\tCartItem\t $newCartItem")
-        itemMessageHandler(ItemMessage(newCartItem.item))
         cartMessageHandler(
             CartMessage(
-                listOf(newCartItem.cartItemProperties),
-                newCartItem.cartItemProperties.inCart
+                cartItemPropertiesList = listOf(newCartItem.cartItemProperties),
+                itemList = listOf(newCartItem.item),
+                cartId = newCartItem.cartItemProperties.inCart
             )
         )
     }
