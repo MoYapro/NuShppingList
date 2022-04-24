@@ -42,7 +42,9 @@ class ViewModelTest {
 
     @Before
     fun setup() {
+        cartDao.reset()
         viewModel = CartViewModel(cartDao)
+        Thread.sleep(100)
     }
 
     @After
@@ -129,7 +131,7 @@ class ViewModelTest {
         Thread.sleep(100)
         viewModel.getItemByItemId(itemToRemove.itemId) shouldBe itemToRemove
         viewModel.getCartItemPropertiesByItemId(itemToRemove.itemId) shouldBe null
-        cartDao.cartItemPropertiesTable shouldBe emptyList()
+        cartDao.cartItemPropertiesTable shouldBe emptySet()
     }
 
     @Test
@@ -258,10 +260,6 @@ class ViewModelTest {
             with(viewModel.cartItems.take(1).toList().flatten().single()) {
                 this.itemId shouldBe newItem.itemId
                 this.amount shouldBe (1 + i)
-            }
-            with(viewModel.allCartItems.take(1).toList().flatten().single()) {
-                this.cartItemProperties.itemId shouldBe newItem.itemId
-                this.cartItemProperties.amount shouldBe (1 + i)
             }
         }
     }
@@ -437,13 +435,13 @@ class ViewModelTest {
         val initialySelected = Cart().apply { selected = true; cartName = "initialySelected" }
         val eventuallySelected = Cart().apply { selected = false; cartName = "eventuallySelected" }
         viewModel.add(initialySelected)
-        Thread.sleep(100)
         viewModel.add(eventuallySelected)
         Thread.sleep(100)
         viewModel.getSelectedCart() shouldBe initialySelected
         viewModel.selectCart(eventuallySelected)
         Thread.sleep(100)
 
+        viewModel.getSelectedCart() shouldBe eventuallySelected.copy(selected = true)
         val carts: List<Cart> = cartDao.cartTable.toList()
         cartDao.cartTable shouldHaveSize 2
         carts.single { it.cartId == eventuallySelected.cartId }.selected shouldBe true
