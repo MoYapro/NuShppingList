@@ -189,7 +189,7 @@ class CartDaoMock(
 
     override suspend fun remove(cartItem: CartItemProperties) {
         Log.d(tag, "---\t Remove $cartItem")
-        cartItemPropertiesTable.remove(cartItem)
+        cartItemPropertiesTable.removeIf { it.cartItemId == cartItem.cartItemId }
         pushCartItemProperties()
 
     }
