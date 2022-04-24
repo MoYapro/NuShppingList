@@ -15,7 +15,7 @@ import kotlinx.coroutines.*
 
 class CartMessageHandler(
     val cartDao: CartDao,
-    val publisher: Publisher?,
+    val publisher: Publisher? = null,
 ) : suspend (CartMessage) -> Unit {
 
     private val tag = CartMessageHandler::class.simpleName

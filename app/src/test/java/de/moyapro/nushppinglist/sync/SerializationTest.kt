@@ -52,7 +52,7 @@ class SerializationTest {
     fun cartMessageSimple() {
         val cartId = CartId(UUID.fromString("9bec54bd-86d2-4741-a89c-b167032adc2e"))
         val expectedJson =
-            """{"cartItemPropertiesList":[],"cartId":"9bec54bd-86d2-4741-a89c-b167032adc2e"}"""
+            """{"cartId":"9bec54bd-86d2-4741-a89c-b167032adc2e"}"""
         val instance =
             CartMessage(
                 listOf(),

@@ -10,7 +10,7 @@ import de.moyapro.nushppinglist.util.takeIfNotDefault
 
 class ItemMessageHandler(
     val cartDao: CartDao,
-    val publisher: Publisher?,
+    val publisher: Publisher? = null,
 ) : suspend (ItemMessage) -> Unit {
 
     val tag = ItemMessageHandler::class.simpleName

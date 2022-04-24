@@ -124,12 +124,9 @@ class CartMessageHandlerTest {
         viewModel.add(cart)
         viewModel.add(cartItem)
         Thread.sleep(100)
-        val zeroCartItemProperties = cartItem.cartItemProperties.copy(
-            amount = 0,
-            checked = cartItem.cartItemProperties.checked
-        )
+        val zeroCartItemProperties = cartItem.cartItemProperties.copy(amount = 0)
         val request = CartMessage(listOf(zeroCartItemProperties), cart.cartId)
-        CartMessageHandler(cartDao, MockPublisher)(request)
+        CartMessageHandler(cartDao)(request)
         Thread.sleep(100)
         val result = viewModel.getCartItemPropertiesByItemId(cartItem.item.itemId)
         result shouldBe null
@@ -190,7 +187,8 @@ class CartMessageHandlerTest {
             amount = 32,
             checked = true,
         )
-        val updatedCartItemProperties = CartItemProperties().copy(inCart = originalCartItemProperties.inCart)
+        val updatedCartItemProperties =
+            CartItemProperties().copy(inCart = originalCartItemProperties.inCart)
         val result: CartItemProperties =
             handler.merge(originalCartItemProperties, updatedCartItemProperties)
 
@@ -200,7 +198,7 @@ class CartMessageHandlerTest {
         result.itemId shouldBe updatedCartItemProperties.itemId
         result.recipeId shouldBe updatedCartItemProperties.recipeId
         result.amount shouldBe originalCartItemProperties.amount
-        result.checked shouldBe originalCartItemProperties.checked
+        result.checked shouldBe updatedCartItemProperties.checked // checked is always used
     }
 
     @Test
