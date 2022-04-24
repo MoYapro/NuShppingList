@@ -36,9 +36,7 @@ fun EditTextField(
     OutlinedTextField(
         label = { Label(labelText = label ?: "") },
         value = initialValue,
-        onValueChange = { newValue ->
-            onValueChange(newValue)
-        },
+        onValueChange = { newValue -> onValueChange(newValue) },
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(
             onDone = {

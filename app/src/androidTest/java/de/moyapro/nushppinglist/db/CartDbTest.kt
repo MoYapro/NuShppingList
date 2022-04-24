@@ -47,6 +47,7 @@ class CartDbTest {
     fun writeAndLoadItem(): Unit = runBlocking {
         val item = Item("Milk")
         cartDao.save(item)
+        Thread.sleep(100)
         val dbItem = cartDao.findAllItems().first().first()
         item shouldBe dbItem
     }
@@ -143,7 +144,7 @@ class CartDbTest {
     fun saveNewItem(): Unit = runBlocking {
         repeat(10) { i ->
             viewModel.add(Item("item$i"))
-            Thread.sleep(10)
+            Thread.sleep(100)
             val items = cartDao.findAllItems().take(1).toList().flatten()
             items shouldHaveSize (i + 1)
         }

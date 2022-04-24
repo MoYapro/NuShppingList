@@ -19,7 +19,7 @@ class EditTextFieldTest {
     @Test
     fun textEditIsEditable() {
         val initialValue = "original"
-        var actionValue = ""
+        var actionValue = mutableListOf<String>()
         val textInput = "input"
         val expectedOutput = initialValue + textInput
         composeTestRule.setContent {
@@ -28,7 +28,7 @@ class EditTextFieldTest {
                     label = "Label",
                     initialValue = initialValue,
                     onValueChange = { x ->
-                        actionValue = x
+                        actionValue += x
                     })
             }
         }
@@ -38,7 +38,7 @@ class EditTextFieldTest {
         val editField = fields[0]
         editField.performTextInput(textInput)
         Thread.sleep(100)
-        actionValue shouldBe expectedOutput
+        actionValue.last() shouldBe expectedOutput
     }
 
 }
