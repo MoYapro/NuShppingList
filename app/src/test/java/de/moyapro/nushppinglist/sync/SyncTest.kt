@@ -157,7 +157,7 @@ class SyncTest {
         cartDaoBob.itemTable shouldContain item
     }
 
-    @Test(timeout = Long.MAX_VALUE)
+    @Test(timeout = 10_000)
     fun updateCartItem() {
         val cart = Cart().apply { synced = true }
         val originalCartItem = createSampleCartItem().apply { cartItemProperties.checked = false; cartItemProperties.inCart = cart.cartId }

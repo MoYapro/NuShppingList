@@ -42,7 +42,7 @@ class RequestCartMessageHandlerTest {
         MockPublisher.reset()
     }
 
-    @Test(timeout = Long.MAX_VALUE)
+    @Test(timeout = 10_000)
     fun handleCartRequest__success(): Unit = runBlocking {
         val cart = Cart()
         val cartItem1 = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }

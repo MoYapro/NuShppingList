@@ -52,22 +52,25 @@ class CartMessageHandlerTest {
     fun handleCartMessage__cartAndItemExists(): Unit = runBlocking {
         val cart = Cart()
         val cartItemList = listOf(
-            createSampleCartItem(),
-            createSampleCartItem()
+            CartItem("item1"),
+            CartItem("item2")
         )
         viewModel.add(cart)
+        Thread.sleep(100)
         cartItemList.forEach {
             it.cartItemProperties.inCart = cart.cartId
             viewModel.add(it)
         }
+        Thread.sleep(100)
         val requestWithUpdatedCartItems = CartMessage(
             cartItemList
                 .map { it.cartItemProperties }
                 .map { it.copy(checked = true) },
             cart.cartId,
         )
-        CartMessageHandler(cartDao, MockPublisher)(requestWithUpdatedCartItems)
+        CartMessageHandler(cartDao)(requestWithUpdatedCartItems)
         Thread.sleep(100)
+        cartDao.cartItemPropertiesTable shouldHaveSize 2
         cartItemList.map { it.item.itemId }.forEach { itemId ->
             val resultItem = cartDao.cartItemPropertiesTable.single { it.itemId == itemId }
             resultItem.itemId shouldBe itemId
@@ -95,7 +98,7 @@ class CartMessageHandlerTest {
         }
     }
 
-    @Test(timeout = Long.MAX_VALUE)
+    @Test(timeout = 10_000)
     fun handleCartRequest__success(): Unit = runBlocking {
         val cart = Cart()
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
