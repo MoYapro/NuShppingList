@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import SubscriptionTest
 import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,13 +14,16 @@ import de.moyapro.nushppinglist.constants.MainView.values
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
+import de.moyapro.nushppinglist.ui.model.SubscriptionViewModel
 import de.moyapro.nushppinglist.ui.test.AnimationTest
 import de.moyapro.nushppinglist.ui.test.ColorTest
+
 
 @Composable
 fun AppView(
     cartViewModel: CartViewModel,
     recipeViewModel: RecipeViewModel,
+    subscriptionViewModel: SubscriptionViewModel,
     context: Context,
     selectedView: MainView = SWITCHES.INITIAL_SCREEN,
 ) {
@@ -30,7 +34,7 @@ fun AppView(
     Column(Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = state) {
             values()
-                .filter { it.enabled || SWITCHES.SHOW_ALL_SCREENS}
+                .filter { it.enabled || SWITCHES.SHOW_ALL_SCREENS }
                 .forEachIndexed { index, mainView ->
                     Tab(
                         text = { Text(mainView.text) },
@@ -44,12 +48,14 @@ fun AppView(
         }
         when (displayedView) {
             MainView.EINKAUFSLISTE -> ItemList(cartViewModel)
+            MainView.SUBSCRIPTION_TEST -> SubscriptionTest(subscriptionViewModel)
             MainView.CART -> CartList(cartViewModel)
             MainView.REZEPTE -> RecipeListView(recipeViewModel, cartViewModel)
             MainView.MQTT_Test -> MqttTestView(context)
             MainView.COLOR_TEST -> ColorTest()
             MainView.ANIMATION_TEST -> AnimationTest()
             MainView.SETTINGS -> SettingsView()
+            else -> throw IllegalStateException("no main view for $displayedView")
         }
     }
 }

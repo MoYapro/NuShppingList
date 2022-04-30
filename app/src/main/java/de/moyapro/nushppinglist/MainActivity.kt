@@ -23,6 +23,7 @@ import de.moyapro.nushppinglist.sync.MqttSingleton
 import de.moyapro.nushppinglist.ui.AppView
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
+import de.moyapro.nushppinglist.ui.model.SubscriptionViewModel
 import de.moyapro.nushppinglist.ui.model.ViewModelFactory
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
 
     private val tag = MainActivity::class.simpleName
     private val database by lazy { AppDatabase.getDatabase(this) }
+    private val subscriptionViewModel by viewModels<SubscriptionViewModel>()
     private val cartViewModel by viewModels<CartViewModel>() {
         ViewModelFactory(database, MqttSingleton.adapter)
     }
@@ -67,6 +69,7 @@ class MainActivity : ComponentActivity() {
                 AppView(
                     cartViewModel,
                     recipeViewModel,
+                    subscriptionViewModel,
                     this.applicationContext
                 )
             }
