@@ -35,6 +35,7 @@ class CartViewModel(
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
     private var _selectedCart: Cart? = null
+    val selectedCart: Cart? = _selectedCart
 
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
     val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
@@ -44,25 +45,39 @@ class CartViewModel(
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
     private var _currentCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val currentCartItems = _currentCartItems
+    var job1 : Job? = null
+    var job2 : Job? = null
+    var job3 : Job? = null
+    var job4 : Job? = null
+    var job5 : Job? = null
+    var job6 : Job? = null
+    var job7 : Job? = null
     private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
     val allCartItemsGrouped: StateFlow<Map<RecipeId?, List<CartItem>>> = _allCartItemsGrouped
     private val _allCart = MutableStateFlow<List<Cart>>(emptyList())
     val allCart: StateFlow<List<Cart>> = _allCart
 
     init {
-        _cartItems.listenTo(cartDao.findAllInCart(), viewModelScope)
-        _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
-        _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
-        _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
+        job1?.cancel()
+        job2?.cancel()
+        job3?.cancel()
+        job4?.cancel()
+        job5?.cancel()
+        job2 = _cartItems.listenTo(cartDao.findAllInCart(), viewModelScope)
+        job3 = _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
+        job4 = _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
+        job5 = _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
         updateSelectedCart(_selectedCart)
 
     }
 
     private fun updateSelectedCart(cart: Cart?) {
         _selectedCart = cart
-        _currentCartItems.listenTo(cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
+        job1?.cancel()
+        job2?.cancel()
+        job1 = _currentCartItems.listenTo(cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
             viewModelScope)
-        _allCartItemsGrouped.listenTo(
+        job2 = _allCartItemsGrouped.listenTo(
             cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
             viewModelScope,
             ModelTransformation::groupCartItemsByRecipe
@@ -121,13 +136,6 @@ class CartViewModel(
     fun getItemByItemId(itemId: ItemId): Item? = runBlocking {
         Log.d(tag, "^^^\tItem by $itemId")
         cartDao.getItemByItemId(itemId)
-    }
-
-    fun getSelectedCart(): Cart? = runBlocking {
-        val selectedCart = cartDao.getSelectedCart()
-        updateSelectedCart(selectedCart)
-        Log.d(tag, "^^^\tselectedCart: $selectedCart")
-        selectedCart
     }
 
     fun getAutocompleteItems(searchString: String): List<String> {
@@ -227,7 +235,7 @@ class CartViewModel(
 
     fun selectCart(toBeSelected: Cart?) {
         Log.d(tag, "vvv\tselect Cart: $toBeSelected")
-        val previousSelectedCart = getSelectedCart()?.copy(selected = false)
+        val previousSelectedCart = selectedCart?.copy(selected = false)
         if (null != previousSelectedCart) {
             update(previousSelectedCart)
         }

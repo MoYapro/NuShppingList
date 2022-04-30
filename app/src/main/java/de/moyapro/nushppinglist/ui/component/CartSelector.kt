@@ -15,7 +15,7 @@ fun CartSelector(viewModel: CartViewModel) {
     val cartsAndEmpty = listOf(null) + carts
 
 
-    var selectedCart by remember { mutableStateOf(viewModel.getSelectedCart()) }
+    var selectedCart: Cart? by remember { mutableStateOf(viewModel.selectedCart) }
     if (carts.isNullOrEmpty()) {
         return
     }

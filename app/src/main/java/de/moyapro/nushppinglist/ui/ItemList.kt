@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.ui
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.constants.SETTING
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
 import de.moyapro.nushppinglist.db.model.Item
@@ -29,6 +31,7 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.util.ItemListProvider
 import de.moyapro.nushppinglist.util.SortCartItemPairByCheckedAndName
 import de.moyapro.nushppinglist.util.sumByBigDecimal
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -39,8 +42,21 @@ import java.math.BigDecimal
 @Preview
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel) {
     val allItemList: List<Item> by viewModel.allItems.collectAsState(listOf())
-    val cartItems: List<CartItem> by viewModel.currentCartItems.collectAsState(listOf())
-    val selectedCart by remember { mutableStateOf(viewModel.getSelectedCart()) }
+    val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(listOf())
+    val carts: List<Cart> by viewModel.allCart.collectAsState(listOf())
+
+    Cart does not update
+
+    val selectedCart by remember { mutableStateOf(viewModel.selectedCart) }
+    Column() {
+        Text("all cart items:")
+        cartItems.map{"${it.cartItemProperties.inCart?.id?.toString()?.substring(0..6)} - ${it.item.name} - ${it.cartItemProperties.amount}"}.forEach {
+            Text(it)
+        }
+        Text("all items")
+        Text(allItemList.joinToString { it.name })
+        Text("selected cart: ${selectedCart?.cartName}")
+    }
 
     var filter: String by remember { mutableStateOf("") }
 // is filtering on cartItemList executed every frame?
@@ -70,17 +86,39 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     val coroutineScope = rememberCoroutineScope()
     val clearFilter = { filter = "" }
 
+    mainLayout(displayNewItemFab,
+        viewModel,
+        filter,
+        total,
+        listState,
+        cartItemList,
+        coroutineScope,
+        clearFilter)
+}
+
+@Composable
+private fun mainLayout(
+    displayNewItemFab: Boolean,
+    viewModel: CartViewModel,
+    filter: String,
+    total: BigDecimal,
+    listState: LazyListState,
+    cartItemList: List<CartItem>,
+    coroutineScope: CoroutineScope,
+    clearFilter: () -> Unit,
+) {
+    var filter1 = filter
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
         floatingActionButton = if (displayNewItemFab) {
             {
                 FloatingActionButton(onClick = {
-                    viewModel.addToCart(filter.trim())
-                    filter =
+                    viewModel.addToCart(filter1.trim())
+                    filter1 =
                         if (MainActivity.preferences?.getBoolean(SETTING.CLEAR_AFTER_ADD.name,
                                 false) == true
                         )
-                            "" else filter.trim()
+                            "" else filter1.trim()
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Neu")
                 }
@@ -89,71 +127,96 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
             {} // emptyFab
         },
         topBar = {
-            Column() {
-                Row() {
-                    removeCheckedButton(viewModel)
-                    CartSelector(viewModel)
-                }
-                SumDisplay(total)
-            }
+            itemTopBar(viewModel, total)
         },
         content = { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                LazyColumn(
-                    modifier = Modifier.padding(innerPadding),
-                    verticalArrangement = Arrangement.spacedBy(1.dp),
-                    state = listState,
-                ) {
-                    items(count = cartItemList.size) { index ->
-                        val cartItem = cartItemList[index]
-                        ItemListElement(
-                            cartItem = cartItem,
-                            toggleCheckAction = viewModel::toggleChecked,
-                            saveAction = viewModel::update,
-                            addAction = viewModel::addToCart,
-                            deleteAction = viewModel::removeItem,
-                            subtractAction = viewModel::subtractFromCart,
-                            scrollIntoViewAction = {
-                                coroutineScope.launch {
-                                    listState.animateScrollToItem(index)
-                                }
-                            }
-                        )
-                    }
-                    item { Spacer(modifier = Modifier.height(240.dp)) }
-                }
-            }
+            itemListView(innerPadding, listState, cartItemList, viewModel, coroutineScope)
         },
         bottomBar = {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                EditTextField(
-                    initialValue = filter,
-                    onValueChange = { filter = it },
-                    widthPercentage = .8F,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    doneAction = clearFilter
-                )
-                Button(
-                    modifier = Modifier
-                        .absolutePadding(top = 7.dp, left = 4.dp)
-                        .fillMaxWidth()
-                        .height(57.dp),
-                    shape = RoundedCornerShape(topStart = 4.dp),
-                    onClick = clearFilter
-                ) {
-                    Icon(Icons.Filled.Clear, contentDescription = "Leeren")
-                }
-            }
+            FilterTextField(filter1, clearFilter)
         }
     )
+}
+
+@Composable
+private fun itemTopBar(
+    viewModel: CartViewModel,
+    total: BigDecimal,
+) {
+    Column() {
+        Row() {
+            removeCheckedButton(viewModel)
+            CartSelector(viewModel)
+        }
+        SumDisplay(total)
+    }
+}
+
+@Composable
+private fun itemListView(
+    innerPadding: PaddingValues,
+    listState: LazyListState,
+    cartItemList: List<CartItem>,
+    viewModel: CartViewModel,
+    coroutineScope: CoroutineScope,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        LazyColumn(
+            modifier = Modifier.padding(innerPadding),
+            verticalArrangement = Arrangement.spacedBy(1.dp),
+            state = listState,
+        ) {
+            items(count = cartItemList.size) { index ->
+                val cartItem = cartItemList[index]
+                ItemListElement(
+                    cartItem = cartItem,
+                    toggleCheckAction = viewModel::toggleChecked,
+                    saveAction = viewModel::update,
+                    addAction = viewModel::addToCart,
+                    deleteAction = viewModel::removeItem,
+                    subtractAction = viewModel::subtractFromCart,
+                    scrollIntoViewAction = {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(index)
+                        }
+                    }
+                )
+            }
+            item { Spacer(modifier = Modifier.height(240.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun FilterTextField(filter: String, clearFilter: () -> Unit) {
+    var filter1 = filter
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        EditTextField(
+            initialValue = filter1,
+            onValueChange = { filter1 = it },
+            widthPercentage = .8F,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            doneAction = clearFilter
+        )
+        Button(
+            modifier = Modifier
+                .absolutePadding(top = 7.dp, left = 4.dp)
+                .fillMaxWidth()
+                .height(57.dp),
+            shape = RoundedCornerShape(topStart = 4.dp),
+            onClick = clearFilter
+        ) {
+            Icon(Icons.Filled.Clear, contentDescription = "Leeren")
+        }
+    }
 }
 
 @Composable
