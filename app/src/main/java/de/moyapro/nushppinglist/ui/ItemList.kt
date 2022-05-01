@@ -37,9 +37,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
-const val tag = "itemListView"
-
-
 @FlowPreview
 @Composable
 @Preview
@@ -75,12 +72,10 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
 
     val coroutineScope = rememberCoroutineScope()
     val clearFilter = { filter = "" }
-    val updateFilter = {newFilter: String ->
-    Log.i(tag, "update filter to: $newFilter")
-        filter = newFilter
-    }
+    val updateFilter = { newFilter: String -> filter = newFilter }
 
-    mainLayout(displayNewItemFab,
+    mainLayout(
+        displayNewItemFab,
         viewModel,
         filter,
         total,
@@ -211,7 +206,11 @@ private fun itemListView(
 }
 
 @Composable
-private fun FilterTextField(filter: String, clearFilter: () -> Unit, updateFilter: (String) -> Unit) {
+private fun FilterTextField(
+    filter: String,
+    clearFilter: () -> Unit,
+    updateFilter: (String) -> Unit,
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom,
