@@ -45,9 +45,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(listOf())
     val carts: List<Cart> by viewModel.allCart.collectAsState(listOf())
 
-    Cart does not update
-
-    val selectedCart by remember { mutableStateOf(viewModel.selectedCart) }
+    val selectedCart: Cart? by viewModel.selectedCart.collectAsState(null)
     Column() {
         Text("all cart items:")
         cartItems.map{"${it.cartItemProperties.inCart?.id?.toString()?.substring(0..6)} - ${it.item.name} - ${it.cartItemProperties.amount}"}.forEach {

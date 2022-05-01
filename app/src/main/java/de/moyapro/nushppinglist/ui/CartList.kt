@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.db.model.Cart
+import de.moyapro.nushppinglist.ui.component.CartSelector
 import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 
@@ -48,8 +49,12 @@ fun CartList(viewModel: CartViewModel) {
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
         topBar = {
-            Button(onClick = viewModel::requestCartList) {
-                Icon(Icons.Filled.Refresh, contentDescription = "Löschen")
+            Row() {
+                CartSelector(viewModel)
+
+                Button(onClick = viewModel::requestCartList) {
+                    Icon(Icons.Filled.Refresh, contentDescription = "Löschen")
+                }
             }
         },
         floatingActionButton = if (displayNewCartFab) {

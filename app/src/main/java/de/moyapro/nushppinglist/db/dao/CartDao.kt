@@ -59,6 +59,10 @@ interface CartDao {
     fun findAllCart(): Flow<List<Cart>>
 
     @Transaction
+    @Query("select * from Cart c where c.selected")
+    fun findSelectedCart(): Flow<Cart?>
+
+    @Transaction
     @Query("select * from Cart c where c.synced")
     suspend fun getSyncedCarts(): List<Cart>
 
@@ -134,6 +138,10 @@ interface CartDao {
     @Transaction
     @Delete
     suspend fun remove(item: Cart)
+
+
+    @Query("update Cart SET selected = (:cartId is not null and cartId = :cartId)")
+    suspend fun selectCart(cartId: UUID?)
 
 }
 

@@ -141,6 +141,10 @@ class CartDaoMock(
         return cartFlow
     }
 
+    override fun findSelectedCart(): Flow<Cart?> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getSyncedCarts(): List<Cart> {
         return cartTable.filter(Cart::synced)
     }
@@ -202,6 +206,10 @@ class CartDaoMock(
     override suspend fun remove(cart: Cart) {
         cartTable.remove(cart)
         pushCart()
+    }
+
+    override suspend fun selectCart(cartId: UUID?) {
+        TODO("Not yet implemented")
     }
 
     override suspend fun getCartByCartId_internal(cartId: UUID): Cart? {

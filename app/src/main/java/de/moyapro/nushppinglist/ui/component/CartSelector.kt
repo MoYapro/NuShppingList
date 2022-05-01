@@ -3,7 +3,9 @@ package de.moyapro.nushppinglist.ui.component
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.Cart
@@ -15,7 +17,7 @@ fun CartSelector(viewModel: CartViewModel) {
     val cartsAndEmpty = listOf(null) + carts
 
 
-    var selectedCart: Cart? by remember { mutableStateOf(viewModel.selectedCart) }
+    val selectedCart: Cart? by viewModel.selectedCart.collectAsState(null)
     if (carts.isNullOrEmpty()) {
         return
     }
@@ -26,7 +28,6 @@ fun CartSelector(viewModel: CartViewModel) {
             initialValue = selectedCart,
             values = cartsAndEmpty,
             onValueChange = {
-                selectedCart = it
                 viewModel.selectCart(it)
             },
             itemLabel = { it?.cartName ?: "Alle Listen" },

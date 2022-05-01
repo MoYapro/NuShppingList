@@ -34,8 +34,8 @@ class CartViewModel(
 
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
-    private var _selectedCart: Cart? = null
-    val selectedCart: Cart? = _selectedCart
+    private var _selectedCart = MutableStateFlow<Cart?>(null)
+    val selectedCart: MutableStateFlow<Cart?> = _selectedCart
 
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
     val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
@@ -45,13 +45,13 @@ class CartViewModel(
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
     private var _currentCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val currentCartItems = _currentCartItems
-    var job1 : Job? = null
-    var job2 : Job? = null
-    var job3 : Job? = null
-    var job4 : Job? = null
-    var job5 : Job? = null
-    var job6 : Job? = null
-    var job7 : Job? = null
+    var job1: Job? = null
+    var job2: Job? = null
+    var job3: Job? = null
+    var job4: Job? = null
+    var job5: Job? = null
+    var job6: Job? = null
+    var job7: Job? = null
     private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
     val allCartItemsGrouped: StateFlow<Map<RecipeId?, List<CartItem>>> = _allCartItemsGrouped
     private val _allCart = MutableStateFlow<List<Cart>>(emptyList())
@@ -67,18 +67,19 @@ class CartViewModel(
         job3 = _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
         job4 = _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
         job5 = _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
-        updateSelectedCart(_selectedCart)
+        job6 = _selectedCart.listenTo(cartDao.findSelectedCart(), viewModelScope)
 
     }
 
-    private fun updateSelectedCart(cart: Cart?) {
-        _selectedCart = cart
+    private suspend fun updateSelectedCart(cart: Cart?) {
+        cartDao.selectCart(cart?.cartId?.id)
         job1?.cancel()
         job2?.cancel()
-        job1 = _currentCartItems.listenTo(cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
-            viewModelScope)
+        job1 =
+            _currentCartItems.listenTo(cartDao.findAllSelectedCartItems(_selectedCart.value?.cartId),
+                viewModelScope)
         job2 = _allCartItemsGrouped.listenTo(
-            cartDao.findAllSelectedCartItems(_selectedCart?.cartId),
+            cartDao.findAllSelectedCartItems(_selectedCart.value?.cartId),
             viewModelScope,
             ModelTransformation::groupCartItemsByRecipe
         )
@@ -146,9 +147,9 @@ class CartViewModel(
 
     fun addToCart(item: Item) = viewModelScope.launch(Dispatchers.IO) {
         val existingCartItem: CartItemProperties? =
-            cartDao.getCartItemByItemId(item.itemId, _selectedCart?.cartId)
+            cartDao.getCartItemByItemId(item.itemId, _selectedCart.value?.cartId)
         if (null == existingCartItem) {
-            add(CartItem(item).apply { cartItemProperties.inCart = _selectedCart?.cartId })
+            add(CartItem(item).apply { cartItemProperties.inCart = _selectedCart.value?.cartId })
         } else {
             val updatedCartItemProperties =
                 existingCartItem.copy(amount = existingCartItem.amount + 1)
@@ -163,7 +164,7 @@ class CartViewModel(
     fun addToCart(recipeItem: RecipeItem) = viewModelScope.launch(Dispatchers.IO) {
         Log.d(tag, "+++\tRecipeItem\t $recipeItem")
         val existingCartItem: CartItemProperties? =
-            cartDao.getCartItemByItemId(recipeItem.item.itemId, _selectedCart?.cartId)
+            cartDao.getCartItemByItemId(recipeItem.item.itemId, _selectedCart.value?.cartId)
         if (null == existingCartItem) {
             val newItem = CartItem(recipeItem.item)
             newItem.cartItemProperties.recipeId = recipeItem.recipeId
@@ -182,9 +183,9 @@ class CartViewModel(
             Log.d(tag, "create new item from name: $itemName")
             add(CartItem(itemName))
         } else {
-            Log.d(tag, "add item with name $itemName to cart ${_selectedCart?.cartId}")
+            Log.d(tag, "add item with name $itemName to cart ${_selectedCart.value?.cartId}")
             val existingCartItem =
-                cartDao.getCartItemByItemId(existingItem.itemId, _selectedCart?.cartId)
+                cartDao.getCartItemByItemId(existingItem.itemId, _selectedCart.value?.cartId)
             if (null == existingCartItem) {
                 cartMessageHandler(CartMessage(listOf(CartItem(existingItem).cartItemProperties)))
             } else {
@@ -203,7 +204,7 @@ class CartViewModel(
 
     fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? = runBlocking {
         Log.d(tag, "^^^\tItem by $itemId")
-        cartDao.getCartItemByItemId(itemId, _selectedCart?.cartId)
+        cartDao.getCartItemByItemId(itemId, _selectedCart.value?.cartId)
     }
 
     fun addRecipeToCart(recipe: Recipe) {
@@ -212,7 +213,7 @@ class CartViewModel(
 
     fun subtractFromCart(itemId: ItemId) = viewModelScope.launch(Dispatchers.IO) {
         val updatedCartItemProperties =
-            cartDao.getCartItemByItemId(itemId, _selectedCart?.cartId)?.apply {
+            cartDao.getCartItemByItemId(itemId, _selectedCart.value?.cartId)?.apply {
                 amount -= 1
             }
         if (null != updatedCartItemProperties) {
@@ -223,7 +224,7 @@ class CartViewModel(
     fun removeItem(itemToRemove: Item) = viewModelScope.launch(Dispatchers.IO) {
         cartDao.remove(itemToRemove)
         val cartItemProperties =
-            cartDao.getCartItemByItemId(itemToRemove.itemId, _selectedCart?.cartId)
+            cartDao.getCartItemByItemId(itemToRemove.itemId, _selectedCart.value?.cartId)
         if (null != cartItemProperties) {
             cartDao.remove(cartItemProperties)
         }
@@ -233,16 +234,9 @@ class CartViewModel(
         cartDao.remove(cartToRemove)
     }
 
-    fun selectCart(toBeSelected: Cart?) {
+    fun selectCart(toBeSelected: Cart?) = runBlocking {
         Log.d(tag, "vvv\tselect Cart: $toBeSelected")
-        val previousSelectedCart = selectedCart?.copy(selected = false)
-        if (null != previousSelectedCart) {
-            update(previousSelectedCart)
-        }
-        val newlySelectedCart = toBeSelected?.copy(selected = true)
-        if (null != newlySelectedCart) {
-            update(newlySelectedCart)
-        }
+        cartDao.selectCart(toBeSelected?.cartId?.id)
         updateSelectedCart(toBeSelected)
     }
 
@@ -255,8 +249,8 @@ class CartViewModel(
     }
 
     fun publish(cartItemProperties: CartItemProperties) {
-        if (_selectedCart?.synced == true || null != _selectedCart?.cartId) {
-            val cartMessage = CartMessage(listOf(cartItemProperties), _selectedCart!!.cartId)
+        if (_selectedCart.value?.synced == true || null != _selectedCart.value?.cartId) {
+            val cartMessage = CartMessage(listOf(cartItemProperties), _selectedCart.value!!.cartId)
             publisher?.publish(cartMessage)
         }
     }
