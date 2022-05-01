@@ -142,7 +142,6 @@ interface CartDao {
 
     @Query("update Cart SET selected = (:cartId is not null and cartId = :cartId)")
     suspend fun selectCart(cartId: UUID?)
-
 }
 
 suspend fun CartDao.getCartItemByCartItemPropertiesId(cartItemPropertiesId: UUID)=

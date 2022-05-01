@@ -424,7 +424,7 @@ class ViewModelTest {
         viewModel.add(selectedCart)
         viewModel.add(notSelectedCart)
         Thread.sleep(100)
-        val result = viewModel.getSelectedCart()
+        val result =  viewModel.selectedCart.take(1).toList().singleOrNull()
 
         result shouldBe selectedCart
 
@@ -437,11 +437,11 @@ class ViewModelTest {
         viewModel.add(initialySelected)
         viewModel.add(eventuallySelected)
         Thread.sleep(100)
-        viewModel.getSelectedCart() shouldBe initialySelected
+        viewModel.selectedCart.take(1).toList().singleOrNull() shouldBe initialySelected
         viewModel.selectCart(eventuallySelected)
         Thread.sleep(100)
 
-        viewModel.getSelectedCart() shouldBe eventuallySelected.copy(selected = true)
+        viewModel.selectedCart.take(1).toList().singleOrNull() shouldBe eventuallySelected.copy(selected = true)
         val carts: List<Cart> = cartDao.cartTable.toList()
         cartDao.cartTable shouldHaveSize 2
         carts.single { it.cartId == eventuallySelected.cartId }.selected shouldBe true

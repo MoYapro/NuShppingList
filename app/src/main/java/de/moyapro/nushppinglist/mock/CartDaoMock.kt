@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -142,7 +143,7 @@ class CartDaoMock(
     }
 
     override fun findSelectedCart(): Flow<Cart?> {
-        TODO("Not yet implemented")
+        return cartFlow.map { it.firstOrNull { cart -> cart.selected } }
     }
 
     override suspend fun getSyncedCarts(): List<Cart> {
@@ -209,7 +210,7 @@ class CartDaoMock(
     }
 
     override suspend fun selectCart(cartId: UUID?) {
-        TODO("Not yet implemented")
+        cartTable.forEach { it.selected = (it.cartId.id == cartId) }
     }
 
     override suspend fun getCartByCartId_internal(cartId: UUID): Cart? {

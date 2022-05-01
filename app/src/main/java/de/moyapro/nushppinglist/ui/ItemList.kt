@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.MainActivity
 import de.moyapro.nushppinglist.constants.SETTING
+import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
@@ -43,26 +44,15 @@ import java.math.BigDecimal
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel) {
     val allItemList: List<Item> by viewModel.allItems.collectAsState(listOf())
     val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(listOf())
-    val carts: List<Cart> by viewModel.allCart.collectAsState(listOf())
-
     val selectedCart: Cart? by viewModel.selectedCart.collectAsState(null)
-    Column() {
-        Text("all cart items:")
-        cartItems.map{"${it.cartItemProperties.inCart?.id?.toString()?.substring(0..6)} - ${it.item.name} - ${it.cartItemProperties.amount}"}.forEach {
-            Text(it)
-        }
-        Text("all items")
-        Text(allItemList.joinToString { it.name })
-        Text("selected cart: ${selectedCart?.cartName}")
-    }
+    if (SWITCHES.DEBUG) debug(cartItems, allItemList, selectedCart)
 
     var filter: String by remember { mutableStateOf("") }
-// is filtering on cartItemList executed every frame?
     val filteredItems = allItemList.filter { it.name.lowercase().contains(filter.lowercase()) }
     val cartItemList: List<CartItem> = filteredItems
         .map { item ->
             val cartItem =
-                cartItems.firstOrNull { it.item.itemId == item.itemId && (null == selectedCart || selectedCart?.cartId == it.cartItemProperties.inCart) }
+                cartItems.firstOrNull { it.item.itemId == item.itemId && (selectedCart?.cartId == it.cartItemProperties.inCart) }
             cartItem
                 ?: CartItem(
                     CartItemProperties(
@@ -92,6 +82,27 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         cartItemList,
         coroutineScope,
         clearFilter)
+}
+
+@Composable
+private fun debug(
+    cartItems: List<CartItem>,
+    allItemList: List<Item>,
+    selectedCart: Cart?,
+) {
+    Column() {
+        Text("all cart items:")
+        cartItems.map {
+            "${
+                it.cartItemProperties.inCart?.id?.toString()?.substring(0..6)
+            } - ${it.item.name} - ${it.cartItemProperties.amount}"
+        }.forEach {
+            Text(it)
+        }
+        Text("all items")
+        Text(allItemList.joinToString { it.name })
+        Text("selected cart: ${selectedCart?.cartName}")
+    }
 }
 
 @Composable

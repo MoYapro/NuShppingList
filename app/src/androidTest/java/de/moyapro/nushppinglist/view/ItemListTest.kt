@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART_NAME
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
@@ -66,7 +67,7 @@ internal class ItemListTest {
         itemsPerCart[cart1] = mutableListOf()
         itemsPerCart[cart2] = mutableListOf()
         createComposable(emptyList())
-        composeTestRule.onNodeWithText("Alle Listen").performClick()
+        composeTestRule.onNodeWithText(DEFAULT_CART_NAME).performClick()
         repeat(6) { i ->
             val cartToUse = carts[i % 2]
             val itemName = "${cartToUse.cartName}-item$i"
@@ -138,7 +139,7 @@ internal class ItemListTest {
         createComposable(carts = carts, cartItems = listOf(cartItem1, cartItem2, cartItem3))
         listOf("item1", "item2", "item3", "101", "202", "303").assertIsDisplayed(composeTestRule)
 
-        composeTestRule.onNodeWithText("Alle Listen").performClick()
+        composeTestRule.onNodeWithText(DEFAULT_CART_NAME).performClick()
         composeTestRule.onNodeWithText("cart1").performClick()
         Thread.sleep(100)
         listOf("item1", "item2", "item3", "101").assertIsDisplayed(composeTestRule)

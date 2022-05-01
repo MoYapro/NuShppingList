@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART_NAME
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -24,13 +25,13 @@ fun CartSelector(viewModel: CartViewModel) {
     Column() {
 
         Dropdown(
-            label = "Alle Listen",
+            label = DEFAULT_CART_NAME,
             initialValue = selectedCart,
             values = cartsAndEmpty,
             onValueChange = {
                 viewModel.selectCart(it)
             },
-            itemLabel = { it?.cartName ?: "Alle Listen" },
+            itemLabel = { it?.cartName ?: DEFAULT_CART_NAME },
             modifier = Modifier.fillMaxWidth()
         )
         if (SWITCHES.DEBUG) {

@@ -23,6 +23,8 @@ object CONSTANTS {
         RequestItemMessage::class to MQTT_TOPIC_ITEM_REQUEST,
     )
 
+    const val DEFAULT_CART_NAME = "Einkauf"
+
     const val MUTED_ALPHA = .7F
 
     const val CHECKED = true

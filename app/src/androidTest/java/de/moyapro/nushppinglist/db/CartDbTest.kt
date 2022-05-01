@@ -10,6 +10,7 @@ import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.util.DbTestHelper
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -171,7 +172,7 @@ class CartDbTest {
         viewModel.add(selectedCart)
         viewModel.add(notSelectedCart)
         Thread.sleep(100)
-        val result = viewModel.getSelectedCart()
+        val result = viewModel.selectedCart.take(1).toList().singleOrNull()
 
         result shouldBe selectedCart
     }
@@ -200,7 +201,7 @@ class CartDbTest {
         savedCarts.forEach { savedCart ->
             viewModel.selectCart(savedCart)
             Thread.sleep(100)
-            val currentlySelectedCart = viewModel.getSelectedCart()
+            val currentlySelectedCart =  viewModel.selectedCart.take(1).toList().singleOrNull()
             currentlySelectedCart?.cartId shouldBe savedCart.cartId
         }
 
@@ -219,8 +220,8 @@ class CartDbTest {
                 })
             }
         }
-        Thread.sleep(100)
-        viewModel.getSelectedCart() shouldBe null
+        Thread.sleep(1000)
+        viewModel.selectedCart.take(1).toList().singleOrNull() shouldBe null
         val savedCarts = viewModel.allCart.take(1).toList().flatten()
         savedCarts shouldHaveSize numberOfCarts
         val savedItems = viewModel.allCartItems.take(1).toList()
@@ -229,12 +230,12 @@ class CartDbTest {
 
         savedCarts.forEach { cart ->
             viewModel.selectCart(cart)
-            Thread.sleep(100)
-            viewModel.getSelectedCart() shouldBe cart.copy(selected = true)
+            Thread.sleep(1000)
+            viewModel.selectedCart.take(1).toList().singleOrNull() shouldBe cart.copy(selected = true)
             val itemsInCartGrouped =
                 viewModel.allCartItemsGrouped.take(1).toList().first().values.flatten()
             itemsInCartGrouped.map { it.item.name }
-                .all { name -> name.contains(cart.cartName) } shouldBe true
+                .forEach { itemName -> itemName shouldContain cart.cartName }
         }
     }
 }

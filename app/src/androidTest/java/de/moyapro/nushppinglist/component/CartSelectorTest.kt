@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART_NAME
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.ui.component.CartSelector
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -36,20 +37,20 @@ class CartSelectorTest {
             viewModel.add(Cart("cart $i"))
         }
         Thread.sleep(100)
-        viewModel.getSelectedCart() shouldBe null
+        viewModel.selectedCart.take(1).toList().singleOrNull() shouldBe null
         composeTestRule.setContent {
             NuShppingListTheme {
                 CartSelector(viewModel)
             }
         }
-        composeTestRule.onNodeWithText("Alle Listen").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Alle Listen").performClick()
+        composeTestRule.onNodeWithText(DEFAULT_CART_NAME).assertIsDisplayed()
+        composeTestRule.onNodeWithText(DEFAULT_CART_NAME).performClick()
 
         repeat(numbers.count()) { number ->
             val currentCartName = "cart $number"
             composeTestRule.onNodeWithText(currentCartName).performClick() // select cart
             Thread.sleep(100)
-            with(viewModel.getSelectedCart()) {
+            with(viewModel.selectedCart.take(1).toList().single()) {
                 this?.cartName shouldBe currentCartName
                 this?.selected shouldBe true
             }
