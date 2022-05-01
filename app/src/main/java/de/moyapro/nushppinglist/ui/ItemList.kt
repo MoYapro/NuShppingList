@@ -37,6 +37,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
+const val tag = "itemListView"
+
 
 @FlowPreview
 @Composable
@@ -73,6 +75,10 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
 
     val coroutineScope = rememberCoroutineScope()
     val clearFilter = { filter = "" }
+    val updateFilter = {newFilter: String ->
+    Log.i(tag, "update filter to: $newFilter")
+        filter = newFilter
+    }
 
     mainLayout(displayNewItemFab,
         viewModel,
@@ -81,7 +87,9 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         listState,
         cartItemList,
         coroutineScope,
-        clearFilter)
+        clearFilter,
+        updateFilter,
+    )
 }
 
 @Composable
@@ -115,19 +123,20 @@ private fun mainLayout(
     cartItemList: List<CartItem>,
     coroutineScope: CoroutineScope,
     clearFilter: () -> Unit,
+    updateFilter: (String) -> Unit,
 ) {
-    var filter1 = filter
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
         floatingActionButton = if (displayNewItemFab) {
             {
                 FloatingActionButton(onClick = {
-                    viewModel.addToCart(filter1.trim())
-                    filter1 =
+                    viewModel.addToCart(filter.trim())
+                    updateFilter(
                         if (MainActivity.preferences?.getBoolean(SETTING.CLEAR_AFTER_ADD.name,
                                 false) == true
                         )
-                            "" else filter1.trim()
+                            "" else filter.trim()
+                    )
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Neu")
                 }
@@ -142,7 +151,7 @@ private fun mainLayout(
             itemListView(innerPadding, listState, cartItemList, viewModel, coroutineScope)
         },
         bottomBar = {
-            FilterTextField(filter1, clearFilter)
+            FilterTextField(filter, clearFilter, updateFilter)
         }
     )
 }
@@ -202,15 +211,14 @@ private fun itemListView(
 }
 
 @Composable
-private fun FilterTextField(filter: String, clearFilter: () -> Unit) {
-    var filter1 = filter
+private fun FilterTextField(filter: String, clearFilter: () -> Unit, updateFilter: (String) -> Unit) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom,
     ) {
         EditTextField(
-            initialValue = filter1,
-            onValueChange = { filter1 = it },
+            initialValue = filter,
+            onValueChange = updateFilter,
             widthPercentage = .8F,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             doneAction = clearFilter
