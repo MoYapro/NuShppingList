@@ -1,13 +1,14 @@
 package de.moyapro.nushppinglist.ui.util
 
-fun waitFor(timeout: Long = 5000, predicate: () -> Boolean) {
+fun waitFor(timeout: Long = 5000, predicate: () -> Boolean): Boolean {
     val startTime = System.currentTimeMillis()
     val endTime = startTime + timeout
     while (true) {
-        if (predicate()) return
-        if (endTime < System.currentTimeMillis()) throw IllegalStateException("condition was not met after $timeout milliseconds")
+        if (predicate()) return true
+        if (endTime < System.currentTimeMillis()) return false
         Thread.sleep(100)
     }
+    return false
 }
 
 suspend fun <T> Iterable<T>.forEach(action: suspend (T) -> Unit) {

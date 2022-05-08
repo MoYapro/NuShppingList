@@ -17,10 +17,14 @@ class SyncService(
 
     init {
         Log.d(tag, "try to establish mqtt connection using client: ${serviceAdapter.clientIdentifier}")
-        waitFor { serviceAdapter.isConnected() }
-        serviceAdapter.setHandler(MessageHandler.build(serviceAdapter, cartDao))
-        serviceAdapter.subscribe()
-        Log.d(tag, "successfully connected to mqtt server using client: ${serviceAdapter.clientIdentifier}")
+        if(waitFor { serviceAdapter.isConnected() }) {
+            serviceAdapter.setHandler(MessageHandler.build(serviceAdapter, cartDao))
+            serviceAdapter.subscribe()
+            Log.d(tag,
+                "successfully connected to mqtt server using client: ${serviceAdapter.clientIdentifier}")
+        } else {
+            Log.i(tag, "Could not connect to sync service")
+        }
     }
 
     fun isConnected() = serviceAdapter.isConnected()

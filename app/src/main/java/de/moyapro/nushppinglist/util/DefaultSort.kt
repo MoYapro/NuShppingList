@@ -25,6 +25,7 @@ object SortCartItemPairByCheckedAndNameRecipe : Comparator<Pair<RecipeId?, CartI
 object SortCartItemPairByCheckedAndName : Comparator<CartItem> {
 
     override fun compare(p0: CartItem, p1: CartItem): Int {
+//        Log.i("sorting", "sort item list")
         val compareChecked =
             p0.cartItemProperties.checked.compareTo(p1.cartItemProperties.checked)
         return if (0 == compareChecked) {
