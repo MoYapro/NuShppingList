@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.findAllSelectedCartItems
 import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
@@ -34,8 +35,8 @@ class CartViewModel(
 
     constructor() : this(CartDaoMock(CoroutineScope(Dispatchers.IO + SupervisorJob())))
 
-    private var _selectedCart = MutableStateFlow<Cart?>(null)
-    val selectedCart: MutableStateFlow<Cart?> = _selectedCart
+    private var _selectedCart = MutableStateFlow(DEFAULT_CART)
+    val selectedCart: MutableStateFlow<Cart> = _selectedCart
 
     private val _cartItems = MutableStateFlow<List<CartItemProperties>>(emptyList())
     val cartItems: StateFlow<List<CartItemProperties>> = _cartItems
@@ -76,10 +77,10 @@ class CartViewModel(
         job1?.cancel()
         job2?.cancel()
         job1 =
-            _currentCartItems.listenTo(cartDao.findAllSelectedCartItems(_selectedCart.value?.cartId),
+            _currentCartItems.listenTo(cartDao.findAllSelectedCartItems(_selectedCart.value.cartId),
                 viewModelScope)
         job2 = _allCartItemsGrouped.listenTo(
-            cartDao.findAllSelectedCartItems(_selectedCart.value?.cartId),
+            cartDao.findAllSelectedCartItems(_selectedCart.value.cartId),
             viewModelScope,
             ModelTransformation::groupCartItemsByRecipe
         )
@@ -147,9 +148,9 @@ class CartViewModel(
 
     fun addToCart(item: Item) = viewModelScope.launch(Dispatchers.IO) {
         val existingCartItem: CartItemProperties? =
-            cartDao.getCartItemByItemId(item.itemId, _selectedCart.value?.cartId)
+            cartDao.getCartItemByItemId(item.itemId, _selectedCart.value.cartId)
         if (null == existingCartItem) {
-            add(CartItem(item).apply { cartItemProperties.inCart = _selectedCart.value?.cartId })
+            add(CartItem(item, _selectedCart.value.cartId))
         } else {
             val updatedCartItemProperties =
                 existingCartItem.copy(amount = existingCartItem.amount + 1)
@@ -164,9 +165,9 @@ class CartViewModel(
     fun addToCart(recipeItem: RecipeItem) = viewModelScope.launch(Dispatchers.IO) {
         Log.d(tag, "+++\tRecipeItem\t $recipeItem")
         val existingCartItem: CartItemProperties? =
-            cartDao.getCartItemByItemId(recipeItem.item.itemId, _selectedCart.value?.cartId)
+            cartDao.getCartItemByItemId(recipeItem.item.itemId, _selectedCart.value.cartId)
         if (null == existingCartItem) {
-            val newItem = CartItem(recipeItem.item)
+            val newItem = CartItem(recipeItem.item, _selectedCart.value.cartId)
             newItem.cartItemProperties.recipeId = recipeItem.recipeId
             add(newItem)
         } else {
@@ -181,13 +182,14 @@ class CartViewModel(
         val existingItem: Item? = cartDao.getItemByItemName(itemName)
         if (null == existingItem) {
             Log.d(tag, "create new item from name: $itemName")
-            add(CartItem(itemName))
+            add(CartItem(itemName, _selectedCart.value.cartId))
         } else {
-            Log.d(tag, "add item with name $itemName to cart ${_selectedCart.value?.cartId}")
+            Log.d(tag, "add item with name $itemName to cart ${_selectedCart.value.cartId}")
             val existingCartItem =
-                cartDao.getCartItemByItemId(existingItem.itemId, _selectedCart.value?.cartId)
+                cartDao.getCartItemByItemId(existingItem.itemId, _selectedCart.value.cartId)
             if (null == existingCartItem) {
-                cartMessageHandler(CartMessage(listOf(CartItem(existingItem).cartItemProperties)))
+                cartMessageHandler(CartMessage(listOf(CartItem(existingItem,
+                    _selectedCart.value.cartId).cartItemProperties)))
             } else {
                 cartMessageHandler(CartMessage(listOf(existingCartItem.copy(amount = existingCartItem.amount + 1))))
             }
@@ -204,7 +206,7 @@ class CartViewModel(
 
     fun getCartItemPropertiesByItemId(itemId: ItemId): CartItemProperties? = runBlocking {
         Log.d(tag, "^^^\tItem by $itemId")
-        cartDao.getCartItemByItemId(itemId, _selectedCart.value?.cartId)
+        cartDao.getCartItemByItemId(itemId, _selectedCart.value.cartId)
     }
 
     fun addRecipeToCart(recipe: Recipe) {
@@ -213,7 +215,7 @@ class CartViewModel(
 
     fun subtractFromCart(itemId: ItemId) = viewModelScope.launch(Dispatchers.IO) {
         val updatedCartItemProperties =
-            cartDao.getCartItemByItemId(itemId, _selectedCart.value?.cartId)?.apply {
+            cartDao.getCartItemByItemId(itemId, _selectedCart.value.cartId)?.apply {
                 amount -= 1
             }
         if (null != updatedCartItemProperties) {
@@ -224,13 +226,14 @@ class CartViewModel(
     fun removeItem(itemToRemove: Item) = viewModelScope.launch(Dispatchers.IO) {
         cartDao.remove(itemToRemove)
         val cartItemProperties =
-            cartDao.getCartItemByItemId(itemToRemove.itemId, _selectedCart.value?.cartId)
+            cartDao.getCartItemByItemId(itemToRemove.itemId, _selectedCart.value.cartId)
         if (null != cartItemProperties) {
             cartDao.remove(cartItemProperties)
         }
     }
 
     fun removeCart(cartToRemove: Cart) = viewModelScope.launch(Dispatchers.IO) {
+        if(cartToRemove.cartId != DEFAULT_CART.cartId)
         cartDao.remove(cartToRemove)
     }
 
@@ -249,7 +252,7 @@ class CartViewModel(
     }
 
     fun publish(cartItemProperties: CartItemProperties) {
-        if (_selectedCart.value?.synced == true || null != _selectedCart.value?.cartId) {
+        if (_selectedCart.value?.synced == true || null != _selectedCart.value.cartId) {
             val cartMessage = CartMessage(listOf(cartItemProperties), _selectedCart.value!!.cartId)
             publisher?.publish(cartMessage)
         }

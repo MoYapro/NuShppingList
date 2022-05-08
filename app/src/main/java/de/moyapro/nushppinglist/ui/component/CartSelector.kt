@@ -7,31 +7,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART_NAME
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 
 @Composable
 fun CartSelector(viewModel: CartViewModel) {
-    val carts: List<Cart?> by viewModel.allCart.collectAsState(listOf())
-    val cartsAndEmpty = listOf(null) + carts
+    val carts: List<Cart> by viewModel.allCart.collectAsState(listOf())
 
 
-    val selectedCart: Cart? by viewModel.selectedCart.collectAsState(null)
+    val selectedCart: Cart by viewModel.selectedCart.collectAsState(DEFAULT_CART)
     if (carts.isNullOrEmpty()) {
         return
     }
     Column() {
 
         Dropdown(
-            label = DEFAULT_CART_NAME,
+            label = "WTF GOES HERE",
             initialValue = selectedCart,
-            values = cartsAndEmpty,
+            values = carts,
             onValueChange = {
                 viewModel.selectCart(it)
             },
-            itemLabel = { it?.cartName ?: DEFAULT_CART_NAME },
+            itemLabel = { it.cartName},
             modifier = Modifier.fillMaxWidth()
         )
         if (SWITCHES.DEBUG) {

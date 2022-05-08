@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import de.moyapro.nushppinglist.MainActivity
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.SETTING
 import de.moyapro.nushppinglist.constants.SWITCHES
 import de.moyapro.nushppinglist.db.model.Cart
@@ -43,7 +44,7 @@ import java.math.BigDecimal
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel) {
     val allItemList: List<Item> by viewModel.allItems.collectAsState(listOf())
     val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(listOf())
-    val selectedCart: Cart? by viewModel.selectedCart.collectAsState(null)
+    val selectedCart: Cart by viewModel.selectedCart.collectAsState(CONSTANTS.DEFAULT_CART)
     if (SWITCHES.DEBUG) debug(cartItems, allItemList, selectedCart)
 
     var filter: String by remember { mutableStateOf("") }
@@ -56,6 +57,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                 ?: CartItem(
                     CartItemProperties(
                         newItemId = item.itemId,
+                        inCart = selectedCart.cartId,
                         amount = 0
                     ),
                     item,

@@ -54,11 +54,10 @@ fun createSampleItem(name: String = "Sugar") = Item(
     price = BigDecimal.ZERO,
 )
 
-fun createSampleCartItem(recipeId: RecipeId? = RecipeId(), inCart: CartId? = null) =
-    CartItem(createSampleItem()).apply {
+fun createSampleCartItem(recipeId: RecipeId? = RecipeId(), inCart: CartId) =
+    CartItem(createSampleItem(), inCart).apply {
         cartItemProperties.cartItemPropertiesId =
             UUID.fromString("5cf9d5fd-f181-4620-86ec-7a597219cb12")
-        cartItemProperties.inCart = inCart
         cartItemProperties.recipeId = recipeId
     }
 

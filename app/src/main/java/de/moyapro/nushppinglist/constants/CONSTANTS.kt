@@ -1,9 +1,12 @@
 package de.moyapro.nushppinglist.constants
 
+import de.moyapro.nushppinglist.db.ids.CartId
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.sync.messages.CartMessage
 import de.moyapro.nushppinglist.sync.messages.ItemMessage
 import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
+import java.util.*
 import kotlin.reflect.KClass
 
 object CONSTANTS {
@@ -23,7 +26,12 @@ object CONSTANTS {
         RequestItemMessage::class to MQTT_TOPIC_ITEM_REQUEST,
     )
 
-    const val DEFAULT_CART_NAME = "Einkauf"
+    val DEFAULT_CART = Cart(
+        cartId = CartId(UUID.fromString("343f4bbe-36fc-4e12-8360-b9a45f720f86")),
+        cartName = "Einkaufsliste",
+        synced = false,
+        selected = true
+    )
 
     const val MUTED_ALPHA = .7F
 

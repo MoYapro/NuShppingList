@@ -60,7 +60,7 @@ interface CartDao {
 
     @Transaction
     @Query("select * from Cart c where c.selected")
-    fun findSelectedCart(): Flow<Cart?>
+    fun findSelectedCart(): Flow<Cart>
 
     @Transaction
     @Query("select * from Cart c where c.synced")

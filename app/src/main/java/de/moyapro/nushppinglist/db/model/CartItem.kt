@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.db.model
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 
 data class CartItem(
@@ -15,6 +16,7 @@ data class CartItem(
 ) {
     constructor(
         newItemName: String,
+        inCart: CartId,
         checked: Boolean = false,
         newItemId: ItemId = ItemId(),
     ) : this(
@@ -23,17 +25,19 @@ data class CartItem(
             itemId = newItemId,
             recipeId = null,
             amount = 1,
-            checked = checked
+            checked = checked,
+            inCart = inCart,
         ),
         item = Item(newItemName, newItemId)
     )
 
-    constructor(item: Item) : this(
+    constructor(item: Item, inCart: CartId) : this(
         CartItemProperties(
             cartItemId = item.itemId.id,
             itemId = item.itemId,
             recipeId = RecipeId(),
             amount = item.defaultItemAmount,
+            inCart = inCart,
             checked = false),
         item
     )

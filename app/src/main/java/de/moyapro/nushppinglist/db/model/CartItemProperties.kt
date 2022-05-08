@@ -13,7 +13,7 @@ data class CartItemProperties(
     var cartItemId: UUID,
     @get:JvmName("getInCart")
     @set:JvmName("setInCart")
-    var inCart: CartId? = null,
+    var inCart: CartId,
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
     var itemId: ItemId,
@@ -23,20 +23,23 @@ data class CartItemProperties(
     var amount: Int,
     var checked: Boolean,
 ) {
-    constructor(newItemId: ItemId, recipeId: RecipeId, amount: Int = 1) : this(
+    constructor(newItemId: ItemId, recipeId: RecipeId, amount: Int = 1, inCart: CartId) : this(
         cartItemPropertiesId = UUID.randomUUID(),
         cartItemId = newItemId.id,
         itemId = newItemId,
         recipeId = recipeId,
         amount = amount,
+        inCart = inCart,
         checked = false
     )
 
-    constructor(newItemId: ItemId, amount: Int = 1) : this(
+    constructor(newItemId: ItemId, inCart: CartId, amount: Int = 1) : this(
         newItemId = newItemId,
         recipeId = RecipeId(),
-        amount = amount
+        amount = amount,
+        inCart = inCart,
     )
 
-    constructor() : this(ItemId())
+    constructor(inCart: CartId) : this(ItemId(), inCart)
+    constructor() : this(ItemId(), CartId(UUID.randomUUID()))
 }

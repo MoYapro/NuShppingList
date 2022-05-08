@@ -10,14 +10,11 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import de.moyapro.nushppinglist.constants.*
 import de.moyapro.nushppinglist.constants.CONSTANTS.PREFERENCES_FILE_NAME
-import de.moyapro.nushppinglist.constants.MainView
-import de.moyapro.nushppinglist.constants.SETTING
-import de.moyapro.nushppinglist.constants.SWITCHES
-import de.moyapro.nushppinglist.constants.UNIT
 import de.moyapro.nushppinglist.db.AppDatabase
 import de.moyapro.nushppinglist.db.ids.CartId
-import de.moyapro.nushppinglist.db.model.Cart
+import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.service.BackgroundSyncService
@@ -32,7 +29,8 @@ import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.take
-import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.ExperimentalTime
 
 @FlowPreview
 class MainActivity : ComponentActivity() {
@@ -83,34 +81,31 @@ class MainActivity : ComponentActivity() {
 
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun initData() {
         Log.d(tag, "start initTestData")
 
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             database.clearAllTables()
-            if (SWITCHES.INIT_DB_ON_BOOT) {
-                createTestData()
-            }
             if (MainView.REZEPTE.enabled) {
                 recipeViewModel.save(createSampleRecipeCake())
                 recipeViewModel.save(createSampleRecipeNoodels())
             }
-            if (SWITCHES.CREATE_DEFAULT_LIST) {
-                if (null == cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()) {
-                    cartViewModel.add(Cart(
-                        cartId = CartId(UUID.fromString("343f4bbe-36fc-4e12-8360-b9a45f720f86")),
-                        cartName = "Einkaufsliste",
-                        synced = false,
-                        selected = true
-                    )
-                    )
-                }
+            var defaultCart = cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()
+            if (SWITCHES.CREATE_DEFAULT_LIST && null == defaultCart) {
+                Log.i(tag, "Create default cart")
+                cartViewModel.add(CONSTANTS.DEFAULT_CART)
+                delay(200.milliseconds)
+            }
+            defaultCart = cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()
+            if (SWITCHES.INIT_DB_ON_BOOT && null != defaultCart) {
+                createTestData(defaultCart.cartId)
             }
         }
         Log.d(tag, "done initTestData")
     }
 
-    private fun createTestData() {
+    private fun createTestData(cartId: CartId) {
 
         val items = listOf(
             "EintestwoallesineinemlangenWortistundkeinLeerzeichenzumumbrechen",
@@ -150,7 +145,14 @@ class MainActivity : ComponentActivity() {
             "Banane",
         )
 
-        cartItems.map { CartItem(it) }.forEach(cartViewModel::add)
+        cartItems.map {
+            CartItem(
+                newItemName = it,
+                inCart = cartId,
+                checked = false,
+                newItemId = ItemId()
+            )
+        }.forEach(cartViewModel::add)
         items.map { Item(name = it, itemUnit = UNIT.values().random()) }
             .forEach(cartViewModel::add)
     }
