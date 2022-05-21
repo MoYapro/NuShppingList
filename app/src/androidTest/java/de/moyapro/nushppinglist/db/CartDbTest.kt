@@ -2,6 +2,7 @@ package de.moyapro.nushppinglist.db
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
@@ -67,7 +68,7 @@ class CartDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun writeAndLoadCartItemProperties(): Unit = runBlocking {
-        val cartItem = CartItem("someName")
+        val cartItem = CartItem("someName", CONSTANTS.DEFAULT_CART.cartId)
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         val dbCartItemProperties = cartDao.findAllInCart().first().first()
@@ -77,7 +78,7 @@ class CartDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun updateAndLoadCartItemProperties(): Unit = runBlocking {
-        val cartItem = CartItem("someName")
+        val cartItem = CartItem("someName", CONSTANTS.DEFAULT_CART.cartId)
         val newAmount = 3
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
@@ -89,7 +90,7 @@ class CartDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun writeAndLoadCartItem(): Unit = runBlocking {
-        val cartItem = CartItem("Milk")
+        val cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId)
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         val dbCartItemProperties = cartDao.findAllCartItems().first().first()
@@ -100,7 +101,7 @@ class CartDbTest {
     @Throws(Exception::class)
     fun updateAndLoadCartItem_item(): Unit = runBlocking {
         val newName = "NoMilk"
-        val cartItem = CartItem("Milk")
+        val cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId)
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         cartDao.updateAll(cartItem.item.copy(name = newName))
@@ -112,7 +113,7 @@ class CartDbTest {
     @Throws(Exception::class)
     fun updateAndLoadCartItem_cartItemProperties(): Unit = runBlocking {
         val newAmount = 4
-        val cartItem = CartItem("Milk")
+        val cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId)
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         cartDao.updateAll(cartItem.cartItemProperties.copy(amount = newAmount))
@@ -128,7 +129,7 @@ class CartDbTest {
         val newAmount = 4
         var currentCartItems = 0
         var currentAmount: Int? = 0
-        val cartItem = CartItem("Milk")
+        val cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId)
 
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
@@ -201,7 +202,7 @@ class CartDbTest {
         savedCarts.forEach { savedCart ->
             viewModel.selectCart(savedCart)
             Thread.sleep(100)
-            val currentlySelectedCart =  viewModel.selectedCart.take(1).toList().singleOrNull()
+            val currentlySelectedCart = viewModel.selectedCart.take(1).toList().singleOrNull()
             currentlySelectedCart?.cartId shouldBe savedCart.cartId
         }
 
@@ -215,9 +216,7 @@ class CartDbTest {
             val cart = Cart().apply { selected = false; cartName = "cart$cartNumber" }
             viewModel.add(cart)
             repeat(numberOfItemsPerCart) { itemNumber ->
-                viewModel.add(CartItem(Item("cart${cartNumber}item$itemNumber")).apply {
-                    cartItemProperties.inCart = cart.cartId
-                })
+                viewModel.add(CartItem(Item("cart${cartNumber}item$itemNumber"), cart.cartId))
             }
         }
         Thread.sleep(1000)
@@ -231,7 +230,8 @@ class CartDbTest {
         savedCarts.forEach { cart ->
             viewModel.selectCart(cart)
             Thread.sleep(1000)
-            viewModel.selectedCart.take(1).toList().singleOrNull() shouldBe cart.copy(selected = true)
+            viewModel.selectedCart.take(1).toList()
+                .singleOrNull() shouldBe cart.copy(selected = true)
             val itemsInCartGrouped =
                 viewModel.allCartItemsGrouped.take(1).toList().first().values.flatten()
             itemsInCartGrouped.map { it.item.name }

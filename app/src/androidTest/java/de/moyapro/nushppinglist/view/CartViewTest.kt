@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.CONSTANTS.UNCHECKED
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.CartItemProperties
@@ -32,7 +33,7 @@ internal class CartViewTest {
     @Test
     fun cartItemIsShown() {
         val name = "Milk"
-        createComposable(CartItem(name))
+        createComposable(CartItem(name, CONSTANTS.DEFAULT_CART.cartId))
         composeTestRule.onNodeWithText(name).assertIsDisplayed()
         composeTestRule.onNodeWithText("UNKNOWN").assertDoesNotExist()
     }
@@ -41,14 +42,15 @@ internal class CartViewTest {
     fun cartItemsAreUpdated() {
         val newName = "Sugar"
         val viewModel = createComposable()
-        viewModel.add(CartItem(newName))
+        viewModel.add(CartItem(newName, CONSTANTS.DEFAULT_CART.cartId))
         Thread.sleep(100)
         composeTestRule.onNodeWithText(newName).assertIsDisplayed()
     }
 
     @Test
     fun removeChecked(): Unit = runBlocking {
-        val viewModel = createComposable(CartItem("one"), CartItem("checked one", true))
+        val viewModel = createComposable(CartItem("one", CONSTANTS.DEFAULT_CART.cartId),
+            CartItem("checked one", CONSTANTS.DEFAULT_CART.cartId, true))
         composeTestRule.onNodeWithText("⎚").assertIsDisplayed().performClick()
         Thread.sleep(100)
         val cartItems = viewModel.cartItems.take(1).toList().flatten()
@@ -59,7 +61,8 @@ internal class CartViewTest {
     @Test
     fun markItemChecked_Unchecked(): Unit = runBlocking {
         val itemName = "Milk"
-        val viewModel = createComposable(CartItem(itemName, UNCHECKED))
+        val viewModel =
+            createComposable(CartItem(itemName, CONSTANTS.DEFAULT_CART.cartId, UNCHECKED))
         composeTestRule.onNodeWithText(itemName).performClick()
         Thread.sleep(100)
         val cartAfterChecking = viewModel.cartItems.take(1).toList().flatten()
@@ -80,7 +83,8 @@ internal class CartViewTest {
     fun markItemChecked_dontCheckItemNotInCart(): Unit = runBlocking {
         val itemName = "Milk"
         val item = Item(itemName)
-        val cartItemProperties = CartItemProperties(item.itemId, amount = 0)
+        val cartItemProperties =
+            CartItemProperties(item.itemId, CONSTANTS.DEFAULT_CART.cartId, amount = 0)
         val cartItem = CartItem(cartItemProperties, item)
         val viewModel = createComposable(cartItem)
         composeTestRule.onNodeWithContentDescription("Gekauft").assertDoesNotExist()
@@ -97,7 +101,8 @@ internal class CartViewTest {
     fun markItemChecked_checkableAfterAdded(): Unit = runBlocking {
         val itemName = "Milk"
         val item = Item(itemName)
-        val cartItemProperties = CartItemProperties(item.itemId, amount = 0)
+        val cartItemProperties =
+            CartItemProperties(item.itemId, CONSTANTS.DEFAULT_CART.cartId, amount = 0)
         val cartItem = CartItem(cartItemProperties, item)
         val viewModel = createComposable(cartItem)
         composeTestRule.onNodeWithContentDescription("Gekauft").assertDoesNotExist()

@@ -38,14 +38,20 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
+const val tag = "ItemList"
+
 @FlowPreview
 @Composable
 @Preview
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel) {
     val allItemList: List<Item> by viewModel.allItems.collectAsState(listOf())
     val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(listOf())
-    val selectedCart: Cart by viewModel.selectedCart.collectAsState(CONSTANTS.DEFAULT_CART)
-    if (SWITCHES.DEBUG) debug(cartItems, allItemList, selectedCart)
+
+    /**
+     * selected cart is nullable because it might not have been initialized yet
+     */
+    val selectedCart: Cart? by viewModel.selectedCart.collectAsState(CONSTANTS.DEFAULT_CART)
+    if (SWITCHES.DEBUG) Debug(cartItems, allItemList, selectedCart)
 
     var filter: String by remember { mutableStateOf("") }
     val filteredItems = allItemList.filter { it.name.lowercase().contains(filter.lowercase()) }
@@ -57,7 +63,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                 ?: CartItem(
                     CartItemProperties(
                         newItemId = item.itemId,
-                        inCart = selectedCart.cartId,
+                        inCart = selectedCart?.cartId ?: CONSTANTS.DEFAULT_CART.cartId, // selected cart may somehow not be initialized (WTF)
                         amount = 0
                     ),
                     item,
@@ -90,11 +96,12 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
 }
 
 @Composable
-private fun debug(
+private fun Debug(
     cartItems: List<CartItem>,
     allItemList: List<Item>,
     selectedCart: Cart?,
 ) {
+    Log.i(tag, "selected cart: $selectedCart")
     Column() {
         Text("all cart items:")
         cartItems.map {

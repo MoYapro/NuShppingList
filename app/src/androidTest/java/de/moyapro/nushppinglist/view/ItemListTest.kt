@@ -2,7 +2,7 @@ package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART_NAME
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
@@ -48,7 +48,7 @@ internal class ItemListTest {
     @Test
     fun addNewItemByName_noCartSelected() {
         val newItemName = "some new item"
-        createComposable(emptyList())
+        createComposable(carts = listOf(DEFAULT_CART))
         val input = composeTestRule.onNodeWithContentDescription(EditTextField.DESCRIPTION)
         input.performTextInput(newItemName)
         val addNewItemButton = composeTestRule.onNodeWithContentDescription("Neu")
@@ -60,14 +60,13 @@ internal class ItemListTest {
         val cart1 = Cart("cart1")
         val cart2 = Cart("cart2")
         val carts = listOf(cart1, cart2)
-        viewModel.add(cart1)
-        viewModel.add(cart2)
+        viewModel.add(DEFAULT_CART)
         Thread.sleep(100)
         val itemsPerCart: MutableMap<Cart, MutableList<String>> = mutableMapOf()
         itemsPerCart[cart1] = mutableListOf()
         itemsPerCart[cart2] = mutableListOf()
-        createComposable(emptyList())
-        composeTestRule.onNodeWithText(DEFAULT_CART_NAME).performClick()
+        createComposable(carts = carts)
+        composeTestRule.onNodeWithText(DEFAULT_CART.cartName).performClick()
         repeat(6) { i ->
             val cartToUse = carts[i % 2]
             val itemName = "${cartToUse.cartName}-item$i"
@@ -77,10 +76,12 @@ internal class ItemListTest {
             input.performTextInput(itemName)
             composeTestRule.onNodeWithContentDescription("Neu").performClick()
             composeTestRule.onNodeWithContentDescription("Leeren").performClick()
+            Thread.sleep(2000)
             itemsPerCart[cartToUse]?.assertIsDisplayed(composeTestRule)
-            itemsPerCart.filter { e -> e.key != cartToUse }.map { it.value }.single()
-                .assertDoesNotExist(composeTestRule)
-            composeTestRule.onNodeWithText(cartToUse.cartName).performClick() // open cart selector
+            itemsPerCart.filter { e -> e.key != cartToUse }.map { it.value }.forEach {
+                it.assertDoesNotExist(composeTestRule)
+            }
+            composeTestRule.onAllNodesWithText(cartToUse.cartName)[0].performClick() // open cart selector
         }
 
         composeTestRule.onNodeWithText(cart1.cartName).performClick()
@@ -126,20 +127,21 @@ internal class ItemListTest {
     fun displayItemsInCart() {
         val cart1 = Cart("cart1")
         val cart2 = Cart("cart2")
-        val carts = listOf(cart1, cart2)
-        val cartItem1 = CartItem("item1").apply {
-            cartItemProperties.inCart = cart1.cartId; cartItemProperties.amount = 101
+        val carts = listOf(DEFAULT_CART, cart1, cart2)
+        val cartItem1 = CartItem("item1", cart1.cartId).apply {
+            cartItemProperties.amount = 101
         }
-        val cartItem2 = CartItem("item2").apply {
-            cartItemProperties.inCart = cart2.cartId; cartItemProperties.amount = 202
+        val cartItem2 = CartItem("item2", cart2.cartId).apply {
+            cartItemProperties.amount = 202
         }
-        val cartItem3 = CartItem("item3").apply {
-            cartItemProperties.inCart = null; cartItemProperties.amount = 303
+        val cartItem3 = CartItem("item3", DEFAULT_CART.cartId).apply {
+            cartItemProperties.amount = 303
         }
         createComposable(carts = carts, cartItems = listOf(cartItem1, cartItem2, cartItem3))
-        listOf("item1", "item2", "item3", "101", "202", "303").assertIsDisplayed(composeTestRule)
+        listOf("item1", "item2", "item3", "303").assertIsDisplayed(composeTestRule)
+        listOf("101", "202").assertDoesNotExist(composeTestRule)
 
-        composeTestRule.onNodeWithText(DEFAULT_CART_NAME).performClick()
+        composeTestRule.onNodeWithText(DEFAULT_CART.cartName).performClick()
         composeTestRule.onNodeWithText("cart1").performClick()
         Thread.sleep(100)
         listOf("item1", "item2", "item3", "101").assertIsDisplayed(composeTestRule)
@@ -151,7 +153,6 @@ internal class ItemListTest {
         Thread.sleep(100)
         listOf("item1", "item2", "item3", "202").assertIsDisplayed(composeTestRule)
         listOf("101", "303").assertDoesNotExist(composeTestRule)
-
     }
 
     private fun createComposable(

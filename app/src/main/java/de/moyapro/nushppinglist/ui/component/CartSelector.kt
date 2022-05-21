@@ -17,7 +17,7 @@ fun CartSelector(viewModel: CartViewModel) {
     val carts: List<Cart> by viewModel.allCart.collectAsState(listOf())
 
 
-    val selectedCart: Cart by viewModel.selectedCart.collectAsState(DEFAULT_CART)
+    val selectedCart: Cart? by viewModel.selectedCart.collectAsState(DEFAULT_CART)
     if (carts.isNullOrEmpty()) {
         return
     }
@@ -30,7 +30,7 @@ fun CartSelector(viewModel: CartViewModel) {
             onValueChange = {
                 viewModel.selectCart(it)
             },
-            itemLabel = { it.cartName},
+            itemLabel = { it?.cartName ?: DEFAULT_CART.cartName},
             modifier = Modifier.fillMaxWidth()
         )
         if (SWITCHES.DEBUG) {
