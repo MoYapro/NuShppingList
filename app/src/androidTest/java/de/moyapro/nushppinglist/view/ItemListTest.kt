@@ -76,27 +76,22 @@ internal class ItemListTest {
             input.performTextInput(itemName)
             composeTestRule.onNodeWithContentDescription("Neu").performClick()
             composeTestRule.onNodeWithContentDescription("Leeren").performClick()
-            Thread.sleep(2000)
             itemsPerCart[cartToUse]?.assertIsDisplayed(composeTestRule)
-            itemsPerCart.filter { e -> e.key != cartToUse }.map { it.value }.forEach {
-                it.assertDoesNotExist(composeTestRule)
-            }
-            composeTestRule.onAllNodesWithText(cartToUse.cartName)[0].performClick() // open cart selector
+            composeTestRule.onNodeWithText(cartToUse.cartName).performClick() // open cart selector
         }
 
-        composeTestRule.onNodeWithText(cart1.cartName).performClick()
-        listOf("cart1-item0", "cart1-item2", "cart1-item4").assertIsDisplayed(composeTestRule)
-        listOf("cart1-item1", "cart1-item3", "cart1-item5").assertDoesNotExist(composeTestRule)
-
-        composeTestRule.onNodeWithText(cart1.cartName).performClick()
-        composeTestRule.onNodeWithText(cart2.cartName).performClick()
-
-        listOf("cart1-item1", "cart1-item3", "cart1-item5").assertIsDisplayed(composeTestRule)
-        listOf("cart1-item0", "cart1-item2", "cart1-item4").assertDoesNotExist(composeTestRule)
-
-        // check viewmodel / db
-
-
+        listOf("cart1-item0",
+            "cart1-item2",
+            "cart1-item4",
+            "cart2-item1",
+            "cart2-item3",
+            "cart2-item5").assertIsDisplayed(composeTestRule)
+        listOf("cart1-item1",
+            "cart1-item3",
+            "cart1-item5",
+            "cart2-item0",
+            "cart2-item2",
+            "cart2-item4").assertDoesNotExist(composeTestRule)
     }
 
     @Test
