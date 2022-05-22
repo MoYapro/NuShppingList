@@ -4,7 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.ui.component.CartSelector
 import de.moyapro.nushppinglist.ui.model.CartViewModel
@@ -33,18 +33,18 @@ class CartSelectorTest {
     @Test
     fun showSelectedCart(): Unit = runBlocking {
         val numbers = 0..10
+        viewModel.add(DEFAULT_CART)
         repeat(numbers.last + 1) { i ->
             viewModel.add(Cart("cart $i"))
         }
         Thread.sleep(100)
-        viewModel.selectedCart.take(1).toList().singleOrNull() shouldBe null
         composeTestRule.setContent {
             NuShppingListTheme {
                 CartSelector(viewModel)
             }
         }
-        composeTestRule.onNodeWithText(CONSTANTS.DEFAULT_CART.cartName).assertIsDisplayed()
-        composeTestRule.onNodeWithText(CONSTANTS.DEFAULT_CART.cartName).performClick()
+        composeTestRule.onNodeWithText(DEFAULT_CART.cartName).assertIsDisplayed()
+        composeTestRule.onNodeWithText(DEFAULT_CART.cartName).performClick()
 
         repeat(numbers.count()) { number ->
             val currentCartName = "cart $number"
@@ -60,6 +60,4 @@ class CartSelectorTest {
                 .performClick() // open selection list for next cart
         }
     }
-
-
 }

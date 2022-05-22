@@ -2,7 +2,7 @@ package de.moyapro.nushppinglist.db
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
-import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
@@ -68,7 +68,7 @@ class CartDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun writeAndLoadCartItemProperties(): Unit = runBlocking {
-        val cartItem = CartItem("someName", CONSTANTS.DEFAULT_CART.cartId)
+        val cartItem = CartItem("someName", DEFAULT_CART.cartId)
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         val dbCartItemProperties = cartDao.findAllInCart().first().first()
@@ -78,7 +78,7 @@ class CartDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun updateAndLoadCartItemProperties(): Unit = runBlocking {
-        val cartItem = CartItem("someName", CONSTANTS.DEFAULT_CART.cartId)
+        val cartItem = CartItem("someName", DEFAULT_CART.cartId)
         val newAmount = 3
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
@@ -90,7 +90,7 @@ class CartDbTest {
     @Test(timeout = 10000)
     @Throws(Exception::class)
     fun writeAndLoadCartItem(): Unit = runBlocking {
-        val cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId)
+        val cartItem = CartItem("Milk", DEFAULT_CART.cartId)
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         val dbCartItemProperties = cartDao.findAllCartItems().first().first()
@@ -101,7 +101,7 @@ class CartDbTest {
     @Throws(Exception::class)
     fun updateAndLoadCartItem_item(): Unit = runBlocking {
         val newName = "NoMilk"
-        val cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId)
+        val cartItem = CartItem("Milk", DEFAULT_CART.cartId)
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         cartDao.updateAll(cartItem.item.copy(name = newName))
@@ -113,7 +113,7 @@ class CartDbTest {
     @Throws(Exception::class)
     fun updateAndLoadCartItem_cartItemProperties(): Unit = runBlocking {
         val newAmount = 4
-        val cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId)
+        val cartItem = CartItem("Milk", DEFAULT_CART.cartId)
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
         cartDao.updateAll(cartItem.cartItemProperties.copy(amount = newAmount))
@@ -129,7 +129,7 @@ class CartDbTest {
         val newAmount = 4
         var currentCartItems = 0
         var currentAmount: Int? = 0
-        val cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId)
+        val cartItem = CartItem("Milk", DEFAULT_CART.cartId)
 
         cartDao.save(cartItem.item)
         cartDao.save(cartItem.cartItemProperties)
@@ -180,10 +180,12 @@ class CartDbTest {
 
     @Test
     fun saveLoadCart(): Unit = runBlocking {
+        viewModel.add(DEFAULT_CART)
         repeat(10) { i ->
             viewModel.add(Cart(cartName = "cart$i"))
-            Thread.sleep(10)
-            viewModel.allCart.take(1).toList().flatten() shouldHaveSize (i + 1)
+            Thread.sleep(100)
+            viewModel.allCart.take(1).toList()
+                .flatten() shouldHaveSize (i + 2) // 2 because i is 0-based and there is the default cart
         }
     }
 
@@ -210,8 +212,9 @@ class CartDbTest {
 
     @Test
     fun getItemsInSpecificCart(): Unit = runBlocking {
-        val numberOfCarts = 2
-        val numberOfItemsPerCart = 2
+        val numberOfCarts = 3
+        val numberOfItemsPerCart = 3
+        viewModel.add(DEFAULT_CART)
         repeat(numberOfCarts) { cartNumber ->
             val cart = Cart().apply { selected = false; cartName = "cart$cartNumber" }
             viewModel.add(cart)
@@ -220,22 +223,16 @@ class CartDbTest {
             }
         }
         Thread.sleep(1000)
-        viewModel.selectedCart.take(1).toList().singleOrNull() shouldBe null
         val savedCarts = viewModel.allCart.take(1).toList().flatten()
-        savedCarts shouldHaveSize numberOfCarts
+        savedCarts shouldHaveSize (numberOfCarts + 1) // 1 for the default cart
         val savedItems = viewModel.allCartItems.take(1).toList()
-            .flatten() // get all items if no cart is selected
+            .flatten() // check all items got created
         savedItems shouldHaveSize (numberOfCarts * numberOfItemsPerCart)
 
-        savedCarts.forEach { cart ->
-            viewModel.selectCart(cart)
-            Thread.sleep(1000)
-            viewModel.selectedCart.take(1).toList()
-                .singleOrNull() shouldBe cart.copy(selected = true)
-            val itemsInCartGrouped =
-                viewModel.allCartItemsGrouped.take(1).toList().first().values.flatten()
-            itemsInCartGrouped.map { it.item.name }
-                .forEach { itemName -> itemName shouldContain cart.cartName }
+
+        savedItems.forEach{ item ->
+            val relatedCart = savedCarts.single { it.cartId == item.cartItemProperties.inCart }
+            item.item.name shouldContain relatedCart.cartName
         }
     }
 }
