@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
@@ -39,6 +40,7 @@ class RecipeDbTest {
     }
 
     @Test(timeout = 10000)
+    @Ignore
     @Throws(Exception::class)
     fun writeAndLoadRecipe(): Unit = runBlocking {
         val recipeCake = createSampleRecipeCake()

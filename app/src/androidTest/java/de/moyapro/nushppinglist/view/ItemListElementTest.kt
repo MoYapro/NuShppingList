@@ -2,7 +2,7 @@ package de.moyapro.nushppinglist.view
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import de.moyapro.nushppinglist.constants.CONSTANTS
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.ui.ItemList
@@ -11,6 +11,7 @@ import de.moyapro.nushppinglist.ui.component.EditTextField
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.util.DbTestHelper
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -35,7 +36,7 @@ class ItemListElementTest {
         composeTestRule.setContent {
             NuShppingListTheme {
                 ItemListElement(
-                    cartItem = CartItem("Milk", CONSTANTS.DEFAULT_CART.cartId),
+                    cartItem = CartItem("Milk", DEFAULT_CART.cartId),
                     saveAction = saveAction,
                     editMode = true,
                 )
@@ -44,7 +45,7 @@ class ItemListElementTest {
         val editField =
             composeTestRule.onAllNodesWithContentDescription(EditTextField.DESCRIPTION)[0]
         editField.performClick()
-        editField.performTextInput("Milk2")
+        editField.performTextInput("2")
         composeTestRule.onAllNodesWithContentDescription("Hinzufügen")[1].assertHasClickAction()
             .performClick()
         assertTrue("Saveaction should be called", saveActionCalled)
@@ -54,7 +55,7 @@ class ItemListElementTest {
     @Test
     fun addItemToCart() {
         var addedItem: Item? = null
-        val existingItem = CartItem("newItem", CONSTANTS.DEFAULT_CART.cartId)
+        val existingItem = CartItem("newItem", DEFAULT_CART.cartId)
         val action: (Item) -> Unit = { item -> addedItem = item }
         composeTestRule.setContent {
             NuShppingListTheme {
@@ -71,11 +72,14 @@ class ItemListElementTest {
 
     @Test
     fun showAmountInCartOnButton(): Unit = runBlocking {
-        val cartItem = CartItem("thing", CONSTANTS.DEFAULT_CART.cartId)
-        val cartDao = DbTestHelper.createTestDatabase().cartDao()
-        val viewModel = CartViewModel(cartDao)
+        val cartItem = CartItem("thing", DEFAULT_CART.cartId)
+        val viewModel = CartViewModel(DbTestHelper.createTestDatabase().cartDao())
         var lastEditItem: Item? = null
+        viewModel.add(DEFAULT_CART)
+        viewModel.selectCart(DEFAULT_CART)
         viewModel.add(cartItem)
+        Thread.sleep(100)
+        viewModel.allCartItems.take(1).toList().flatten() shouldHaveSize 1
 
         composeTestRule.setContent {
             NuShppingListTheme {
@@ -93,7 +97,9 @@ class ItemListElementTest {
         addToCartButton.performClick()
         Thread.sleep(100)
         lastEditItem shouldBe cartItem.item
-        val savedCartItem = viewModel.allCartItems.take(1).toList().flatten()
+        val savedItems = viewModel.allCartItems.take(1).toList().flatten()
+        savedItems shouldHaveSize 1
+        val savedCartItem = savedItems
             .single { it.item.itemId == cartItem.item.itemId }
         savedCartItem.cartItemProperties.amount shouldBe 2
     }
@@ -101,17 +107,17 @@ class ItemListElementTest {
     @Test
     fun editInputsAreShown() {
         val name = "Milk"
-        createComposable(CartItem(name, CONSTANTS.DEFAULT_CART.cartId), true)
-        composeTestRule.onNodeWithContentDescription("Hinzufügen").assertHasClickAction()
-        composeTestRule.onNodeWithContentDescription("Löschen").assertHasClickAction()
+        createComposable(CartItem(name, DEFAULT_CART.cartId), true)
+        composeTestRule.onAllNodesWithContentDescription("Hinzufügen").assertAll(hasClickAction())
+        composeTestRule.onAllNodesWithContentDescription("Löschen").assertAll(hasClickAction())
         composeTestRule.onAllNodesWithText(name).assertCountEquals(2)
     }
 
-
     @Test
     fun increaseAmountOnAddAgain() {
-        val cartItem = CartItem("thing", CONSTANTS.DEFAULT_CART.cartId)
-        val viewModel = CartViewModel()
+        val cartItem = CartItem("thing", DEFAULT_CART.cartId)
+        val viewModel = CartViewModel(DbTestHelper.createTestDatabase().cartDao())
+        viewModel.add(DEFAULT_CART)
         viewModel.add(cartItem)
 
         composeTestRule.setContent {
@@ -120,10 +126,11 @@ class ItemListElementTest {
             }
         }
 
-        composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 1").assertIsDisplayed()
+        Thread.sleep(100)
+        composeTestRule.onNodeWithText("x 1").assertIsDisplayed()
             .performClick()
         Thread.sleep(100)
-        composeTestRule.onNodeWithText("${CONSTANTS.CART_CHAR} x 2").assertIsDisplayed()
+        composeTestRule.onNodeWithText("x 2").assertIsDisplayed()
     }
 
 
