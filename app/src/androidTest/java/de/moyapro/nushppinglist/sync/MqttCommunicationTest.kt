@@ -9,6 +9,7 @@ import de.moyapro.nushppinglist.ui.util.waitFor
 import io.kotest.matchers.shouldBe
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -40,6 +41,7 @@ class MqttCommunicationTest {
     }
 
     @Test(timeout = 10_000)
+    @Ignore
     fun communication() {
         var messageReceived = false
         val serviceAdapterBob = MqttServiceAdapter("MqttAdapterTest_Bob") { messageArrived = true }
