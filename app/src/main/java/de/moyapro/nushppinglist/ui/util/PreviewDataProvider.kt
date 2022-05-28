@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.ui.util
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.constants.UNIT.GRAMM
 import de.moyapro.nushppinglist.constants.UNIT.LITER
 import de.moyapro.nushppinglist.db.ids.CartId
@@ -54,7 +55,7 @@ fun createSampleItem(name: String = "Sugar") = Item(
     price = BigDecimal.ZERO,
 )
 
-fun createSampleCartItem(recipeId: RecipeId? = RecipeId(), inCart: CartId) =
+fun createSampleCartItem(recipeId: RecipeId? = RecipeId(), inCart: CartId = DEFAULT_CART.cartId) =
     CartItem(createSampleItem(), inCart).apply {
         cartItemProperties.cartItemPropertiesId =
             UUID.fromString("5cf9d5fd-f181-4620-86ec-7a597219cb12")

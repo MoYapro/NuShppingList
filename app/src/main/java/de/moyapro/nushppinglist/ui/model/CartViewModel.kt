@@ -46,13 +46,21 @@ class CartViewModel(
     private val _allCartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val allCartItems: StateFlow<List<CartItem>> = _allCartItems
     private var _currentCartItems = MutableStateFlow<List<CartItem>>(emptyList())
-    private var job1: Job? = null
-    private var job2: Job? = null
-    private var job3: Job? = null
-    private var job4: Job? = null
-    private var job5: Job? = null
-    private var job6: Job? = null
+    private var currentCartItemsJob1: Job? = null
+    private var findAllInCartJob2: Job? = null
+    private var findAllItemsJob3: Job? = null
+    private var findAllCartItemsJob4: Job? = null
+    private var findAllCartJob5: Job? = null
+    private var findSelectedCartJob6: Job? = null
+    private var findAllSelectedCartItemsJob7: Job? = null
     private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
+
+
+    init {
+        this.add(DEFAULT_CART)
+        Thread.sleep(100)
+        this.selectCart(DEFAULT_CART)
+    }
 
     @Deprecated("Just filter it youself")
     val allCartItemsGrouped: StateFlow<Map<RecipeId?, List<CartItem>>> = _allCartItemsGrouped
@@ -60,27 +68,28 @@ class CartViewModel(
     val allCart: StateFlow<List<Cart>> = _allCart
 
     init {
-        job1?.cancel()
-        job2?.cancel()
-        job3?.cancel()
-        job4?.cancel()
-        job5?.cancel()
-        job2 = _cartItems.listenTo(cartDao.findAllInCart(), viewModelScope)
-        job3 = _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
-        job4 = _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
-        job5 = _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
-        job6 = _selectedCart.listenTo(cartDao.findSelectedCart(), viewModelScope)
+        currentCartItemsJob1?.cancel()
+        findAllInCartJob2?.cancel()
+        findAllItemsJob3?.cancel()
+        findAllCartItemsJob4?.cancel()
+        findAllCartJob5?.cancel()
+        findSelectedCartJob6?.cancel()
+        findAllInCartJob2 = _cartItems.listenTo(cartDao.findAllInCart(), viewModelScope)
+        findAllItemsJob3 = _allItems.listenTo(cartDao.findAllItems(), viewModelScope)
+        findAllCartItemsJob4 = _allCartItems.listenTo(cartDao.findAllCartItems(), viewModelScope)
+        findAllCartJob5 = _allCart.listenTo(cartDao.findAllCart(), viewModelScope)
+        findSelectedCartJob6 = _selectedCart.listenTo(cartDao.findSelectedCart(), viewModelScope)
 
     }
 
     private suspend fun updateSelectedCart(cart: Cart?) {
         cartDao.selectCart(cart?.cartId?.id)
-        job1?.cancel()
-        job2?.cancel()
-        job1 =
+        currentCartItemsJob1?.cancel()
+        findAllSelectedCartItemsJob7?.cancel()
+        currentCartItemsJob1 =
             _currentCartItems.listenTo(cartDao.findAllSelectedCartItems(getSelectedCart().cartId),
                 viewModelScope)
-        job2 = _allCartItemsGrouped.listenTo(
+        findAllSelectedCartItemsJob7 = _allCartItemsGrouped.listenTo(
             cartDao.findAllSelectedCartItems(getSelectedCart().cartId),
             viewModelScope,
             ModelTransformation::groupCartItemsByRecipe
@@ -95,7 +104,12 @@ class CartViewModel(
 
     fun add(newCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
         Log.d(tag, "+++\tCart\t $newCart")
+        val shouldSelectNewCart = newCart.selected
+        newCart.selected = false // inserting selected would insert a second selected cart
         cartDao.save(newCart)
+        if (shouldSelectNewCart) {
+            selectCart(newCart)
+        }
     }
 
 
@@ -113,7 +127,11 @@ class CartViewModel(
 
     fun update(updatedCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
         Log.d(tag, "vvv\tCart: $updatedCart")
-        cartDao.updateAll(updatedCart)
+        val shouldBeSelected = updatedCart.selected
+        cartDao.updateAll(updatedCart.copy(selected = false))
+        if (shouldBeSelected) {
+            selectCart(updatedCart)
+        }
     }
 
     @Transaction
@@ -259,11 +277,10 @@ class CartViewModel(
         }
     }
 
-    private fun getSelectedCart(): Cart {
-        if (null == _selectedCart.value) {
-            _selectedCart.value = DEFAULT_CART
-        }
-        return _selectedCart.value!!
+    private fun getSelectedCart(): Cart = runBlocking {
+        val selectedCart = cartDao.getSelectedCart()
+        _selectedCart.value = selectedCart
+        return@runBlocking selectedCart ?: DEFAULT_CART
     }
 }
 

@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.mock
 
 import android.util.Log
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.dao.getItemByItemId
 import de.moyapro.nushppinglist.db.model.Cart
@@ -56,8 +57,16 @@ class CartDaoMock(
         pushCartItems()
     }
 
-    override suspend fun save(vararg carts: Cart) {
-        cartTable.addAll(carts)
+    override suspend fun save(vararg cart: Cart) {
+        for (it in cart) {
+            if (cartTable.contains(it)) {
+                continue
+            }
+            val amountBeforAdd = cartTable.size
+            cartTable += cart
+            val amountAfterAdd = cartTable.size
+            check(amountAfterAdd - amountBeforAdd >= 1) { "Should have added carts to cartTable. Before: $amountBeforAdd, After: $amountAfterAdd. Tried to add ${cart.joinToString()}" }
+        }
         pushCart()
     }
 
@@ -175,7 +184,7 @@ class CartDaoMock(
         itemId: UUID,
         cartId: UUID?,
     ): CartItemProperties? {
-        return cartItemPropertiesTable.singleOrNull { itemId == it.itemId.id && it.inCart?.id == cartId }
+        return cartItemPropertiesTable.singleOrNull { itemId == it.itemId.id && it.inCart.id == cartId }
     }
 
     override suspend fun getCartItemByCartItemId_internal(cartItemId: UUID): CartItemProperties? {
@@ -190,7 +199,22 @@ class CartDaoMock(
         return this.itemTable.firstOrNull { it.name == itemName }
     }
 
-    override suspend fun getSelectedCart(): Cart? = this.cartTable.firstOrNull { it.selected }
+    override suspend fun getSelectedCart(): Cart {
+        val selectedCartCandidates = this.cartTable.filter { it.selected }
+        return when {
+            selectedCartCandidates.size == 1 -> {
+                Log.d(tag, "Returning selected cart ${selectedCartCandidates[0]}")
+                selectedCartCandidates[0]
+            }
+            selectedCartCandidates.isEmpty() -> {
+                Log.w(tag, "No cart was selected. Returning default cart instead")
+                DEFAULT_CART
+            }
+            else -> {
+                throw java.lang.IllegalStateException("There are multiple selected carts: $selectedCartCandidates")
+            }
+        }
+    }
 
     override suspend fun remove(cartItem: CartItemProperties) {
         Log.d(tag, "---\t Remove $cartItem")
@@ -210,7 +234,12 @@ class CartDaoMock(
     }
 
     override suspend fun selectCart(cartId: UUID?) {
+        require(cartTable.size > 0) { "Cannot select cart when there are no carts in DB" }
         cartTable.forEach { it.selected = (it.cartId.id == cartId) }
+        val actuallySelected = cartTable.single { it.selected }
+        check(actuallySelected.cartId.id == cartId) { "Expected $cartId to be selected but actually ${actuallySelected.cartId.id}. Available carts were: $cartTable" }
+        pushCart()
+        Log.d(tag, "selected cart: $actuallySelected")
     }
 
     override suspend fun getCartByCartId_internal(cartId: UUID): Cart? {
@@ -229,6 +258,7 @@ class CartDaoMock(
 
     private fun pushCart() {
         externalScope.launch {
+            Log.d(tag, "push cart: ${cartTable.joinToString()}")
             cartChannel.value = cartTable.toList()
         }
         pushCartItems()

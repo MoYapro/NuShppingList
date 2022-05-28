@@ -1,6 +1,7 @@
 package de.moyapro.nushppinglist.sync
 
 import com.hivemq.client.mqtt.datatypes.MqttTopic
+import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
 import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
@@ -52,8 +53,8 @@ class CartMessageHandlerTest {
     fun handleCartMessage__cartAndItemExists(): Unit = runBlocking {
         val cart = Cart()
         val cartItemList = listOf(
-            CartItem("item1"),
-            CartItem("item2")
+            CartItem("item1", DEFAULT_CART.cartId),
+            CartItem("item2", DEFAULT_CART.cartId)
         )
         viewModel.add(cart)
         Thread.sleep(100)
@@ -207,7 +208,8 @@ class CartMessageHandlerTest {
     @Test
     fun insertCartItemPropertiesWithIdConflict(): Unit = runBlocking {
         val handler = CartMessageHandler(cartDao, MockPublisher)
-        val cartItemPropertiesToInsert = CartItemProperties(newItemId = ItemId(), amount = 12)
+        val cartItemPropertiesToInsert =
+            CartItemProperties(newItemId = ItemId(), amount = 12, inCart = DEFAULT_CART.cartId)
         val item = Item()
         val conflictingPropertiesInDb =
             CartItem(

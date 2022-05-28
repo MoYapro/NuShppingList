@@ -24,7 +24,9 @@ class CartMessageHandler(
     override suspend fun invoke(cartMessage: CartMessage) {
         Log.d(tag, "start handle $cartMessage")
 
-        saveItems(cartMessage.itemList)
+        runBlocking {
+            saveItems(cartMessage.itemList)
+        }
 
 
         if (requestMissingCarts(cartMessage)) {
@@ -103,11 +105,11 @@ class CartMessageHandler(
             cartDao.getCartItemByItemId(newCartItemProperties.itemId, newCartItemProperties.inCart)
         when {
             cartItemInDb == newCartItemProperties -> {
-                Log.d(tag, "Item already exists $newCartItemProperties")
+                Log.d(tag, "CartItemProperties already exists $newCartItemProperties")
                 return
             }
             null == cartItemInDb && null == cartItemWithSameItemId -> {
-                Log.d(tag, "Item does not exist $newCartItemProperties")
+                Log.d(tag, "CartItemProperties do not exist $newCartItemProperties")
                 cartDao.save(newCartItemProperties)
             }
             null == cartItemInDb && null != cartItemWithSameItemId -> {

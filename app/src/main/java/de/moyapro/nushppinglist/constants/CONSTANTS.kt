@@ -27,10 +27,10 @@ object CONSTANTS {
     )
 
     val DEFAULT_CART = Cart(
-        cartId = CartId(UUID.fromString("343f4bbe-36fc-4e12-8360-b9a45f720f86")),
+        cartId = CartId(UUID(0,0)),
         cartName = "Einkaufsliste",
         synced = false,
-        selected = true
+        selected = false
     )
 
     const val MUTED_ALPHA = .7F
