@@ -51,7 +51,7 @@ class CartMessageHandlerTest {
 
     @Test(timeout = 10_000)
     fun handleCartMessage__cartAndItemExists(): Unit = runBlocking {
-        val cart = Cart()
+        val cart = Cart("newCart")
         val cartItemList = listOf(
             CartItem("item1", DEFAULT_CART.cartId),
             CartItem("item2", DEFAULT_CART.cartId)
@@ -81,15 +81,17 @@ class CartMessageHandlerTest {
 
     @Test(timeout = 10_000)
     fun handleCartMessage__ItemExists(): Unit = runBlocking {
-        val cart = Cart()
+        val cart = Cart(cartName = "newCart", selected = true)
         val cartItemList = listOf(
-            createSampleCartItem(),
-            createSampleCartItem()
+            createSampleCartItem(inCart = cart.cartId),
+            createSampleCartItem(inCart = cart.cartId)
         )
         viewModel.add(cart)
+        Thread.sleep(100)
         cartItemList.map { it.item }.forEach {
             viewModel.add(it)
         }
+        Thread.sleep(100)
         val request = CartMessage(cartItemList.map { it.cartItemProperties }, cart.cartId)
         CartMessageHandler(cartDao, MockPublisher)(request)
         Thread.sleep(100)
@@ -101,7 +103,7 @@ class CartMessageHandlerTest {
 
     @Test(timeout = 10_000)
     fun handleCartRequest__success(): Unit = runBlocking {
-        val cart = Cart()
+        val cart = Cart("newCart")
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         val updatedCartItemProperties = cartItem.cartItemProperties.copy(
             amount = cartItem.cartItemProperties.amount + 1,
@@ -121,10 +123,10 @@ class CartMessageHandlerTest {
         }
     }
 
-    @Test(timeout = 10_000)
+    @Test(timeout = Long.MAX_VALUE)
     fun handleCartRequest__success_removeLast(): Unit = runBlocking {
-        val cart = Cart()
-        val cartItem = createSampleCartItem()
+        val cart = Cart("newCart")
+        val cartItem = createSampleCartItem(inCart = cart.cartId)
         viewModel.add(cart)
         viewModel.add(cartItem)
         Thread.sleep(100)
@@ -215,7 +217,8 @@ class CartMessageHandlerTest {
             CartItem(
                 cartItemProperties = cartItemPropertiesToInsert.copy(
                     itemId = item.itemId,
-                    amount = 9
+                    amount = 9,
+                    inCart = DEFAULT_CART.cartId
                 ), item = item
             )
         cartDao.save(conflictingPropertiesInDb.item)
@@ -223,7 +226,7 @@ class CartMessageHandlerTest {
         Thread.sleep(100)
         cartDao.cartItemPropertiesTable shouldHaveSize 1
 
-        handler(CartMessage(listOf(cartItemPropertiesToInsert)))
+        handler(CartMessage(listOf(cartItemPropertiesToInsert), DEFAULT_CART.cartId))
 
         Thread.sleep(100)
         cartDao.cartItemPropertiesTable shouldHaveSize 1

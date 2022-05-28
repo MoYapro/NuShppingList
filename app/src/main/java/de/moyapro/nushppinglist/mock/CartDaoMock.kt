@@ -58,8 +58,8 @@ class CartDaoMock(
     }
 
     override suspend fun save(vararg cart: Cart) {
-        for (it in cart) {
-            if (cartTable.contains(it)) {
+        for (newCart in cart) {
+            if (cartTable.contains(newCart)) {
                 continue
             }
             val amountBeforAdd = cartTable.size

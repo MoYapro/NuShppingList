@@ -399,7 +399,7 @@ class ViewModelTest {
 
     @Test
     fun createNewCart(): Unit = runBlocking {
-        val cart = Cart()
+        val cart = Cart("newCart")
         viewModel.add(cart)
         Thread.sleep(100)
         val carts = viewModel.allCart.take(1).toList().flatten()
@@ -408,10 +408,11 @@ class ViewModelTest {
 
     @Test
     fun updateCart(): Unit = runBlocking {
-        val cart = Cart()
+        val cart = Cart("newCart")
         viewModel.add(cart)
         Thread.sleep(100)
         val carts = viewModel.allCart.take(1).toList().flatten()
+        Log.d(tag, "carts: ${carts.joinToString()}")
         carts.single { it.cartId != DEFAULT_CART.cartId } shouldBe cart
 
         val updatedCart = cart.copy(cartName = "newName", synced = !cart.synced, selected = true)
@@ -422,7 +423,7 @@ class ViewModelTest {
 
     @Test
     fun deleteCart(): Unit = runBlocking {
-        val cart = Cart()
+        val cart = Cart("newCart")
         viewModel.add(cart)
         Thread.sleep(100)
         val carts = viewModel.allCart.take(1).toList().flatten()
@@ -470,8 +471,8 @@ class ViewModelTest {
 
     @Test
     fun setSelectedCart(): Unit = runBlocking {
-        val initialySelected = Cart().apply { selected = true; cartName = "initialySelected" }
-        val eventuallySelected = Cart().apply { selected = false; cartName = "eventuallySelected" }
+        val initialySelected = Cart("initialySelected").apply { selected = true }
+        val eventuallySelected = Cart("eventuallySelected").apply { selected = false }
         Log.d(tag, "0st \t" + cartDao.cartTable.joinToString())
         viewModel.add(initialySelected)
         delay(10)

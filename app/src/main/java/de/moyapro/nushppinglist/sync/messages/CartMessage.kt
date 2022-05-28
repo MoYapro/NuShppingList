@@ -11,7 +11,7 @@ import de.moyapro.nushppinglist.db.model.Item
 data class CartMessage(
     val cartItemPropertiesList: List<CartItemProperties> = emptyList(),
     val itemList: List<Item> = emptyList(),
-    val cartId: CartId? = null,
+    val cartId: CartId,
 ) : ShoppingMessage {
     constructor(vararg cartItemProperties: CartItemProperties, cartId: CartId) : this(
         cartItemPropertiesList = cartItemProperties.toList(),
@@ -20,12 +20,15 @@ data class CartMessage(
 
     constructor() : this(emptyList(), emptyList(), CartId())
 
-    constructor(cartItemPropertiesList: List<CartItemProperties>, cartId: CartId?) : this(
+    constructor(cartItemPropertiesList: List<CartItemProperties>, cartId: CartId) : this(
         cartItemPropertiesList,
         emptyList(),
         cartId)
 
     override fun getTopic(): String = "$MQTT_TOPIC_CART/${cartId?.id}"
 
+    init {
+        require(cartItemPropertiesList.all { it.inCart == cartId }) { "CartMessage should contain only cartItemProperties in given cart but was cartId: $cartId, ${cartItemPropertiesList.joinToString()}" }
+    }
 
 }

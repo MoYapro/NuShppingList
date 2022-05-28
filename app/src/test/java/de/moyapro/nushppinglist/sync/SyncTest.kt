@@ -129,7 +129,7 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun syncCartWithExistingItems() {
-        val cart = Cart().apply { synced = true }
+        val cart = Cart("newCart").apply { synced = true }
         val cartItem = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         val item = cartItem.item
         viewModelBob.add(cart)
@@ -159,7 +159,7 @@ class SyncTest {
 
     @Test(timeout = 10_000)
     fun updateCartItem() {
-        val cart = Cart().apply { synced = true }
+        val cart = Cart("newCart").apply { synced = true }
         val originalCartItem = createSampleCartItem().apply { cartItemProperties.checked = false; cartItemProperties.inCart = cart.cartId }
         val itemId = originalCartItem.item.itemId
         val updatedCartItemProperties =

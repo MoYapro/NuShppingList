@@ -122,7 +122,8 @@ class CartViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             Log.d(tag, "vvv\t$updatedCartItemProperties")
             cartDao.updateAll(updatedCartItemProperties)
-            cartMessageHandler(CartMessage(listOf(updatedCartItemProperties)))
+            cartMessageHandler(CartMessage(listOf(updatedCartItemProperties),
+                updatedCartItemProperties.inCart))
         }
 
     fun update(updatedCart: Cart) = viewModelScope.launch(Dispatchers.IO) {
@@ -151,7 +152,7 @@ class CartViewModel(
     fun toggleChecked(itemToToggle: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
         itemToToggle.checked = !itemToToggle.checked
         publish(itemToToggle)
-        cartMessageHandler(CartMessage(listOf(itemToToggle)))
+        cartMessageHandler(CartMessage(listOf(itemToToggle), itemToToggle.inCart))
     }
 
     fun getItemByItemId(itemId: ItemId): Item? = runBlocking {
@@ -199,18 +200,20 @@ class CartViewModel(
 
     fun addToCart(itemName: String) = viewModelScope.launch(Dispatchers.IO) {
         val existingItem: Item? = cartDao.getItemByItemName(itemName)
+        val selectedCartId = getSelectedCart().cartId
         if (null == existingItem) {
             Log.d(tag, "create new item from name: $itemName")
-            add(CartItem(itemName, getSelectedCart().cartId))
+            add(CartItem(itemName, selectedCartId))
         } else {
-            Log.d(tag, "add item with name $itemName to cart ${getSelectedCart().cartId}")
+            Log.d(tag, "add item with name $itemName to cart $selectedCartId")
             val existingCartItem =
-                cartDao.getCartItemByItemId(existingItem.itemId, getSelectedCart().cartId)
+                cartDao.getCartItemByItemId(existingItem.itemId, selectedCartId)
             if (null == existingCartItem) {
                 cartMessageHandler(CartMessage(listOf(CartItem(existingItem,
-                    getSelectedCart().cartId).cartItemProperties)))
+                    selectedCartId).cartItemProperties), selectedCartId))
             } else {
-                cartMessageHandler(CartMessage(listOf(existingCartItem.copy(amount = existingCartItem.amount + 1))))
+                cartMessageHandler(CartMessage(listOf(existingCartItem.copy(amount = existingCartItem.amount + 1)),
+                    existingCartItem.inCart))
             }
         }
     }

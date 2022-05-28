@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import de.moyapro.nushppinglist.db.ids.CartId
+import java.util.*
 
 @Entity(indices = [Index(value = ["cartName"], unique = true)])
 data class Cart(
@@ -15,6 +16,6 @@ data class Cart(
     var synced: Boolean = false,
     var selected: Boolean = false,
 ) {
-    constructor() : this(cartName = "")
+    constructor() : this(cartId = CartId(UUID(0,0)), cartName = "")
     constructor(cartName: String) : this(cartId= CartId(), cartName = cartName)
 }

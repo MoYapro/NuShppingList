@@ -216,7 +216,7 @@ class CartDbTest {
         val numberOfItemsPerCart = 3
         viewModel.add(DEFAULT_CART)
         repeat(numberOfCarts) { cartNumber ->
-            val cart = Cart().apply { selected = false; cartName = "cart$cartNumber" }
+            val cart = Cart("cart$cartNumber").apply { selected = false; }
             viewModel.add(cart)
             repeat(numberOfItemsPerCart) { itemNumber ->
                 viewModel.add(CartItem(Item("cart${cartNumber}item$itemNumber"), cart.cartId))

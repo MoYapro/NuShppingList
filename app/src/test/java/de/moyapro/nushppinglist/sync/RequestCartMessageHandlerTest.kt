@@ -44,7 +44,7 @@ class RequestCartMessageHandlerTest {
 
     @Test(timeout = 10_000)
     fun handleCartRequest__success(): Unit = runBlocking {
-        val cart = Cart()
+        val cart = Cart("newCart")
         val cartItem1 = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         val cartItem2 = createSampleCartItem().apply { cartItemProperties.inCart = cart.cartId }
         viewModel.add(cart)
