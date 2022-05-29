@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.db.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.moyapro.nushppinglist.db.ids.CartId
@@ -13,6 +14,7 @@ data class CartItemProperties(
     var cartItemId: UUID,
     @get:JvmName("getInCart")
     @set:JvmName("setInCart")
+    @ColumnInfo(name = "inCart", typeAffinity = ColumnInfo.BLOB)
     var inCart: CartId,
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")

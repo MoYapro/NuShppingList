@@ -20,8 +20,10 @@ import kotlinx.coroutines.CoroutineScope
     ],
     autoMigrations = [
         AutoMigration(from = 7, to = 8),
+        AutoMigration(from = 8, to = 9),
     ],
-    version = 9)
+
+    version = 10)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartDao(): CartDao
@@ -45,6 +47,8 @@ abstract class AppDatabase : RoomDatabase() {
                     "nuShoppingListDatabase"
                 )
                     .addMigrations(Migration_8_9)
+//                    .addMigrations(Migration_9_10)
+//                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

@@ -29,6 +29,7 @@ import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
@@ -86,17 +87,25 @@ class MainActivity : ComponentActivity() {
         Log.d(tag, "start initTestData")
 
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
-            database.clearAllTables()
+//            Log.w(tag, "Clear all tables")
+//            database.clearAllTables()
             if (MainView.REZEPTE.enabled) {
                 recipeViewModel.save(createSampleRecipeCake())
                 recipeViewModel.save(createSampleRecipeNoodels())
             }
-            var defaultCart = cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()
-            if (SWITCHES.CREATE_DEFAULT_LIST && null == defaultCart) {
-                Log.i(tag, "Create default cart")
-                cartViewModel.add(CONSTANTS.DEFAULT_CART)
-                delay(200.milliseconds)
+            runBlocking {
+                with(cartViewModel) {
+                    Log.d(tag, "Insert default cart")
+                    val doesExist =
+                        allCart.take(1).toList().first().contains(CONSTANTS.DEFAULT_CART)
+                    if (!doesExist) {
+                        add(CONSTANTS.DEFAULT_CART)
+                    }
+                    delay(100.milliseconds)
+                    selectCart(CONSTANTS.DEFAULT_CART)
+                }
             }
+            var defaultCart = cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()
             defaultCart = cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()
             if (SWITCHES.INIT_DB_ON_BOOT && null != defaultCart) {
                 createTestData(defaultCart.cartId)

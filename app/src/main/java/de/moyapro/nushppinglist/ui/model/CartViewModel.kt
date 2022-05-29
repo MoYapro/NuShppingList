@@ -21,7 +21,9 @@ import de.moyapro.nushppinglist.sync.messages.RequestCartListMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 @FlowPreview
 class CartViewModel(
     private val cartDao: CartDao,
@@ -55,12 +57,6 @@ class CartViewModel(
     private var findAllSelectedCartItemsJob7: Job? = null
     private val _allCartItemsGrouped = MutableStateFlow<Map<RecipeId?, List<CartItem>>>(emptyMap())
 
-
-    init {
-        this.add(DEFAULT_CART)
-        Thread.sleep(100)
-        this.selectCart(DEFAULT_CART)
-    }
 
     @Deprecated("Just filter it youself")
     val allCartItemsGrouped: StateFlow<Map<RecipeId?, List<CartItem>>> = _allCartItemsGrouped
