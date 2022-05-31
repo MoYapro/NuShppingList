@@ -36,7 +36,6 @@ class ItemMessageHandler(
                 null != itemInDb && null == itemWithSameName -> cartDao.updateAll(
                     merge(itemInDb, itemFromMessage))
                 null != itemInDb && null != itemWithSameName -> {
-                    cartDao.remove(itemInDb)
                     cartDao.updateAll(merge(merge(itemInDb, itemWithSameName), itemFromMessage))
                 }
                 else -> throw IllegalStateException("Could not determin action for item $itemFromMessage")
