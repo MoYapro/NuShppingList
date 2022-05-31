@@ -14,8 +14,8 @@ data class CartItemProperties(
     var cartItemId: UUID,
     @get:JvmName("getInCart")
     @set:JvmName("setInCart")
-    @ColumnInfo(name = "inCart", typeAffinity = ColumnInfo.BLOB)
-    var inCart: CartId,
+    @ColumnInfo(name = "inCart", typeAffinity = ColumnInfo.BLOB, defaultValue =  "0")
+    var inCart: CartId = CartId(UUID(0,0)),
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
     var itemId: ItemId,
