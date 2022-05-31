@@ -15,6 +15,7 @@ import de.moyapro.nushppinglist.constants.CONSTANTS.PREFERENCES_FILE_NAME
 import de.moyapro.nushppinglist.db.AppDatabase
 import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
+import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.service.BackgroundSyncService
@@ -27,9 +28,9 @@ import de.moyapro.nushppinglist.ui.theme.NuShppingListTheme
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeCake
 import de.moyapro.nushppinglist.ui.util.createSampleRecipeNoodels
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
@@ -42,8 +43,10 @@ class MainActivity : ComponentActivity() {
         ViewModelFactory(database, MqttSingleton.adapter)
     }
     private val recipeViewModel by viewModels<RecipeViewModel>() {
-        ViewModelFactory(database,
-            null)
+        ViewModelFactory(
+            database,
+            null
+        )
     }
 
     companion object {
@@ -61,10 +64,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(tag, "create onCreate")
         super.onCreate(savedInstanceState)
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
-        preferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
-
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        preferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE)
         initData()
         setContent {
             NuShppingListTheme {
@@ -76,8 +77,12 @@ class MainActivity : ComponentActivity() {
             }
         }
         if (preferences?.getBoolean(SETTING.SYNC_ENABLED.name, false) == true) {
-            applicationContext.startService(Intent(applicationContext,
-                BackgroundSyncService::class.java))
+            applicationContext.startService(
+                Intent(
+                    applicationContext,
+                    BackgroundSyncService::class.java
+                )
+            )
         }
 
     }
@@ -93,20 +98,19 @@ class MainActivity : ComponentActivity() {
                 recipeViewModel.save(createSampleRecipeCake())
                 recipeViewModel.save(createSampleRecipeNoodels())
             }
-            runBlocking {
                 with(cartViewModel) {
-                    Log.d(tag, "Insert default cart")
+                    Log.d(tag, "Insert default cart?")
                     val doesExist =
-                        allCart.take(1).toList().first().contains(CONSTANTS.DEFAULT_CART)
+                        database.cartDao().findAllCart().first().map(Cart::cartName)
+                            .contains(CONSTANTS.DEFAULT_CART.cartName)
                     if (!doesExist) {
+                        Log.d(tag, "Insert default cart!")
                         add(CONSTANTS.DEFAULT_CART)
                     }
                     delay(100.milliseconds)
                     selectCart(CONSTANTS.DEFAULT_CART)
                 }
-            }
-            var defaultCart = cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()
-            defaultCart = cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()
+            val defaultCart = cartViewModel.allCart.take(1).firstOrNull()?.firstOrNull()
             if (SWITCHES.INIT_DB_ON_BOOT && null != defaultCart) {
                 createTestData(defaultCart.cartId)
             }
