@@ -1,5 +1,4 @@
 /build
-/schemas/de.moyapro.nushppinglist.db.AppDatabase/*.json
 /release
 /debug
 /moquette_store.h2

@@ -1,0 +1,270 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 6,
+    "identityHash": "9c759158386d96c116edc60254061514",
+    "entities": [
+      {
+        "tableName": "Item",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` BLOB NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `defaultItemAmount` INTEGER NOT NULL, `defaultItemUnit` TEXT NOT NULL, `price` INTEGER NOT NULL, `kategory` TEXT NOT NULL, PRIMARY KEY(`itemId`))",
+        "fields": [
+          {
+            "fieldPath": "itemId",
+            "columnName": "itemId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "defaultItemAmount",
+            "columnName": "defaultItemAmount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "defaultItemUnit",
+            "columnName": "defaultItemUnit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kategory",
+            "columnName": "kategory",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "itemId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "CartItemProperties",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cartItemPropertiesId` BLOB NOT NULL, `cartItemId` BLOB NOT NULL, `itemId` BLOB NOT NULL, `recipeId` BLOB, `amount` INTEGER NOT NULL, `checked` INTEGER NOT NULL, PRIMARY KEY(`cartItemPropertiesId`))",
+        "fields": [
+          {
+            "fieldPath": "cartItemPropertiesId",
+            "columnName": "cartItemPropertiesId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cartItemId",
+            "columnName": "cartItemId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemId",
+            "columnName": "itemId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recipeId",
+            "columnName": "recipeId",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checked",
+            "columnName": "checked",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "cartItemPropertiesId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RecipeItem",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipeItemId` BLOB NOT NULL, `recipeId` BLOB NOT NULL, `amount` REAL NOT NULL, `itemId` BLOB NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `defaultItemAmount` INTEGER NOT NULL, `defaultItemUnit` TEXT NOT NULL, `price` INTEGER NOT NULL, `kategory` TEXT NOT NULL, PRIMARY KEY(`recipeItemId`))",
+        "fields": [
+          {
+            "fieldPath": "recipeItemId",
+            "columnName": "recipeItemId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recipeId",
+            "columnName": "recipeId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "item.itemId",
+            "columnName": "itemId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "item.name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "item.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "item.defaultItemAmount",
+            "columnName": "defaultItemAmount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "item.defaultItemUnit",
+            "columnName": "defaultItemUnit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "item.price",
+            "columnName": "price",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "item.kategory",
+            "columnName": "kategory",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "recipeItemId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RecipeProperties",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipePropertiesId` BLOB NOT NULL, `recipeId` BLOB NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, PRIMARY KEY(`recipePropertiesId`))",
+        "fields": [
+          {
+            "fieldPath": "recipePropertiesId",
+            "columnName": "recipePropertiesId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recipeId",
+            "columnName": "recipeId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "recipePropertiesId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RecipeStep",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`recipeStepId` BLOB NOT NULL, `recipeId` BLOB NOT NULL, `stepNumber` INTEGER NOT NULL, `stepDescription` TEXT NOT NULL, PRIMARY KEY(`recipeStepId`))",
+        "fields": [
+          {
+            "fieldPath": "recipeStepId",
+            "columnName": "recipeStepId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recipeId",
+            "columnName": "recipeId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepNumber",
+            "columnName": "stepNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepDescription",
+            "columnName": "stepDescription",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "recipeStepId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9c759158386d96c116edc60254061514')"
+    ]
+  }
+}
