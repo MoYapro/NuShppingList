@@ -242,6 +242,10 @@ class CartDaoMock(
         Log.d(tag, "selected cart: $actuallySelected")
     }
 
+    override suspend fun removeCartItemPropertiesByItemId_internal(itemId: UUID) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getCartByCartId_internal(cartId: UUID): Cart? {
         return cartTable.singleOrNull { it.cartId.id == cartId }
     }

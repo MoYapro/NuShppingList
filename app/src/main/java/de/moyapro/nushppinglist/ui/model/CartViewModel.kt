@@ -5,10 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
 import de.moyapro.nushppinglist.constants.CONSTANTS.DEFAULT_CART
-import de.moyapro.nushppinglist.db.dao.CartDao
-import de.moyapro.nushppinglist.db.dao.findAllSelectedCartItems
-import de.moyapro.nushppinglist.db.dao.getCartItemByItemId
-import de.moyapro.nushppinglist.db.dao.getItemByItemId
+import de.moyapro.nushppinglist.db.dao.*
 import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.db.model.*
 import de.moyapro.nushppinglist.mock.CartDaoMock
@@ -243,11 +240,7 @@ class CartViewModel(
 
     fun removeItem(itemToRemove: Item) = viewModelScope.launch(Dispatchers.IO) {
         cartDao.remove(itemToRemove)
-        val cartItemProperties =
-            cartDao.getCartItemByItemId(itemToRemove.itemId, getSelectedCart().cartId)
-        if (null != cartItemProperties) {
-            cartDao.remove(cartItemProperties)
-        }
+        cartDao.removeCartItemPropertiesByItemId(itemToRemove.itemId)
     }
 
     fun removeCart(cartToRemove: Cart) = viewModelScope.launch(Dispatchers.IO) {

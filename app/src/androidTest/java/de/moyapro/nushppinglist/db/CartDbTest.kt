@@ -122,6 +122,24 @@ class CartDbTest {
         assertEquals(newAmount, dbCartItemProperties.cartItemProperties.amount)
     }
 
+    @Test(timeout = 10000)
+    fun deleteCartItemPropertiesByItem(): Unit = runBlocking {
+        val cart = Cart("other cart")
+        val itemToRemove = CartItem(item = Item("Dubiose Matsche"), inCart = DEFAULT_CART.cartId)
+        viewModel.add(DEFAULT_CART)
+        viewModel.add(itemToRemove)
+        viewModel.add(cart)
+        viewModel.selectCart(cart)
+        viewModel.addToCart(itemToRemove.item)
+        Thread.sleep(100)
+        viewModel.cartItems.take(1).first() shouldHaveSize 2
+
+        viewModel.removeItem(itemToRemove.item)
+
+        Thread.sleep(100)
+        viewModel.cartItems.take(1).first() shouldHaveSize 0
+    }
+
     @OptIn(ExperimentalTime::class)
     @Test(timeout = 10000)
     @Throws(Exception::class)

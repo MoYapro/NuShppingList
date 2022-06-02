@@ -101,11 +101,20 @@ interface CartDao {
     @Query("select * from CartItemProperties p where p.itemId = :itemId and (:cartId is null OR p.inCart = :cartId)")
     suspend fun getCartItemByItemId_internal(itemId: UUID, cartId: UUID?): CartItemProperties?
 
+    @Deprecated(
+        "This is just for the generated Dao_Impl",
+        level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("getCartItemByItemId(itemId)")
+    )
     @Transaction
     @Query("select * from CartItemProperties p where p.itemId = :cartItemId and p.inCart = :cartItemId")
     suspend fun getCartItemByCartItemId_internal(cartItemId: UUID): CartItemProperties?
 
-
+    @Deprecated(
+        "This is just for the generated Dao_Impl",
+        level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("getCartItemByItemId(itemId)")
+    )
     @Transaction
     @Query("select * from CartItemProperties p where p.cartItemPropertiesId = :cartItemPropertiesId")
     suspend fun getCartItemByCartItemPropertiesId_internal(cartItemPropertiesId: UUID): CartItemProperties?
@@ -142,16 +151,29 @@ interface CartDao {
 
     @Query("update Cart SET selected = (:cartId is not null and cartId = :cartId)")
     suspend fun selectCart(cartId: UUID?)
+
+    @Deprecated(
+        "This is just for the generated Dao_Impl",
+        level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("getCartItemByItemId(itemId)")
+    )
+    @Query("delete from cartitemproperties where itemId = :itemId")
+    suspend fun removeCartItemPropertiesByItemId_internal(itemId: UUID)
 }
 
-suspend fun CartDao.getCartItemByCartItemPropertiesId(cartItemPropertiesId: UUID)=
+suspend fun CartDao.removeCartItemPropertiesByItemId(itemId: ItemId) =
+    removeCartItemPropertiesByItemId_internal(itemId.id)
+
+suspend fun CartDao.getCartItemByCartItemPropertiesId(cartItemPropertiesId: UUID) =
     getCartItemByCartItemPropertiesId_internal(cartItemPropertiesId)
+
 suspend fun CartDao.getCartItemByItemId(itemId: ItemId, selectedCartId: CartId?) =
     getCartItemByItemId_internal(itemId.id, selectedCartId?.id)
 
 suspend fun CartDao.getItemByItemId(itemId: ItemId): Item? = getItemByItemId_internal(itemId.id)
 suspend fun CartDao.getAllItemByItemId(itemIds: List<ItemId>): List<Item> =
     getAllItemByItemId_internal(itemIds.map { it.id })
+
 suspend fun CartDao.getCartByCartId(cartId: CartId): Cart? = getCartByCartId_internal(cartId.id)
 
 fun CartDao.findAllSelectedCartItems(cartId: CartId?): Flow<List<CartItem>> =
