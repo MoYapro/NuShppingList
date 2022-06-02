@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(tag, "create onCreate")
+        Log.d(tag, "onCreate MainActivity")
         super.onCreate(savedInstanceState)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         preferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE)
