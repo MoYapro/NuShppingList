@@ -50,6 +50,7 @@ fun ItemListElement(
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
             Text(cartItem.cartItemProperties.inCart.toString())
+            Text("checked: ${cartItem.cartItemProperties.checked}")
         }
         Surface(
         ) {

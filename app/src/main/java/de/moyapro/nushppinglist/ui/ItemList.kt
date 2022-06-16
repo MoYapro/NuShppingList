@@ -3,7 +3,6 @@ package de.moyapro.nushppinglist.ui
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -45,38 +44,42 @@ const val tag = "ItemList"
 @Preview
 fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel) {
     val allItemList: List<Item> by viewModel.allItems.collectAsState(listOf())
-    val cartItems: List<CartItem> by viewModel.allCartItems.collectAsState(listOf())
+    val cartItemPropertiesList: List<CartItemProperties> by viewModel.cartItems.collectAsState(
+        listOf()
+    )
 
     /**
      * selected cart is nullable because it might not have been initialized yet
      */
     val selectedCart: Cart? by viewModel.selectedCart.collectAsState(CONSTANTS.DEFAULT_CART)
-    if (SWITCHES.DEBUG) Debug(cartItems, allItemList, selectedCart)
 
     var filter: String by remember { mutableStateOf("") }
-    val filteredItems = allItemList.filter { it.name.lowercase().contains(filter.lowercase()) }
-    val cartItemList: List<CartItem> = filteredItems
+    val cartItemList: List<CartItem> = allItemList
         .map { item ->
-            val cartItem =
-                cartItems.firstOrNull { it.item.itemId == item.itemId && (selectedCart?.cartId == it.cartItemProperties.inCart) }
-            cartItem
-                ?: CartItem(
-                    CartItemProperties(
-                        newItemId = item.itemId,
-                        inCart = selectedCart?.cartId ?: CONSTANTS.DEFAULT_CART.cartId, // selected cart may somehow not be initialized (WTF)
-                        amount = 0
-                    ),
-                    item,
-                )
+            val cartItemProperties =
+                cartItemPropertiesList.firstOrNull { it.itemId == item.itemId && (selectedCart?.cartId == it.inCart) }
+            CartItem(
+                cartItemProperties ?: CartItemProperties(
+                    newItemId = item.itemId,
+                    inCart = selectedCart?.cartId
+                        ?: CONSTANTS.DEFAULT_CART.cartId, // selected cart may somehow not be initialized (WTF)
+                    amount = 0
+                ),
+                item,
+            )
         }
+        .filter { it.item.name.lowercase().contains(filter.lowercase()) }
         .sortedWith(SortCartItemPairByCheckedAndName)
-    val listState = rememberLazyListState()
+
+    Text(cartItemPropertiesList.map(CartItemProperties::checked).joinToString())
+    if (SWITCHES.DEBUG) Debug(cartItemList, allItemList, selectedCart)
+    Log.d(tag, "RERENDER ==================================================================")
+
     val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
     val total: BigDecimal =
         cartItemList.map { it.item.price * BigDecimal(it.cartItemProperties.amount) }
             .sumByBigDecimal()
 
-    Log.d("ItemList", listState.firstVisibleItemIndex.toString())
 
     val coroutineScope = rememberCoroutineScope()
     val clearFilter = { filter = "" }
@@ -87,7 +90,6 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         viewModel,
         filter,
         total,
-        listState,
         cartItemList,
         coroutineScope,
         clearFilter,
@@ -107,7 +109,7 @@ private fun Debug(
         cartItems.map {
             "${
                 it.cartItemProperties.inCart?.id?.toString()?.substring(0..6)
-            } - ${it.item.name} - ${it.cartItemProperties.amount}"
+            } - ${it.item.name} - ${it.cartItemProperties.amount} - ${it.cartItemProperties.checked}"
         }.forEach {
             Text(it)
         }
@@ -123,12 +125,12 @@ private fun mainLayout(
     viewModel: CartViewModel,
     filter: String,
     total: BigDecimal,
-    listState: LazyListState,
     cartItemList: List<CartItem>,
     coroutineScope: CoroutineScope,
     clearFilter: () -> Unit,
     updateFilter: (String) -> Unit,
 ) {
+    Log.i(tag, "repaint mainLayout")
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
         floatingActionButton = if (displayNewItemFab) {
@@ -136,8 +138,10 @@ private fun mainLayout(
                 FloatingActionButton(onClick = {
                     viewModel.addToCart(filter.trim())
                     updateFilter(
-                        if (MainActivity.preferences?.getBoolean(SETTING.CLEAR_AFTER_ADD.name,
-                                false) == true
+                        if (MainActivity.preferences?.getBoolean(
+                                SETTING.CLEAR_AFTER_ADD.name,
+                                false
+                            ) == true
                         )
                             "" else filter.trim()
                     )
@@ -152,7 +156,7 @@ private fun mainLayout(
             itemTopBar(viewModel, total)
         },
         content = { innerPadding ->
-            itemListView(innerPadding, listState, cartItemList, viewModel, coroutineScope)
+            itemListView(innerPadding, cartItemList, viewModel, coroutineScope)
         },
         bottomBar = {
             FilterTextField(filter, clearFilter, updateFilter)
@@ -177,11 +181,11 @@ private fun itemTopBar(
 @Composable
 private fun itemListView(
     innerPadding: PaddingValues,
-    listState: LazyListState,
     cartItemList: List<CartItem>,
     viewModel: CartViewModel,
     coroutineScope: CoroutineScope,
 ) {
+    val listState = rememberLazyListState()
     Box(
         modifier = Modifier
             .fillMaxHeight()
