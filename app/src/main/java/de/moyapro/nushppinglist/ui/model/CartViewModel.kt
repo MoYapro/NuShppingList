@@ -143,9 +143,9 @@ class CartViewModel(
     }
 
     fun toggleChecked(itemToToggle: CartItemProperties) = viewModelScope.launch(Dispatchers.IO) {
-        itemToToggle.checked = !itemToToggle.checked
-        publish(itemToToggle)
-        cartMessageHandler(CartMessage(listOf(itemToToggle), itemToToggle.inCart))
+        val updatedProperties = itemToToggle.copy(checked = !itemToToggle.checked)
+        publish(updatedProperties)
+        cartMessageHandler(CartMessage(listOf(updatedProperties), updatedProperties.inCart))
     }
 
     fun getItemByItemId(itemId: ItemId): Item? = runBlocking {
