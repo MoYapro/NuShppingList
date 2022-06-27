@@ -71,7 +71,6 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
         .filter { it.item.name.lowercase().contains(filter.lowercase()) }
         .sortedWith(SortCartItemPairByCheckedAndName)
 
-    Text(cartItemPropertiesList.map(CartItemProperties::checked).joinToString())
     if (SWITCHES.DEBUG) Debug(cartItemList, allItemList, selectedCart)
     Log.d(tag, "RERENDER ==================================================================")
 

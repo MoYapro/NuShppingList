@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.ui
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -41,6 +42,7 @@ fun ItemListElement(
     editMode: Boolean = false,
     scrollIntoViewAction: () -> Unit = {},
 ) {
+    Log.i(tag, "Repaint ItemListElement with ${cartItem.item.name} - ${cartItem.cartItemProperties.checked}")
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item
 
@@ -184,14 +186,7 @@ fun JustView(
     Spacer(Modifier.height(3.dp))
     val item = cartItem.item
     val cartItemProperties = cartItem.cartItemProperties
-    var checked by remember { mutableStateOf(cartItemProperties.checked) }
-    val alpha = if (checked) .7F else 1F
-    val toggleCheckActionInternal =
-        {
-            if (0 < cartItemProperties.amount) {
-                checked = !cartItemProperties.checked; toggleCheckAction(cartItemProperties)
-            }
-        }
+    val alpha = if (cartItemProperties.checked) .7F else 1F
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -200,7 +195,7 @@ fun JustView(
             .absolutePadding(left = 4.dp)
             .fillMaxWidth()
             .combinedClickable(
-                onClick = toggleCheckActionInternal,
+                onClick = {toggleCheckAction(cartItemProperties)},
                 onLongClick = beginEditMode
             )
             .alpha(alpha)
@@ -213,7 +208,7 @@ fun JustView(
             }
             when {
                 0 >= cartItemProperties.amount -> {}
-                checked -> Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
+                cartItemProperties.checked -> Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
                 else -> Text(" x ")
             }
             Spacer(modifier = Modifier.width(2.dp))
