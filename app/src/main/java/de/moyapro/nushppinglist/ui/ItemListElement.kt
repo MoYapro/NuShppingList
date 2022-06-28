@@ -1,6 +1,5 @@
 package de.moyapro.nushppinglist.ui
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -34,6 +33,7 @@ import de.moyapro.nushppinglist.ui.component.*
 @Composable
 fun ItemListElement(
     cartItem: CartItem,
+    viewLocked: Boolean,
     toggleCheckAction: (CartItemProperties) -> Unit = {},
     saveAction: (Item) -> Unit = {},
     addAction: (Item) -> Unit = {},
@@ -42,7 +42,6 @@ fun ItemListElement(
     editMode: Boolean = false,
     scrollIntoViewAction: () -> Unit = {},
 ) {
-    Log.i(tag, "Repaint ItemListElement with ${cartItem.item.name} - ${cartItem.cartItemProperties.checked}")
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item
 
@@ -60,7 +59,7 @@ fun ItemListElement(
                 .fillMaxWidth()
                 .animateContentSize()
             ) {
-                JustView(cartItem, addAction, toggleCheckAction, subtractAction) {
+                JustView(cartItem, viewLocked, addAction, toggleCheckAction, subtractAction) {
                     isEdited = !isEdited
                     if (isEdited) scrollIntoViewAction()
                 }
@@ -178,6 +177,7 @@ fun EditView(
 @Composable
 fun JustView(
     cartItem: CartItem,
+    viewLocked: Boolean,
     addAction: (Item) -> Unit,
     toggleCheckAction: (CartItemProperties) -> Unit,
     subtractAction: (ItemId) -> Unit = {},
@@ -214,31 +214,44 @@ fun JustView(
             Spacer(modifier = Modifier.width(2.dp))
             Text(item.name)
         }
-        Row {
-            if (cartItem.cartItemProperties.amount > 0) {
-                Button(
-                    modifier = Modifier.height(35.dp),
-                    onClick = { subtractAction(item.itemId) },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor(
-                        cartItemProperties)),
-                ) {
-                    Icon(Icons.Outlined.RemoveShoppingCart, contentDescription = "Löschen")
-                }
-                Spacer(modifier = Modifier.width(1.dp))
-            }
-            Button(
-                modifier = Modifier.height(35.dp),
-                shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp),
-                onClick = { addAction(item) },
-                colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor(
-                    cartItemProperties)),
-            ) {
-                Icon(Icons.Filled.AddShoppingCart, contentDescription = "Hinzufügen")
-                Text(text = amountText(cartItemProperties).trim())
-            }
+        if(!viewLocked) {
+            Buttons(cartItem, subtractAction, item, cartItemProperties, addAction)
         }
     }
     Spacer(Modifier.height(3.dp))
+}
+
+@Composable
+private fun Buttons(
+    cartItem: CartItem,
+    subtractAction: (ItemId) -> Unit,
+    item: Item,
+    cartItemProperties: CartItemProperties,
+    addAction: (Item) -> Unit,
+) {
+    Row {
+        if (cartItem.cartItemProperties.amount > 0) {
+            Button(
+                modifier = Modifier.height(35.dp),
+                onClick = { subtractAction(item.itemId) },
+                colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor(
+                    cartItemProperties)),
+            ) {
+                Icon(Icons.Outlined.RemoveShoppingCart, contentDescription = "Löschen")
+            }
+            Spacer(modifier = Modifier.width(1.dp))
+        }
+        Button(
+            modifier = Modifier.height(35.dp),
+            shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp),
+            onClick = { addAction(item) },
+            colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor(
+                cartItemProperties)),
+        ) {
+            Icon(Icons.Filled.AddShoppingCart, contentDescription = "Hinzufügen")
+            Text(text = amountText(cartItemProperties).trim())
+        }
+    }
 }
 
 @Composable

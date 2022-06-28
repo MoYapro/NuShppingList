@@ -54,6 +54,9 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     val selectedCart: Cart? by viewModel.selectedCart.collectAsState(CONSTANTS.DEFAULT_CART)
 
     var filter: String by remember { mutableStateOf("") }
+    var viewLocked: Boolean by remember {mutableStateOf(false)}
+    val toggleLockedState = {viewLocked = !viewLocked}
+
     val cartItemList: List<CartItem> = allItemList
         .map { item ->
             val cartItemProperties =
@@ -62,17 +65,17 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                 cartItemProperties ?: CartItemProperties(
                     newItemId = item.itemId,
                     inCart = selectedCart?.cartId
-                        ?: CONSTANTS.DEFAULT_CART.cartId, // selected cart may somehow not be initialized (WTF)
+                        ?: CONSTANTS.DEFAULT_CART.cartId,
                     amount = 0
                 ),
                 item,
             )
         }
         .filter { it.item.name.lowercase().contains(filter.lowercase()) }
+        .filter {!viewLocked || it.cartItemProperties.amount > 0}
         .sortedWith(SortCartItemPairByCheckedAndName)
 
     if (SWITCHES.DEBUG) Debug(cartItemList, allItemList, selectedCart)
-    Log.d(tag, "RERENDER ==================================================================")
 
     val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
     val total: BigDecimal =
@@ -87,12 +90,14 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     mainLayout(
         displayNewItemFab,
         viewModel,
+        viewLocked,
         filter,
         total,
         cartItemList,
         coroutineScope,
         clearFilter,
         updateFilter,
+        toggleLockedState,
     )
 }
 
@@ -122,14 +127,17 @@ private fun Debug(
 private fun mainLayout(
     displayNewItemFab: Boolean,
     viewModel: CartViewModel,
+    viewLocked: Boolean,
     filter: String,
     total: BigDecimal,
     cartItemList: List<CartItem>,
     coroutineScope: CoroutineScope,
     clearFilter: () -> Unit,
     updateFilter: (String) -> Unit,
+    toggleLockedState : () -> Unit,
 ) {
-    Log.i(tag, "repaint mainLayout")
+
+
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
         floatingActionButton = if (displayNewItemFab) {
@@ -152,10 +160,10 @@ private fun mainLayout(
             {} // emptyFab
         },
         topBar = {
-            itemTopBar(viewModel, total)
+            itemTopBar(viewModel, total, toggleLockedState)
         },
         content = { innerPadding ->
-            itemListView(innerPadding, cartItemList, viewModel, coroutineScope)
+            itemListView(innerPadding, cartItemList, viewModel, coroutineScope, viewLocked)
         },
         bottomBar = {
             FilterTextField(filter, clearFilter, updateFilter)
@@ -167,12 +175,16 @@ private fun mainLayout(
 private fun itemTopBar(
     viewModel: CartViewModel,
     total: BigDecimal,
+    toggleLockedState: () -> Unit,
 ) {
     Column() {
         Row() {
             removeCheckedButton(viewModel)
             CartSelector(viewModel)
         }
+            Button(onClick = toggleLockedState) {
+Text("lock")
+            }
         SumDisplay(total)
     }
 }
@@ -183,6 +195,7 @@ private fun itemListView(
     cartItemList: List<CartItem>,
     viewModel: CartViewModel,
     coroutineScope: CoroutineScope,
+    viewLocked: Boolean,
 ) {
     val listState = rememberLazyListState()
     Box(
@@ -200,6 +213,7 @@ private fun itemListView(
                 val cartItem = cartItemList[index]
                 ItemListElement(
                     cartItem = cartItem,
+                    viewLocked,
                     toggleCheckAction = viewModel::toggleChecked,
                     saveAction = viewModel::update,
                     addAction = viewModel::addToCart,
