@@ -25,13 +25,16 @@ object SortCartItemPairByCheckedAndNameRecipe : Comparator<Pair<RecipeId?, CartI
 object SortCartItemPairByCheckedAndName : Comparator<CartItem> {
 
     override fun compare(p0: CartItem, p1: CartItem): Int {
-//        Log.i("sorting", "sort item list")
-        val compareChecked =
-            p0.cartItemProperties.checked.compareTo(p1.cartItemProperties.checked)
-        return if (0 == compareChecked) {
-            p0.item.name.compareTo(p1.item.name)
-        } else {
-            compareChecked
+        val p0InList = p0.cartItemProperties.amount > 0
+        val p1InList = p1.cartItemProperties.amount > 0
+        val compareInList = p0InList.compareTo(p1InList)
+        val compareChecked = p0.cartItemProperties.checked.compareTo(p1.cartItemProperties.checked)
+
+        return when {
+            0 != compareInList -> compareInList * -1
+            0 != compareChecked -> compareChecked
+            else -> p0.item.name.compareTo(p1.item.name)
         }
+
     }
 }
