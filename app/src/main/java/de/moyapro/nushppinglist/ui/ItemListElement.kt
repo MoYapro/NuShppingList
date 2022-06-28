@@ -184,8 +184,7 @@ fun JustView(
     beginEditMode: () -> Unit,
 ) {
     Spacer(Modifier.height(3.dp))
-    val item = cartItem.item
-    val cartItemProperties = cartItem.cartItemProperties
+    val (cartItemProperties, item) = cartItem
     val alpha = if (cartItemProperties.checked) .7F else 1F
 
     Row(
@@ -195,30 +194,39 @@ fun JustView(
             .absolutePadding(left = 4.dp)
             .fillMaxWidth()
             .combinedClickable(
-                onClick = {toggleCheckAction(cartItemProperties)},
+                onClick = {if(cartItemProperties.amount > 0) toggleCheckAction(cartItemProperties)},
                 onLongClick = beginEditMode
             )
             .alpha(alpha)
     ) {
-        Row(Modifier.fillMaxWidth(.63F)) {
-            KategoryIndicator(item)
-            Spacer(modifier = Modifier.width(2.dp))
-            if(0 < cartItemProperties.amount) {
-                Text(cartItemProperties.amount.toString())
-            }
-            when {
-                0 >= cartItemProperties.amount -> {}
-                cartItemProperties.checked -> Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
-                else -> Text(" x ")
-            }
-            Spacer(modifier = Modifier.width(2.dp))
-            Text(item.name)
-        }
+        InfoText(item, cartItemProperties)
         if(!viewLocked) {
             Buttons(cartItem, subtractAction, item, cartItemProperties, addAction)
         }
     }
     Spacer(Modifier.height(3.dp))
+}
+
+@Composable
+private fun InfoText(
+    item: Item,
+    cartItemProperties: CartItemProperties,
+) {
+    Row(Modifier.fillMaxWidth(.63F)) {
+        KategoryIndicator(item)
+        Spacer(modifier = Modifier.width(2.dp))
+        if (0 < cartItemProperties.amount) {
+            Text(cartItemProperties.amount.toString())
+        }
+        when {
+            0 >= cartItemProperties.amount -> {}
+            cartItemProperties.checked -> Icon(Icons.Outlined.CheckCircle,
+                contentDescription = "Gekauft")
+            else -> Text(" x ")
+        }
+        Spacer(modifier = Modifier.width(2.dp))
+        Text(item.name)
+    }
 }
 
 @Composable
