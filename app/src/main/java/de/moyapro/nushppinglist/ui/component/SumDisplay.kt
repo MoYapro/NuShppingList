@@ -18,7 +18,7 @@ fun SumDisplay(total: BigDecimal) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Gesamtpreis")
+            Text(" Gesamtpreis")
             Text(
                 modifier = Modifier.absolutePadding(right = 21.dp),
                 text = "$total €")

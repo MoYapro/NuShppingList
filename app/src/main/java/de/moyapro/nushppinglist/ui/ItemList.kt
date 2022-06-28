@@ -10,6 +10,10 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.PlusOne
+import androidx.compose.material.icons.outlined.Dangerous
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,8 +58,8 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     val selectedCart: Cart? by viewModel.selectedCart.collectAsState(CONSTANTS.DEFAULT_CART)
 
     var filter: String by remember { mutableStateOf("") }
-    var viewLocked: Boolean by remember {mutableStateOf(false)}
-    val toggleLockedState = {viewLocked = !viewLocked}
+    var viewLocked: Boolean by remember { mutableStateOf(false) }
+    val toggleLockedState = { viewLocked = !viewLocked }
 
     val cartItemList: List<CartItem> = allItemList
         .map { item ->
@@ -72,12 +76,12 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
             )
         }
         .filter { it.item.name.lowercase().contains(filter.lowercase()) }
-        .filter {!viewLocked || it.cartItemProperties.amount > 0}
+        .filter { !viewLocked || it.cartItemProperties.amount > 0 }
         .sortedWith(SortCartItemPairByCheckedAndName)
 
     if (SWITCHES.DEBUG) Debug(cartItemList, allItemList, selectedCart)
 
-    val displayNewItemFab = filter.trim().isNotBlank() && cartItemList.isEmpty()
+    val displayClearFilterFab = filter.trim().isNotBlank()
     val total: BigDecimal =
         cartItemList.map { it.item.price * BigDecimal(it.cartItemProperties.amount) }
             .sumByBigDecimal()
@@ -88,7 +92,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
     val updateFilter = { newFilter: String -> filter = newFilter }
 
     mainLayout(
-        displayNewItemFab,
+        displayClearFilterFab,
         viewModel,
         viewLocked,
         filter,
@@ -125,7 +129,7 @@ private fun Debug(
 
 @Composable
 private fun mainLayout(
-    displayNewItemFab: Boolean,
+    displayCleanFilterFab: Boolean,
     viewModel: CartViewModel,
     viewLocked: Boolean,
     filter: String,
@@ -134,58 +138,68 @@ private fun mainLayout(
     coroutineScope: CoroutineScope,
     clearFilter: () -> Unit,
     updateFilter: (String) -> Unit,
-    toggleLockedState : () -> Unit,
+    toggleLockedState: () -> Unit,
 ) {
-
+    val emptyFab: @Composable () -> Unit = {}
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
-        floatingActionButton = if (displayNewItemFab) {
+        floatingActionButton = if (displayCleanFilterFab) {
             {
-                FloatingActionButton(onClick = {
-                    viewModel.addToCart(filter.trim())
-                    updateFilter(
-                        if (MainActivity.preferences?.getBoolean(
-                                SETTING.CLEAR_AFTER_ADD.name,
-                                false
-                            ) == true
-                        )
-                            "" else filter.trim()
-                    )
-                }) {
-                    Icon(Icons.Filled.Add, contentDescription = "Neu")
-                }
+                CleanFilterFab(updateFilter)
             }
         } else {
-            {} // emptyFab
+            emptyFab
         },
         topBar = {
-            itemTopBar(viewModel, total, toggleLockedState)
+            itemTopBar(viewModel, total, viewLocked, toggleLockedState)
         },
         content = { innerPadding ->
             itemListView(innerPadding, cartItemList, viewModel, coroutineScope, viewLocked)
         },
         bottomBar = {
-            FilterTextField(filter, clearFilter, updateFilter)
+            FilterTextField(filter, viewModel, updateFilter)
         }
     )
+}
+
+@Composable
+private fun CleanFilterFab(
+    updateFilter: (String) -> Unit,
+) {
+    FloatingActionButton(onClick = {
+        updateFilter("")
+    }) {
+        Icon(Icons.Filled.Clear, contentDescription = "filter entfernen")
+    }
 }
 
 @Composable
 private fun itemTopBar(
     viewModel: CartViewModel,
     total: BigDecimal,
+    viewLocked: Boolean,
     toggleLockedState: () -> Unit,
 ) {
     Column() {
+        CartSelector(viewModel)
         Row() {
-            removeCheckedButton(viewModel)
-            CartSelector(viewModel)
+            RemoveCheckedButton(viewModel)
+            Spacer(modifier = Modifier.width(4.dp))
+            LockButton(viewLocked, toggleLockedState)
+            Spacer(modifier = Modifier.width(4.dp))
+            SumDisplay(total)
         }
-            Button(onClick = toggleLockedState) {
-Text("lock")
-            }
-        SumDisplay(total)
+    }
+}
+
+@Composable
+private fun LockButton(viewLocked: Boolean, toggleLockedState: () -> Unit) {
+    Button(onClick = toggleLockedState) {
+        when (viewLocked) {
+            true -> Icon(Icons.Outlined.Lock, contentDescription = "Lock")
+            false -> Icon(Icons.Outlined.LockOpen, contentDescription = "not Lock")
+        }
     }
 }
 
@@ -234,9 +248,22 @@ private fun itemListView(
 @Composable
 private fun FilterTextField(
     filter: String,
-    clearFilter: () -> Unit,
+    viewModel: CartViewModel,
     updateFilter: (String) -> Unit,
 ) {
+    val filterIsSet = filter.trim() != ""
+    val addItemFromFilter = {
+        viewModel.addToCart(filter.trim())
+        updateFilter(
+            if (MainActivity.preferences?.getBoolean(
+                    SETTING.CLEAR_AFTER_ADD.name,
+                    false
+                ) == true
+            )
+                "" else filter.trim()
+        )
+    }
+
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom,
@@ -246,7 +273,7 @@ private fun FilterTextField(
             onValueChange = updateFilter,
             widthPercentage = .8F,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            doneAction = clearFilter
+            doneAction = addItemFromFilter
         )
         Button(
             modifier = Modifier
@@ -254,16 +281,19 @@ private fun FilterTextField(
                 .fillMaxWidth()
                 .height(57.dp),
             shape = RoundedCornerShape(topStart = 4.dp),
-            onClick = clearFilter
+            onClick = addItemFromFilter
         ) {
-            Icon(Icons.Filled.Clear, contentDescription = "Leeren")
+            when (filterIsSet) {
+                true -> Icon(Icons.Filled.PlusOne, contentDescription = "Leeren")
+                false -> Icon(Icons.Filled.Add, contentDescription = "Leeren")
+            }
         }
     }
 }
 
 @Composable
-private fun removeCheckedButton(viewModel: CartViewModel) {
+private fun RemoveCheckedButton(viewModel: CartViewModel) {
     Button(onClick = { viewModel.removeCheckedFromCart() }) {
-        Text("⎚")
+        Icon(Icons.Outlined.Dangerous, contentDescription = "entferne fertige")
     }
 }
