@@ -1,15 +1,19 @@
 package de.moyapro.nushppinglist.settings
 
 import android.content.SharedPreferences
+import android.util.Log
 import de.moyapro.nushppinglist.constants.SETTING
 
 object SettingsConverter {
+    val tag = SettingsConverter::class.simpleName
     val INVALID_CONNECTION_SETTINGS: ConnectionSettings =
-        ConnectionSettings(false,"", -1, "", "", "", false)
+        ConnectionSettings(false, "", -1, "", "", "", false)
 
     fun toConnectionSettings(preferences: SharedPreferences?): ConnectionSettings {
         val connectionSettings = buildConnectionSettingsFromPreferences(preferences)
-        return if (isValid(connectionSettings)) connectionSettings else INVALID_CONNECTION_SETTINGS
+        val configValid = isValid(connectionSettings)
+        Log.i(tag, "Loaded settings $connectionSettings. Valid? $configValid")
+        return if (configValid) connectionSettings else INVALID_CONNECTION_SETTINGS
     }
 
     private fun isValid(connectionSettings: ConnectionSettings): Boolean {
@@ -23,7 +27,7 @@ object SettingsConverter {
         val (hostname, port) = splitHostnamePort(preferences?.getString(SETTING.SYNC_MQTT_SERVER_HOSTNAME.name,
             "") ?: "")
         return ConnectionSettings(
-            syncEnabled = preferences?.getBoolean(SETTING.SYNC_ENABLED.name, false) ?: false ,
+            syncEnabled = preferences?.getBoolean(SETTING.SYNC_ENABLED.name, false) ?: false,
             hostname = hostname,
             port = port,
             username = preferences?.getString(SETTING.SYNC_MQTT_SERVER_USER.name, "") ?: "",
