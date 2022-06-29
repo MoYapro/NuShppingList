@@ -1,5 +1,6 @@
 package de.moyapro.nushppinglist.sync.messages
 
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.constants.CONSTANTS.MQTT_TOPIC_CART
 import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.model.CartItemProperties
@@ -18,7 +19,7 @@ data class CartMessage(
         cartId = cartId
     )
 
-    constructor() : this(emptyList(), emptyList(), CartId())
+    constructor() : this(emptyList(), emptyList(), CONSTANTS.DEFAULT_CART.cartId)
 
     constructor(cartItemPropertiesList: List<CartItemProperties>, cartId: CartId) : this(
         cartItemPropertiesList,

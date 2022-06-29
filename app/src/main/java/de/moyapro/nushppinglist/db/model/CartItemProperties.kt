@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.db.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import de.moyapro.nushppinglist.constants.CONSTANTS
 import de.moyapro.nushppinglist.db.ids.CartId
 import de.moyapro.nushppinglist.db.ids.ItemId
 import java.util.*
@@ -14,8 +15,8 @@ data class CartItemProperties(
     var cartItemId: UUID,
     @get:JvmName("getInCart")
     @set:JvmName("setInCart")
-    @ColumnInfo(name = "inCart", typeAffinity = ColumnInfo.BLOB, defaultValue =  "0")
-    var inCart: CartId = CartId(UUID(0,0)),
+    @ColumnInfo(name = "inCart", typeAffinity = ColumnInfo.BLOB, defaultValue = "0")
+    var inCart: CartId = CONSTANTS.DEFAULT_CART.cartId,
     @get:JvmName("getItemId")
     @set:JvmName("setItemId")
     var itemId: ItemId,
@@ -43,5 +44,5 @@ data class CartItemProperties(
     )
 
     constructor(inCart: CartId) : this(ItemId(), inCart)
-    constructor() : this(ItemId(), CartId(UUID.randomUUID()))
+    constructor() : this(ItemId(),   CONSTANTS.DEFAULT_CART.cartId)
 }
