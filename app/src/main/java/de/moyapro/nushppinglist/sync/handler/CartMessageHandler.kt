@@ -170,12 +170,7 @@ class CartMessageHandler(
                 updatedCartItemProperties,
                 CartItemProperties::recipeId
             ),
-            amount = takeIfNotDefault(
-                originalCartItemProperties,
-                default,
-                updatedCartItemProperties,
-                CartItemProperties::amount
-            ),
+            amount = if(0 < updatedCartItemProperties.amount) updatedCartItemProperties.amount else 0 ,
             checked = updatedCartItemProperties.checked,
         )
     }

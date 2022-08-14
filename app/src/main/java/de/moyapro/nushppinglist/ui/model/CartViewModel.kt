@@ -114,9 +114,11 @@ class CartViewModel(
     fun update(updatedCartItemProperties: CartItemProperties) =
         viewModelScope.launch(Dispatchers.IO) {
             Log.d(tag, "vvv\t$updatedCartItemProperties")
-            cartDao.updateAll(updatedCartItemProperties)
-            cartMessageHandler(CartMessage(listOf(updatedCartItemProperties),
-                updatedCartItemProperties.inCart))
+//            cartDao.updateAll(updatedCartItemProperties)
+            val cartMessage = CartMessage(listOf(updatedCartItemProperties),
+                updatedCartItemProperties.inCart)
+            publisher?.publish(cartMessage)
+            cartMessageHandler(cartMessage)
         }
 
     fun update(updatedCart: Cart) = viewModelScope.launch(Dispatchers.IO) {

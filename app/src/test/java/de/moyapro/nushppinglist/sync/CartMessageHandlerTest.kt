@@ -180,6 +180,44 @@ class CartMessageHandlerTest {
 
     }
 
+    @Test
+    fun merge__overwrites_zero_amount() {
+        val handler = CartMessageHandler(cartDao, MockPublisher)
+        val originalCartItemProperties = CartItemProperties().copy(amount = 0)
+        val updatedCartItemProperties = CartItemProperties(
+            cartItemPropertiesId = UUID.randomUUID(),
+            cartItemId = UUID.randomUUID(),
+            inCart = CartId(),
+            itemId = ItemId(),
+            recipeId = RecipeId(),
+            amount = 1,
+            checked = true,
+        )
+        val result: CartItemProperties =
+            handler.merge(originalCartItemProperties, updatedCartItemProperties)
+
+        result.cartItemPropertiesId shouldBe originalCartItemProperties.cartItemPropertiesId
+        result.cartItemId shouldBe updatedCartItemProperties.cartItemId
+        result.inCart shouldBe updatedCartItemProperties.inCart
+        result.itemId shouldBe updatedCartItemProperties.itemId
+        result.recipeId shouldBe updatedCartItemProperties.recipeId
+        result.amount shouldBe updatedCartItemProperties.amount
+        result.checked shouldBe updatedCartItemProperties.checked
+
+    }
+
+    @Test
+    fun merge__overwrites_no_negative_amount() {
+        val handler = CartMessageHandler(cartDao, MockPublisher)
+        val originalCartItemProperties = CartItemProperties().copy(amount = 1)
+        val updatedCartItemProperties = CartItemProperties().copy(amount = -1)
+        val result: CartItemProperties =
+            handler.merge(originalCartItemProperties, updatedCartItemProperties)
+
+        result.amount shouldBe 0
+
+    }
+
 
     @Test
     fun merge__keeps() {
@@ -203,8 +241,8 @@ class CartMessageHandlerTest {
         result.inCart shouldBe updatedCartItemProperties.inCart
         result.itemId shouldBe updatedCartItemProperties.itemId
         result.recipeId shouldBe updatedCartItemProperties.recipeId
-        result.amount shouldBe originalCartItemProperties.amount
-        result.checked shouldBe updatedCartItemProperties.checked // checked is always used
+        result.amount shouldBe updatedCartItemProperties.amount // amount is always updated
+        result.checked shouldBe updatedCartItemProperties.checked // checked is always updated
     }
 
     @Test
