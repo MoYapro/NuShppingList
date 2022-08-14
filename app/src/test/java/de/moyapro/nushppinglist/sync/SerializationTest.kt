@@ -53,7 +53,7 @@ class SerializationTest {
     fun cartMessageDefaultCart() {
         val cartId = CONSTANTS.DEFAULT_CART.cartId
         val expectedJson =
-            """{"cartItemPropertiesList":[{"cartItemPropertiesId":"5cf9d5fd-f181-4620-86ec-7a597219cb12","cartItemId":"c871a987-54ac-4f88-8e57-054a3507db5a","itemId":"c871a987-54ac-4f88-8e57-054a3507db5a","recipeId":"86999915-5a24-46ca-8fc2-fb8b6efca219","amount":1000,"checked":false}]}"""
+            """"{"cartItemPropertiesList":[{"cartItemPropertiesId":"5cf9d5fd-f181-4620-86ec-7a597219cb12","cartItemId":"c871a987-54ac-4f88-8e57-054a3507db5a","inCart":"00000000-0000-0000-0000-000000000000","itemId":"c871a987-54ac-4f88-8e57-054a3507db5a","recipeId":"86999915-5a24-46ca-8fc2-fb8b6efca219","amount":1000,"checked":false}],"cartId":"00000000-0000-0000-0000-000000000000"}""""
         val instance =
             CartMessage(
                 listOf(
