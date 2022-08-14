@@ -152,7 +152,7 @@ class CartDaoMock(
     }
 
     override fun findSelectedCart(): Flow<Cart> {
-        return cartFlow.map { it.single { cart -> cart.selected } }
+        return cartFlow.map { it.singleOrNull() { cart -> cart.selected } ?: DEFAULT_CART}
     }
 
     override suspend fun getSyncedCarts(): List<Cart> {
