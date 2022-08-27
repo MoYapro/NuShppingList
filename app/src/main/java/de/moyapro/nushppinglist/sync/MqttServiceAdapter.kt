@@ -56,7 +56,7 @@ class MqttServiceAdapter(
     }
 
 
-    override fun connect(): MqttServiceAdapter {
+    private fun connect(): MqttServiceAdapter {
         Log.d(tag, "connect to MQTT using $connectionSettings")
         mqttClient?.connectWith()
             ?.simpleAuth()
@@ -107,6 +107,9 @@ class MqttServiceAdapter(
             return
         }
         val topic = connectionSettings.topic + "/" + messageObject.getTopic()
+        if(!isConnected) {
+            mqttClient?.connect()
+        }
         if (!isConnected) {
             Log.w(tag, "xxx\tCannot send $messageObject to $topic. Client is not connected")
             return

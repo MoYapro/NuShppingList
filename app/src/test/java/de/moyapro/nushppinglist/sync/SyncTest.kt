@@ -99,8 +99,7 @@ class SyncTest {
         ),
     ): Pair<CartViewModel, SyncService> {
         val viewModel = CartViewModel(cartDao)
-        val serviceAdapter =
-            MqttServiceAdapter(clientName).connect()
+        val serviceAdapter = MqttServiceAdapter(clientName)
 
         return Pair(viewModel, SyncService(serviceAdapter, cartDao))
     }

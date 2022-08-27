@@ -40,7 +40,6 @@ class BackgroundSyncService : Service() {
         val superReturnStatus = super.onStartCommand(intent, flags, startId)
         Toast.makeText(this, "Invoke background service onStartCommand method.", Toast.LENGTH_LONG)
             .show()
-        syncService?.reconnect()
         return superReturnStatus
     }
 

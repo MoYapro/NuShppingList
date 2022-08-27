@@ -3,7 +3,6 @@ package de.moyapro.nushppinglist.sync
 import android.util.Log
 import de.moyapro.nushppinglist.db.dao.CartDao
 import de.moyapro.nushppinglist.db.ids.ItemId
-import de.moyapro.nushppinglist.sync.messages.RequestCartMessage
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.sync.messages.ShoppingMessage
 import de.moyapro.nushppinglist.ui.util.waitFor
@@ -31,15 +30,6 @@ class SyncService(
 
     fun requestItem(itemId: ItemId) {
         serviceAdapter.publish(RequestItemMessage(itemId))
-    }
-
-    fun reconnect() {
-        if(isConnected()) return
-        serviceAdapter.connect()
-    }
-
-    fun requestCart() {
-        serviceAdapter.publish(RequestCartMessage.create(""))
     }
 
     fun publish(messageObject: ShoppingMessage) {

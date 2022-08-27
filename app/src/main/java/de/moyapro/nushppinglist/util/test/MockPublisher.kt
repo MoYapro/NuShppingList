@@ -12,9 +12,5 @@ object MockPublisher : Publisher {
         messages.addOrAppend(messageObject.getTopic(), messageObject)
     }
 
-    override fun connect(): Publisher {
-        return this
-    }
-
     fun reset() = messages.clear()
 }
