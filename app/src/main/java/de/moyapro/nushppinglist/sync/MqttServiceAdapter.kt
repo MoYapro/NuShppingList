@@ -21,7 +21,7 @@ class MqttServiceAdapter(
 ) : Publisher {
     val clientIdentifier = "NuShoppingList_App_${clientIdSuffix}_${UUID.randomUUID()}"
     private val tag = MqttServiceAdapter::class.simpleName
-    private val mqttClient: Mqtt5AsyncClient?
+    private var mqttClient: Mqtt5AsyncClient?
     private val connectionSettings: ConnectionSettings
     private var isConnected = false
     fun isConnected() = isConnected
@@ -29,27 +29,30 @@ class MqttServiceAdapter(
     init {
         Log.d(tag, "init")
         connectionSettings = SettingsConverter.toConnectionSettings(MainActivity.preferences)
-        mqttClient = if (
-            connectionSettings.syncEnabled
-            && connectionSettings != SettingsConverter.INVALID_CONNECTION_SETTINGS
-        ) {
-            val builder = MqttClient.builder()
-                .useMqttVersion5()
-                .identifier(clientIdentifier)
-                .serverHost(connectionSettings.hostname)
-                .serverPort(connectionSettings.port)
-                .addConnectedListener { isConnected = true }
-                .addDisconnectedListener {
-                    Log.w(tag, "client $clientIdentifier disconnected from server: $it")
-                    isConnected = false
-                }
-            if (connectionSettings.useTls) {
-                builder.sslWithDefaultConfig()
+        mqttClient = buildMqttClient()
+    }
+
+    private fun buildMqttClient() = if (
+        connectionSettings.syncEnabled
+        && connectionSettings != SettingsConverter.INVALID_CONNECTION_SETTINGS
+    ) {
+        val builder = MqttClient.builder()
+            .useMqttVersion5()
+            .identifier(clientIdentifier)
+            .serverHost(connectionSettings.hostname)
+            .serverPort(connectionSettings.port)
+            .addConnectedListener { isConnected = true }
+            .addDisconnectedListener { isConnected = false }
+            .addDisconnectedListener {
+                Log.w(tag, "client $clientIdentifier disconnected from server: $it")
+                isConnected = false
             }
-            builder.buildAsync()
-        } else {
-            null
+        if (connectionSettings.useTls) {
+            builder.sslWithDefaultConfig()
         }
+        builder.buildAsync()
+    } else {
+        null
     }
 
 
@@ -95,18 +98,25 @@ class MqttServiceAdapter(
     }
 
     override fun publish(messageObject: ShoppingMessage) {
-        if (null == mqttClient) return
+        if (null == mqttClient) {
+            Log.w(tag, "Need to rebuild mqtt client")
+            mqttClient = buildMqttClient()
+        }
+        if(null == mqttClient) {
+            Log.w(tag, "Could not create / connect mqtt client for settings: $connectionSettings")
+            return
+        }
         val topic = connectionSettings.topic + "/" + messageObject.getTopic()
         if (!isConnected) {
-            Log.d(tag, "xxx\tCannot send $messageObject to $topic. Client is not connected")
+            Log.w(tag, "xxx\tCannot send $messageObject to $topic. Client is not connected")
             return
         }
         Log.d(tag, "==>\t$topic:\t $messageObject")
-        mqttClient.publishWith()
-            .topic(topic)
-            .payload(ConfiguredObjectMapper().writeValueAsBytes(messageObject))
-            .qos(MqttQos.EXACTLY_ONCE)
-            .send()
+        mqttClient?.publishWith()
+            ?.topic(topic)
+            ?.payload(ConfiguredObjectMapper().writeValueAsBytes(messageObject))
+            ?.qos(MqttQos.EXACTLY_ONCE)
+            ?.send()
     }
 
     fun setHandler(messageHandler: MessageHandler) {

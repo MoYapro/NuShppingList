@@ -6,7 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import de.moyapro.nushppinglist.db.AppDatabase
-import de.moyapro.nushppinglist.sync.MqttServiceAdapter
+import de.moyapro.nushppinglist.sync.MqttSingleton
 import de.moyapro.nushppinglist.sync.SyncService
 
 
@@ -30,7 +30,7 @@ class BackgroundSyncService : Service() {
         Log.d(tag, "onCreate")
         Toast.makeText(this, "Invoke background service onCreate method.", Toast.LENGTH_LONG).show()
         if (!isConnected()) {
-            syncService = SyncService(MqttServiceAdapter().connect(), database.cartDao())
+            syncService = SyncService(MqttSingleton.adapter, database.cartDao())
         }
         isRunning = true
     }

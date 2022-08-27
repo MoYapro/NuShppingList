@@ -19,7 +19,7 @@ import de.moyapro.nushppinglist.db.model.Cart
 import de.moyapro.nushppinglist.db.model.CartItem
 import de.moyapro.nushppinglist.db.model.Item
 import de.moyapro.nushppinglist.service.BackgroundSyncService
-import de.moyapro.nushppinglist.sync.MqttServiceAdapter
+import de.moyapro.nushppinglist.sync.MqttSingleton
 import de.moyapro.nushppinglist.ui.AppView
 import de.moyapro.nushppinglist.ui.model.CartViewModel
 import de.moyapro.nushppinglist.ui.model.RecipeViewModel
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
     private val tag = MainActivity::class.simpleName
     private val database by lazy { AppDatabase.getDatabase(this) }
     private val cartViewModel by viewModels<CartViewModel>() {
-        ViewModelFactory(database, MqttServiceAdapter().connect())
+        ViewModelFactory(database, MqttSingleton.adapter)
     }
     private val recipeViewModel by viewModels<RecipeViewModel>() {
         ViewModelFactory(
