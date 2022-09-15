@@ -108,10 +108,11 @@ class MqttServiceAdapter(
         }
         val topic = connectionSettings.topic + "/" + messageObject.getTopic()
         if(!isConnected) {
-            mqttClient?.connect()
+            Log.i(tag, "Reconnect mqtt client")
+            connect()
         }
         if (!isConnected) {
-            Log.w(tag, "xxx\tCannot send $messageObject to $topic. Client is not connected")
+            Log.w(tag, "xxx\tClient is not connected. Cannot send $messageObject to $topic.")
             return
         }
         Log.d(tag, "==>\t$topic:\t $messageObject")

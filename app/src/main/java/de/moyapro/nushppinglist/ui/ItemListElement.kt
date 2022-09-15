@@ -33,7 +33,7 @@ import de.moyapro.nushppinglist.ui.component.*
 @Composable
 fun ItemListElement(
     cartItem: CartItem,
-    viewLocked: Boolean,
+    viewLocked: Boolean = false,
     toggleCheckAction: (CartItemProperties) -> Unit = {},
     saveAction: (Item) -> Unit = {},
     addAction: (Item) -> Unit = {},
