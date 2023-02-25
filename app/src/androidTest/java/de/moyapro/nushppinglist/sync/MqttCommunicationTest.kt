@@ -7,9 +7,7 @@ import de.moyapro.nushppinglist.db.ids.ItemId
 import de.moyapro.nushppinglist.sync.messages.RequestItemMessage
 import de.moyapro.nushppinglist.ui.util.waitFor
 import io.kotest.matchers.shouldBe
-import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -22,31 +20,19 @@ class MqttCommunicationTest {
         const val topic = "nuShoppingList/testtopic"
     }
 
-    private lateinit var serviceAdapterAlice: MqttServiceAdapter
-    var messageArrived = false
-
     @Before
     fun setup() {
-        serviceAdapterAlice =
-            MqttServiceAdapter("MqttAdapterTest_Alice") { messageArrived = true }.connect()
-        while (!serviceAdapterAlice.isConnected()) {
-            Thread.sleep(100)
-        }
+
     }
 
-    @After
-    fun tearDown() {
-        messageArrived = false
-        serviceAdapterAlice.disconnect()
-    }
-
-    @Test(timeout = 10_000)
-    @Ignore
+    @Test//(timeout = 10_000)
     fun communication() {
+        var messageArrived = false
+        val serviceAdapterAlice = MqttServiceAdapter("MqttAdapterTest_Alice") { messageArrived = true }
         var messageReceived = false
         val serviceAdapterBob = MqttServiceAdapter("MqttAdapterTest_Bob") { messageArrived = true }
-            .connect()
 
+        waitFor { serviceAdapterAlice.isConnected() }
         waitFor { serviceAdapterBob.isConnected() }
 
         serviceAdapterBob.subscribe()
@@ -54,6 +40,7 @@ class MqttCommunicationTest {
 
         waitFor { messageReceived }
         messageReceived shouldBe true
+        messageArrived shouldBe true
 
     }
 }

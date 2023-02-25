@@ -51,7 +51,7 @@ fun RecipeListElement(
             cartItems = cartItems
             )
         } else {
-            JustView(recipe.recipeProperties) { isEdited = true }
+            FullView(recipe.recipeProperties) { isEdited = true }
         }
     }
 }
@@ -114,7 +114,7 @@ fun EditView(
 
 @Composable
 @Preview
-fun JustView(
+fun FullView(
     @PreviewParameter(RecipePropertiesProvider::class)
     recipeProperties: RecipeProperties,
     beginEditMode: () -> Unit = {},

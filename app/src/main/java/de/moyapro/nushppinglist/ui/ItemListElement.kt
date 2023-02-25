@@ -45,8 +45,9 @@ fun ItemListElement(
     var isEdited: Boolean by remember { mutableStateOf(editMode) }
     val item = cartItem.item
 
-    Column(Modifier
-        .fillMaxWidth()
+    Column(
+        Modifier
+            .fillMaxWidth()
     ) {
         if (SWITCHES.DEBUG) {
             Text(item.itemId.toString())
@@ -55,14 +56,18 @@ fun ItemListElement(
         }
         Surface(
         ) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize()
             ) {
-                JustView(cartItem, viewLocked, addAction, toggleCheckAction, subtractAction) {
-                    isEdited = !isEdited
-                    if (isEdited) scrollIntoViewAction()
-                }
+                if (viewLocked) {
+                    SimpleView(cartItem, toggleCheckAction)
+                } else
+                    FullView(cartItem, addAction, toggleCheckAction, subtractAction) {
+                        isEdited = !isEdited
+                        if (isEdited) scrollIntoViewAction()
+                    }
                 if (isEdited) {
                     EditView(item, saveAction, deleteAction) { isEdited = false }
                 }
@@ -175,9 +180,47 @@ fun EditView(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun JustView(
+fun SimpleView(
     cartItem: CartItem,
-    viewLocked: Boolean,
+    toggleCheckAction: (CartItemProperties) -> Unit,
+) {
+    Spacer(Modifier.height(3.dp))
+    val (cartItemProperties, item) = cartItem
+    val alpha = if (cartItemProperties.checked) .7F else 1F
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .absolutePadding(left = 4.dp)
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {
+                    if (cartItemProperties.amount > 0) toggleCheckAction(cartItemProperties)
+                }
+            )
+            .alpha(alpha)
+    ) {
+        KategoryIndicator(cartItem.item)
+        Spacer(Modifier.width(3.dp))
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                InfoText(cartItem)
+                PriceText(cartItem)
+            }
+            Row {
+                DescriptionText(cartItem)
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun FullView(
+    cartItem: CartItem,
     addAction: (Item) -> Unit,
     toggleCheckAction: (CartItemProperties) -> Unit,
     subtractAction: (ItemId) -> Unit = {},
@@ -186,7 +229,6 @@ fun JustView(
     Spacer(Modifier.height(3.dp))
     val (cartItemProperties, item) = cartItem
     val alpha = if (cartItemProperties.checked) .7F else 1F
-
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -194,38 +236,52 @@ fun JustView(
             .absolutePadding(left = 4.dp)
             .fillMaxWidth()
             .combinedClickable(
-                onClick = {if(cartItemProperties.amount > 0) toggleCheckAction(cartItemProperties)},
+                onClick = {
+                    if (cartItemProperties.amount > 0) toggleCheckAction(cartItemProperties)
+                },
                 onLongClick = beginEditMode
             )
             .alpha(alpha)
     ) {
-        InfoText(item, cartItemProperties)
-        if(!viewLocked) {
-            Buttons(cartItem, subtractAction, item, cartItemProperties, addAction)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            KategoryIndicator(cartItem.item)
+            Spacer(Modifier.width(3.dp))
+            Column() {
+                InfoText(cartItem)
+                PriceText(cartItem)
+                DescriptionText(cartItem)
+                Spacer(Modifier.height(3.dp))
+            }
         }
+        Buttons(cartItem, subtractAction, item, cartItemProperties, addAction)
     }
-    Spacer(Modifier.height(3.dp))
+}
+
+@Composable
+fun PriceText(cartItem: CartItem) {
+    Text(cartItem.item.price.toString() + " € ")
+}
+
+@Composable
+private fun DescriptionText(cartItem: CartItem) {
+    if (!cartItem.item.description.isNullOrBlank()) {
+        Text(text = cartItem.item.description, color = Color.DarkGray)
+    }
 }
 
 @Composable
 private fun InfoText(
-    item: Item,
-    cartItemProperties: CartItemProperties,
+    cartItem: CartItem,
 ) {
-    Row(Modifier.fillMaxWidth(.63F)) {
-        KategoryIndicator(item)
-        Spacer(modifier = Modifier.width(2.dp))
-        if (0 < cartItemProperties.amount) {
-            Text(cartItemProperties.amount.toString())
+    Row {
+        if (cartItem.cartItemProperties.checked) {
+            Icon(Icons.Outlined.CheckCircle, contentDescription = "Gekauft")
         }
-        when {
-            0 >= cartItemProperties.amount -> {}
-            cartItemProperties.checked -> Icon(Icons.Outlined.CheckCircle,
-                contentDescription = "Gekauft")
-            else -> Text(" x ")
+        if (0 >= cartItem.cartItemProperties.amount) {
+            Text(cartItem.item.name)
+        } else {
+            Text(cartItem.cartItemProperties.amount.toString() + " x " + cartItem.item.name)
         }
-        Spacer(modifier = Modifier.width(2.dp))
-        Text(item.name)
     }
 }
 
@@ -242,8 +298,11 @@ private fun Buttons(
             Button(
                 modifier = Modifier.height(35.dp),
                 onClick = { subtractAction(item.itemId) },
-                colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor(
-                    cartItemProperties)),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = buttonColor(
+                        cartItemProperties
+                    )
+                ),
             ) {
                 Icon(Icons.Outlined.RemoveShoppingCart, contentDescription = "Löschen")
             }
@@ -253,8 +312,11 @@ private fun Buttons(
             modifier = Modifier.height(35.dp),
             shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp),
             onClick = { addAction(item) },
-            colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor(
-                cartItemProperties)),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = buttonColor(
+                    cartItemProperties
+                )
+            ),
         ) {
             Icon(Icons.Filled.AddShoppingCart, contentDescription = "Hinzufügen")
             Text(text = amountText(cartItemProperties).trim())

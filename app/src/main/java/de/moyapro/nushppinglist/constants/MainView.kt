@@ -3,7 +3,7 @@ package de.moyapro.nushppinglist.constants
 enum class MainView(val text: String, val enabled: Boolean = true) {
     EINKAUFSLISTE("Einkaufsliste"),
     CART("Listen"),
-    MQTT_Test("MQTT", CONSTANTS.ENABLED),
+    MQTT_Test("MQTT", CONSTANTS.DISABLED),
     SETTINGS("⚙"),
     DINGE("Dinge", CONSTANTS.DISABLED),
     REZEPTE("Rezepte", CONSTANTS.DISABLED),

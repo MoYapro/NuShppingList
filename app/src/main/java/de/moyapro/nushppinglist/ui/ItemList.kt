@@ -3,6 +3,7 @@ package de.moyapro.nushppinglist.ui
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -75,7 +76,7 @@ fun ItemList(@PreviewParameter(ItemListProvider::class) viewModel: CartViewModel
                 item,
             )
         }
-        .filter { it.item.name.lowercase().contains(filter.lowercase()) }
+        .filter { "" == filter || it.item.name.lowercase().contains(filter.lowercase()) }
         .filter { !viewLocked || it.cartItemProperties.amount > 0 }
         .sortedWith(SortCartItemPairByCheckedAndName)
 
@@ -223,8 +224,9 @@ private fun itemListView(
             verticalArrangement = Arrangement.spacedBy(1.dp),
             state = listState,
         ) {
-            items(count = cartItemList.size) { index ->
-                val cartItem = cartItemList[index]
+            items(
+                items = cartItemList,
+                key = { it.cartItemProperties.cartItemPropertiesId }) { cartItem ->
                 ItemListElement(
                     cartItem = cartItem,
                     viewLocked,
@@ -235,7 +237,7 @@ private fun itemListView(
                     subtractAction = viewModel::subtractFromCart,
                     scrollIntoViewAction = {
                         coroutineScope.launch {
-                            listState.animateScrollToItem(index)
+                            listState.animateScrollToItem(cartItemList.lastIndexOf(cartItem))
                         }
                     }
                 )
